@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function AdminStaffPage() {
   const [staff, setStaff] = useState<any[]>([]);
@@ -85,7 +86,11 @@ export default function AdminStaffPage() {
           <h2 className="font-bold text-sm text-slate-900">Active Staff List ({staff.length})</h2>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {staff.length === 0 ? (
-              <div className="text-xs text-slate-400 p-4 text-center">No staff members found. Add one on the right.</div>
+              <EmptyState
+                icon="badge"
+                title="No Staff Members Added"
+                description="Add your first cashier, waiter, or kitchen chef using the form on the right."
+              />
             ) : (
               staff.map((s) => (
                 <div key={s.id} className="flex justify-between items-center p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">

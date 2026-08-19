@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<any[]>([]);
@@ -87,10 +88,12 @@ export default function AdminReviewsPage() {
             ))}
           </div>
         ) : reviews.length === 0 ? (
-          <div className="bg-white border border-slate-200 p-12 rounded-3xl text-center space-y-2">
-            <span className="material-symbols-outlined text-4xl text-slate-600">reviews</span>
-            <h3 className="font-bold text-slate-700 text-sm">No customer reviews yet</h3>
-            <p className="text-xs text-slate-500">Reviews submitted via QR menus and the explore portal will show up here.</p>
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
+            <EmptyState
+              icon="reviews"
+              title="No Customer Reviews Yet"
+              description="Reviews submitted by guests via table QR menus and your public cafe profile will appear here."
+            />
           </div>
         ) : (
           reviews.map((rev) => (

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { CloudReservation } from '@/types';
 
 export default function AdminReservationsPage() {
@@ -89,10 +90,12 @@ export default function AdminReservationsPage() {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white border border-slate-200 p-12 rounded-3xl text-center space-y-2">
-            <span className="material-symbols-outlined text-4xl text-slate-600">event_seat</span>
-            <h3 className="font-bold text-slate-700 text-sm">No reservations found</h3>
-            <p className="text-xs text-slate-500">New table booking requests from customer profiles will appear here.</p>
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
+            <EmptyState
+              icon="table_restaurant"
+              title="No Reservations Found"
+              description="Customer table bookings submitted through your public cafe discovery page will appear here."
+            />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

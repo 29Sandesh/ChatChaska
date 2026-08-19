@@ -62,6 +62,14 @@ export async function POST(req: Request) {
 
     const saved = saveBill(newBill);
 
+    // Queue for automatic cloud sync
+    try {
+      const { syncBillToCloud } = await import('@/lib/sync');
+      syncBillToCloud(saved, saved.restaurantId);
+    } catch (syncErr) {
+      console.warn('[Bill API] Cloud sync queue notice:', syncErr);
+    }
+
     // Automatically create/sync corresponding order entry so it immediately appears on Orders page & Kitchen Display
     try {
       const { saveOrder } = await import('@/lib/database');

@@ -1,0 +1,60 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+
+interface EmptyStateProps {
+  icon: string;
+  title: string;
+  description: string;
+  actionLabel?: string;
+  actionHref?: string;
+  onAction?: () => void;
+}
+
+/**
+ * Reusable clean EmptyState component for blank lists/tables across admin & staff views.
+ */
+export function EmptyState({
+  icon,
+  title,
+  description,
+  actionLabel,
+  actionHref,
+  onAction,
+}: EmptyStateProps) {
+  return (
+    <div className="py-14 px-4 text-center max-w-sm mx-auto space-y-3 animate-in fade-in select-none">
+      <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-2xs">
+        <span className="material-symbols-outlined text-3xl">{icon}</span>
+      </div>
+
+      <div className="space-y-1">
+        <h3 className="font-black text-slate-900 text-sm">{title}</h3>
+        <p className="text-xs text-slate-500 font-medium leading-relaxed">{description}</p>
+      </div>
+
+      {actionLabel && (
+        <div className="pt-2">
+          {actionHref ? (
+            <Link
+              href={actionHref}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+            >
+              <span>{actionLabel}</span>
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </Link>
+          ) : onAction ? (
+            <button
+              onClick={onAction}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+            >
+              <span>{actionLabel}</span>
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
+}

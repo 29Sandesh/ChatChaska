@@ -1,5 +1,6 @@
 import { getDb } from '@/lib/database';
 import { Bill, MenuItem } from '@/types';
+import { cloudAdminClient, isCloudConfigured } from '@/lib/cloud-db';
 
 /**
  * ChatChaska Offline-to-Cloud Sync Engine
@@ -46,6 +47,23 @@ export function getPendingQueue(limit = 50): QueueItem[] {
 }
 
 /**
+ * Get sync queue health statistics.
+ */
+export function getSyncStatus(): { pending: number; synced: number } {
+  try {
+    const db = getDb();
+    const pendingRow = db.prepare('SELECT COUNT(*) as count FROM offline_queue WHERE synced = 0').get() as { count: number };
+    const syncedRow = db.prepare('SELECT COUNT(*) as count FROM offline_queue WHERE synced = 1').get() as { count: number };
+    return {
+      pending: pendingRow?.count || 0,
+      synced: syncedRow?.count || 0,
+    };
+  } catch {
+    return { pending: 0, synced: 0 };
+  }
+}
+
+/**
  * Mark an offline queue item as synced.
  */
 export function markItemSynced(id: number): void {
@@ -80,11 +98,10 @@ export function syncMenuItemToCloud(item: MenuItem, cafeId = 'demo'): void {
 }
 
 /**
- * Attempt to process the offline queue.
- * Can be called periodically or on app startup.
+ * Process the pending offline queue by dispatching records to Supabase.
  */
 export async function processSyncQueue(): Promise<{ processed: number; failed: number }> {
-  const pending = getPendingQueue(20);
+  const pending = getPendingQueue(25);
   if (pending.length === 0) {
     return { processed: 0, failed: 0 };
   }
@@ -94,11 +111,49 @@ export async function processSyncQueue(): Promise<{ processed: number; failed: n
 
   for (const item of pending) {
     try {
-      // In standalone/offline mode or when Supabase keys are demo, mark as logged/cached
-      // When live Supabase is connected, this executes upserts into `cloud_bills` / `cloud_menu_items`
+      const payload = JSON.parse(item.payload_json);
+
+      if (isCloudConfigured()) {
+        if (item.action === 'SYNC_BILL') {
+          const { bill, cafeId } = payload;
+          const targetCafeId = cafeId && cafeId !== 'demo' ? cafeId : '00000000-0000-0000-0000-000000000001';
+
+          // Insert or update in cloud_orders / cloud_bills
+          await cloudAdminClient.from('cloud_orders').upsert({
+            id: bill.id || `bill-${Date.now()}`,
+            cafe_id: targetCafeId,
+            order_number: bill.id || `ORD-${Date.now().toString().slice(-4)}`,
+            table_number: bill.tableNumber || 'Table 1',
+            status: 'completed',
+            subtotal: bill.subtotal || 0,
+            gst_amount: (bill.cgstAmount || 0) + (bill.sgstAmount || 0),
+            total_amount: bill.grandTotal || 0,
+            customer_phone: bill.customerPhone || undefined,
+            customer_name: bill.customerName || undefined,
+            items: bill.items || [],
+          });
+        } else if (item.action === 'SYNC_MENU_ITEM') {
+          const { item: menuItem, cafeId } = payload;
+          const targetCafeId = cafeId && cafeId !== 'demo' ? cafeId : '00000000-0000-0000-0000-000000000001';
+
+          await cloudAdminClient.from('cloud_menu_items').upsert({
+            id: menuItem.id,
+            cafe_id: targetCafeId,
+            name: menuItem.name,
+            category: menuItem.category,
+            price: menuItem.price,
+            is_available: menuItem.available !== false,
+            is_veg: menuItem.veg !== false,
+            description: menuItem.description || '',
+          });
+        }
+      }
+
+      // Mark locally as successfully synced
       markItemSynced(item.id);
       processed += 1;
-    } catch {
+    } catch (err) {
+      console.warn(`[Sync Engine] Failed to sync queue item ${item.id}:`, err);
       failed += 1;
     }
   }

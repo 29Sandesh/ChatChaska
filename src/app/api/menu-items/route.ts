@@ -21,6 +21,15 @@ export async function POST(req: Request) {
     }
 
     const saved = saveMenuItem(body);
+
+    // Queue for cloud sync
+    try {
+      const { syncMenuItemToCloud } = await import('@/lib/sync');
+      syncMenuItemToCloud(saved);
+    } catch (syncErr) {
+      console.warn('[Menu API] Cloud sync queue notice:', syncErr);
+    }
+
     return NextResponse.json({ success: true, item: saved }, { status: 201 });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to save menu item';
@@ -36,6 +45,15 @@ export async function PATCH(req: Request) {
     }
 
     const saved = saveMenuItem(body);
+
+    // Queue for cloud sync
+    try {
+      const { syncMenuItemToCloud } = await import('@/lib/sync');
+      syncMenuItemToCloud(saved);
+    } catch (syncErr) {
+      console.warn('[Menu API] Cloud sync queue notice:', syncErr);
+    }
+
     return NextResponse.json({ success: true, item: saved });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to update menu item';
