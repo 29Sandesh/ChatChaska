@@ -49,6 +49,7 @@ async function runMigrations() {
       'supabase/migrations/001_core_tables.sql',
       'supabase/migrations/002_cafe_data_tables.sql',
       'supabase/migrations/003_rls_policies.sql',
+      'supabase/migrations/004_customer_platform.sql',
     ];
 
     for (const file of migrationFiles) {
