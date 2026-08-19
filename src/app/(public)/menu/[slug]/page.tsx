@@ -107,8 +107,15 @@ interface CartItemDetail {
   unitPrice: number;
 }
 
+import { useSearchParams } from 'next/navigation';
+import { OTPVerificationSheet } from '@/components/customer/OTPVerificationSheet';
+
 export default function CustomerDigitalMenuPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Read table from QR URL query (e.g. ?table=T5)
+  const queryTable = searchParams?.get('table');
 
   // Cart state (key: itemId or item-variant key)
   const [cartMap, setCartMap] = useState<Record<string, CartItemDetail>>({});
@@ -122,7 +129,7 @@ export default function CustomerDigitalMenuPage() {
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
   // Table & quick service
-  const [tableNumber, setTableNumber] = useState('Table 12');
+  const [tableNumber, setTableNumber] = useState(queryTable || 'Table 1');
   const [waiterCalled, setWaiterCalled] = useState(false);
 
   // Modals & Bottom Sheets
@@ -131,6 +138,10 @@ export default function CustomerDigitalMenuPage() {
   const [selectedVariantIdx, setSelectedVariantIdx] = useState<number>(0);
   const [selectedAddonIndices, setSelectedAddonIndices] = useState<number[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // OTP Verification Modal
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [customerSession, setCustomerSession] = useState<{ phone: string; name: string; sessionToken: string } | null>(null);
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
@@ -144,6 +155,13 @@ export default function CustomerDigitalMenuPage() {
   const [placingOrder, setPlacingOrder] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
+
+  // Update tableNumber when queryTable changes
+  useEffect(() => {
+    if (queryTable) {
+      setTableNumber(queryTable);
+    }
+  }, [queryTable]);
 
   // Review modal
   const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -311,9 +329,14 @@ export default function CustomerDigitalMenuPage() {
   };
 
   const handlePlaceOrder = async () => {
+    // If customer hasn't verified phone, open OTP sheet first
+    if (!customerSession) {
+      setIsOtpModalOpen(true);
+      return;
+    }
+
     setPlacingOrder(true);
     try {
-      const newOrderId = `SPG-${Math.floor(1000 + Math.random() * 9000)}`;
       const orderItems = cartItemsList.map((ci) => ({
         id: ci.item.id,
         name: `${ci.item.name}${ci.selectedVariant ? ` (${ci.selectedVariant.name})` : ''}`,
@@ -321,24 +344,28 @@ export default function CustomerDigitalMenuPage() {
         price: ci.unitPrice,
       }));
 
-      await fetch('/api/orders', {
+      const res = await fetch('/api/public/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          restaurantId: 'demo',
-          tableNumber,
+          table_number: tableNumber,
           items: orderItems,
-          totalAmount: grandTotal,
-          notes: orderNotes,
-          orderId: newOrderId,
+          customer_phone: customerSession.phone,
+          customer_name: customerSession.name,
+          session_token: customerSession.sessionToken,
+          special_instructions: orderNotes,
+          source: 'qr',
         }),
       });
+
+      const data = await res.json();
+      const newOrderId = data.order?.order_number || data.order?.id || `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
       setOrderId(newOrderId);
       setOrderSuccess(true);
       setCartMap({});
     } catch (err) {
-      console.error(err);
+      console.error('Error submitting order:', err);
     } finally {
       setPlacingOrder(false);
     }
@@ -1154,6 +1181,21 @@ export default function CustomerDigitalMenuPage() {
           />
         </div>
       </Modal>
+
+      {/* ── OTP PHONE VERIFICATION SHEET ────── */}
+      <OTPVerificationSheet
+        isOpen={isOtpModalOpen}
+        onClose={() => setIsOtpModalOpen(false)}
+        onSuccess={(session) => {
+          setCustomerSession(session);
+          // Automatically proceed to place order after verification
+          setTimeout(() => {
+            handlePlaceOrder();
+          }, 300);
+        }}
+        tableNumber={tableNumber}
+        purpose="order"
+      />
 
       {/* ── ANIMATIONS & SCROLLBAR HIDE ────── */}
       <style jsx>{`

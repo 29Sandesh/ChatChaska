@@ -2,21 +2,73 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
+import { cloudClient } from '@/lib/cloud-db';
 
 export default function OrderStatusLiveTrackerPage() {
   const params = useParams();
-  const menuSlug = (params?.slug as string) || 'spice-garden';
-  const [currentStep, setCurrentStep] = useState<number>(2);
+  const searchParams = useSearchParams();
+  const menuSlug = (params?.slug as string) || 'chatchaska-cafe';
+  const orderId = searchParams?.get('order') || searchParams?.get('id') || 'ORD-2847';
+  const table = searchParams?.get('table') || 'Table 1';
+
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [orderStatus, setOrderStatus] = useState<string>('pending');
   const [waiterCalled, setWaiterCalled] = useState(false);
 
+  // Status mapping: pending -> 1, confirmed/preparing -> 2, ready -> 3, served -> 4
+  const mapStatusToStep = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 1;
+      case 'confirmed':
+      case 'preparing':
+        return 2;
+      case 'ready':
+        return 3;
+      case 'served':
+        return 4;
+      default:
+        return 2;
+    }
+  };
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentStep((prev) => (prev < 4 ? prev + 1 : 4));
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
+    // 1. Subscribe to Supabase Realtime for this order
+    try {
+      const channel = cloudClient
+        .channel(`order-status-${orderId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'cloud_orders',
+            filter: `order_number=eq.${orderId}`,
+          },
+          (payload: any) => {
+            if (payload.new?.status) {
+              setOrderStatus(payload.new.status);
+              setCurrentStep(mapStatusToStep(payload.new.status));
+
+              if (payload.new.status === 'ready' && typeof window !== 'undefined' && 'Notification' in window) {
+                if (Notification.permission === 'granted') {
+                  new Notification('🔔 Your order is ready!', { body: 'A waiter is bringing your food to the table.' });
+                }
+              }
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        cloudClient.removeChannel(channel);
+      };
+    } catch (err) {
+      console.warn('Realtime subscription fallback:', err);
+    }
+  }, [orderId]);
 
   const handleCallWaiter = () => {
     setWaiterCalled(true);
@@ -24,25 +76,25 @@ export default function OrderStatusLiveTrackerPage() {
   };
 
   return (
-    <div className="bg-white text-gray-900 font-sans antialiased md:max-w-md md:mx-auto md:shadow-xl md:min-h-screen relative p-5 flex flex-col justify-between">
+    <div className="bg-slate-950 text-white font-sans antialiased md:max-w-md md:mx-auto md:shadow-2xl md:min-h-screen relative p-5 flex flex-col justify-between border-x border-slate-800">
       <div>
         {/* Top Header */}
         <div className="flex justify-between items-center mb-6">
           <Link
             href={`/menu/${menuSlug}`}
-            className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+            className="w-9 h-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition-colors"
           >
             ←
           </Link>
-          <span className="font-bold text-xs bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
-            📍 Table 12
+          <span className="font-bold text-xs bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full border border-orange-500/40">
+            📍 {table}
           </span>
         </div>
 
         {/* Hero Order Status Badge */}
-        <div className="text-center mb-6 bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100">
-          <div className="w-14 h-14 rounded-full bg-emerald-600 text-white mx-auto flex items-center justify-center mb-2.5 shadow-md">
-            <span className="text-2xl animate-pulse">
+        <div className="text-center mb-6 bg-slate-900/90 border border-slate-800 p-6 rounded-3xl shadow-xl">
+          <div className="w-16 h-16 rounded-2xl bg-orange-500/20 text-orange-400 border border-orange-500/30 mx-auto flex items-center justify-center mb-3 shadow-md">
+            <span className="text-3xl animate-pulse">
               {currentStep === 1 && '📑'}
               {currentStep === 2 && '👨‍🍳'}
               {currentStep === 3 && '🔔'}
@@ -50,44 +102,24 @@ export default function OrderStatusLiveTrackerPage() {
             </span>
           </div>
 
-          <h1 className="font-bold text-lg text-gray-900 leading-tight">
+          <h1 className="font-black text-xl text-slate-100 leading-tight">
             {currentStep === 1 && 'Order Placed'}
             {currentStep === 2 && 'Kitchen is Preparing...'}
             {currentStep === 3 && 'Order Ready!'}
             {currentStep === 4 && 'Served to Your Table'}
           </h1>
-          <p className="text-xs text-gray-500 mt-1">
-            Order #SPG-2847 • Est. time: {currentStep < 3 ? '12-15 mins' : 'Now'}
+          <p className="text-xs text-slate-400 mt-1.5">
+            Order #{orderId} • {currentStep < 3 ? 'Est. prep time: 10-15 mins' : 'Served hot at your table'}
           </p>
         </div>
 
-        {/* Order Summary Card */}
-        <div className="bg-gray-50 p-3.5 rounded-xl border border-gray-100 mb-6 text-xs space-y-1.5">
-          <div className="flex justify-between items-center font-bold text-gray-800 pb-1 border-b border-gray-200/60">
-            <span>Ordered Items (3)</span>
-            <span className="text-emerald-700">Total: ₹907</span>
-          </div>
-          <div className="flex justify-between text-gray-600">
-            <span>1x Paneer Tikka (Full)</span>
-            <span>₹280</span>
-          </div>
-          <div className="flex justify-between text-gray-600">
-            <span>1x Dal Makhani (Full)</span>
-            <span>₹260</span>
-          </div>
-          <div className="flex justify-between text-gray-600">
-            <span>2x Garlic Naan</span>
-            <span>₹160</span>
-          </div>
-        </div>
-
-        {/* Swiggy-style Timeline Stepper */}
-        <div className="space-y-6 px-2">
+        {/* Real-Time Status Steps */}
+        <div className="space-y-6 px-2 bg-slate-900/50 p-5 rounded-3xl border border-slate-800/80">
           {[
-            { step: 1, title: 'Order Placed', desc: 'Received & sent to kitchen KDS' },
-            { step: 2, title: 'Preparing Food', desc: 'Head Chef Rajesh is preparing your order' },
-            { step: 3, title: 'Plated & Ready', desc: 'Dishes ready for waiter pickup' },
-            { step: 4, title: 'Served at Table 12', desc: 'Enjoy your delicious meal!' },
+            { step: 1, title: 'Order Received', desc: 'Order sent to counter and kitchen KDS' },
+            { step: 2, title: 'Kitchen Preparing', desc: 'Chef has accepted and started cooking' },
+            { step: 3, title: 'Plated & Ready', desc: 'Dishes ready for server pickup' },
+            { step: 4, title: `Served at ${table}`, desc: 'Enjoy your hot meal!' },
           ].map((item) => {
             const isDone = currentStep > item.step;
             const isCurrent = currentStep === item.step;
@@ -98,32 +130,24 @@ export default function OrderStatusLiveTrackerPage() {
                   <div
                     className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       isDone
-                        ? 'bg-emerald-600 text-white'
+                        ? 'bg-emerald-500 text-white'
                         : isCurrent
-                        ? 'bg-emerald-500 text-white ring-4 ring-emerald-100 animate-pulse'
-                        : 'bg-gray-100 text-gray-400 border border-gray-200'
+                        ? 'bg-orange-500 text-white ring-4 ring-orange-500/20 animate-pulse'
+                        : 'bg-slate-800 text-slate-500'
                     }`}
                   >
                     {isDone ? '✓' : item.step}
                   </div>
                   {item.step < 4 && (
-                    <div
-                      className={`w-0.5 h-10 my-1 transition-colors ${
-                        isDone ? 'bg-emerald-600' : 'bg-gray-200'
-                      }`}
-                    />
+                    <div className={`w-0.5 h-10 my-1 ${isDone ? 'bg-emerald-500' : 'bg-slate-800'}`} />
                   )}
                 </div>
 
                 <div className="pt-0.5">
-                  <h3
-                    className={`font-bold text-xs ${
-                      isCurrent || isDone ? 'text-gray-900' : 'text-gray-400'
-                    }`}
-                  >
+                  <h4 className={`text-sm font-bold ${isCurrent ? 'text-orange-400' : isDone ? 'text-slate-200' : 'text-slate-500'}`}>
                     {item.title}
-                  </h3>
-                  <p className="text-[11px] text-gray-500 mt-0.5">{item.desc}</p>
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">{item.desc}</p>
                 </div>
               </div>
             );
@@ -131,18 +155,22 @@ export default function OrderStatusLiveTrackerPage() {
         </div>
       </div>
 
-      {/* Footer Quick Action */}
+      {/* Bottom Actions */}
       <div className="pt-6 space-y-2">
         <button
           onClick={handleCallWaiter}
-          className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-colors"
+          disabled={waiterCalled}
+          className="w-full bg-slate-900 border border-slate-800 hover:border-slate-700 py-3 rounded-2xl text-xs font-bold text-slate-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
-          🔔 {waiterCalled ? 'Waiter Notified!' : 'Call Waiter to Table'}
+          <span className="material-symbols-outlined text-lg text-amber-400">notifications_active</span>
+          <span>{waiterCalled ? 'Waiter Notified! Coming soon...' : 'Call Waiter to Table'}</span>
         </button>
-        <Link href={`/menu/${menuSlug}`}>
-          <Button variant="secondary" fullWidth>
-            Back to Digital Menu
-          </Button>
+
+        <Link
+          href={`/menu/${menuSlug}`}
+          className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3.5 rounded-2xl text-sm font-bold text-center block shadow-lg hover:from-orange-600 transition-all"
+        >
+          Order More Items
         </Link>
       </div>
     </div>

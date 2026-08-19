@@ -20,8 +20,30 @@ import type { NextRequest } from 'next/server';
 const SESSION_COOKIE_NAME = 'chatchaska_session';
 
 // Routes that don't require authentication
-const PUBLIC_ROUTES = ['/login', '/signup', '/api/auth/login', '/api/auth/logout', '/menu'];
-const PUBLIC_PREFIXES = ['/api/auth/', '/menu/', '/_next/', '/favicon', '/chaska', '/manifest.json', '/icon.png'];
+const PUBLIC_ROUTES = [
+  '/login',
+  '/signup',
+  '/api/auth/login',
+  '/api/auth/logout',
+  '/menu',
+  '/explore',
+  '/bill',
+];
+
+const PUBLIC_PREFIXES = [
+  '/api/auth/',
+  '/api/public/',
+  '/api/otp/',
+  '/menu/',
+  '/cafe/',
+  '/bill/',
+  '/_next/',
+  '/favicon',
+  '/chaska',
+  '/manifest.json',
+  '/icon.png',
+  '/sounds/',
+];
 
 interface SessionPayload {
   user: {
@@ -126,6 +148,16 @@ export function middleware(request: NextRequest) {
         { error: 'Super Admin access required', code: 'FORBIDDEN' },
         { status: 403 }
       );
+    }
+  }
+
+  // ── Customer Profile & Orders Check ────────────────────────
+  if (pathname.startsWith('/my-orders') || pathname.startsWith('/my-profile')) {
+    const customerSession = request.cookies.get('chatchaska_customer_session');
+    if (!customerSession && !session) {
+      const loginUrl = new URL('/explore', request.url);
+      loginUrl.searchParams.set('auth', 'required');
+      return NextResponse.redirect(loginUrl);
     }
   }
 

@@ -9,6 +9,10 @@ import { HeldOrdersDrawer, HeldOrder } from '@/components/pos/HeldOrdersDrawer';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
 import { PaymentSettlementModal } from '@/components/pos/PaymentSettlementModal';
 import { calculateBillTotals } from '@/lib/billing';
+import { IncomingOrdersDrawer } from '@/components/staff/IncomingOrdersDrawer';
+import { playOrderChime } from '@/lib/sound-fx';
+import { cloudClient } from '@/lib/cloud-db';
+import { CloudOrder } from '@/types';
 import styles from '@/app/(dashboard)/pos/pos.module.css';
 
 function StaffPOSContent() {
@@ -27,6 +31,10 @@ function StaffPOSContent() {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'card'>('cash');
   const [discountAmount, setDiscountAmount] = useState<number>(0);
 
+  // Incoming QR Customer Orders state
+  const [incomingOrders, setIncomingOrders] = useState<CloudOrder[]>([]);
+  const [isIncomingDrawerOpen, setIsIncomingDrawerOpen] = useState<boolean>(false);
+
   // Modals / Drawers state
   const [heldOrders, setHeldOrders] = useState<HeldOrder[]>([]);
   const [isHeldDrawerOpen, setIsHeldDrawerOpen] = useState<boolean>(false);
@@ -40,6 +48,37 @@ function StaffPOSContent() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  // Real-time listener for incoming customer QR orders
+  useEffect(() => {
+    try {
+      const channel = cloudClient
+        .channel('incoming-staff-orders')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'cloud_orders',
+          },
+          (payload: any) => {
+            const newOrd = payload.new;
+            if (newOrd && newOrd.status === 'pending') {
+              playOrderChime();
+              setIncomingOrders((prev) => [newOrd, ...prev]);
+              showToast(`🔔 New order received from ${newOrd.table_number || 'Table'}!`);
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        cloudClient.removeChannel(channel);
+      };
+    } catch (e) {
+      console.warn('Realtime subscription fallback:', e);
+    }
+  }, []);
 
   // State for dynamic categories
   const [dbCategories, setDbCategories] = useState<Array<{ id: string; name: string; visible: boolean; icon: string }>>([]);
@@ -492,12 +531,49 @@ function StaffPOSContent() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Accept / Reject incoming QR customer order
+  const handleAcceptIncomingOrder = async (order: CloudOrder) => {
+    try {
+      await fetch(`/api/admin/orders/${order.order_number || order.id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'confirmed' }),
+      });
+
+      await fetch('/api/tables', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: `table-${(order.table_number || 'T1').toLowerCase()}`, status: 'running' }),
+      }).catch(() => {});
+
+      setIncomingOrders((prev) => prev.filter((o) => (o.order_number || o.id) !== (order.order_number || order.id)));
+      showToast(`✅ Order ${order.order_number} Accepted for ${order.table_number}!`);
+    } catch (e) {
+      console.error('Failed to accept order:', e);
+    }
+  };
+
+  const handleRejectIncomingOrder = async (order: CloudOrder) => {
+    try {
+      await fetch(`/api/admin/orders/${order.order_number || order.id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'rejected' }),
+      });
+
+      setIncomingOrders((prev) => prev.filter((o) => (o.order_number || o.id) !== (order.order_number || order.id)));
+      showToast(`Order ${order.order_number} rejected.`);
+    } catch (e) {
+      console.error('Failed to reject order:', e);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-slate-100 overflow-hidden select-none">
       {/* Left + Center Area (Header Bar + Categories Sidebar + Menu Items Grid) */}
       <div className="flex-1 flex flex-col min-w-0 h-full border-r border-slate-200 bg-slate-50">
         
-        {/* FULL-WIDTH TOP HEADER BAR (spanning all the way across left edge to right bill panel) */}
+        {/* FULL-WIDTH TOP HEADER BAR */}
         <div className="h-14 bg-white border-b border-slate-200 px-4 flex items-center justify-between gap-3 shrink-0 select-none shadow-2xs">
           {/* BRAND NAME ON FAR LEFT */}
           <div className="flex items-center justify-start w-[210px] shrink-0 border-r border-slate-200 pr-3 gap-2">
@@ -571,7 +647,21 @@ function StaffPOSContent() {
             </div>
           </div>
 
-          {/* FAR RIGHT: ITEM COUNT BADGE (Crisp Rectangular Box Style) */}
+          {/* RIGHT: INCOMING CUSTOMER ORDERS BUTTON */}
+          <button
+            onClick={() => setIsIncomingDrawerOpen(true)}
+            className="relative flex items-center gap-1.5 bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 px-3 py-1.5 rounded-md text-xs font-black transition-all cursor-pointer shadow-2xs"
+          >
+            <span className="material-symbols-outlined text-[18px]">notifications</span>
+            <span>Live QR Orders</span>
+            {incomingOrders.length > 0 && (
+              <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full animate-bounce">
+                {incomingOrders.length}
+              </span>
+            )}
+          </button>
+
+          {/* FAR RIGHT: ITEM COUNT BADGE */}
           <div className="text-xs font-black text-slate-700 bg-slate-100 border border-slate-300 px-3 py-1.5 rounded-md shrink-0 shadow-2xs">
             {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
           </div>
@@ -647,6 +737,15 @@ function StaffPOSContent() {
           billData={generatedBill}
         />
       )}
+
+      {/* Incoming QR Customer Orders Drawer */}
+      <IncomingOrdersDrawer
+        isOpen={isIncomingDrawerOpen}
+        onClose={() => setIsIncomingDrawerOpen(false)}
+        orders={incomingOrders}
+        onAccept={handleAcceptIncomingOrder}
+        onReject={handleRejectIncomingOrder}
+      />
     </div>
   );
 }

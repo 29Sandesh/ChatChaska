@@ -15,9 +15,12 @@ interface AdminNavItem {
 const adminNavItems: AdminNavItem[] = [
   { id: 'dashboard', label: 'My Cafe', href: '/admin', icon: 'dashboard' },
   { id: 'menu', label: 'Menu', href: '/admin/menu', icon: 'restaurant_menu' },
+  { id: 'qr-codes', label: 'QR Codes', href: '/admin/qr-codes', icon: 'qr_code_2' },
+  { id: 'menu-preview', label: 'Menu Preview', href: '/admin/menu-preview', icon: 'visibility' },
+  { id: 'reviews', label: 'Reviews', href: '/admin/reviews', icon: 'reviews' },
   { id: 'reports', label: 'Sales', href: '/admin/reports', icon: 'analytics' },
   { id: 'staff', label: 'Staff', href: '/admin/staff', icon: 'badge' },
-  { id: 'settings', label: 'Settings', href: '/admin/settings/gst', icon: 'settings' },
+  { id: 'settings', label: 'Settings', href: '/admin/settings/profile', icon: 'settings' },
 ];
 
 export function AdminSidebar({
