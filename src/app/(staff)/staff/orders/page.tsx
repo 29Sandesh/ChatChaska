@@ -5,6 +5,7 @@ import { formatBillCurrency } from '@/lib/billing';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
 import { PaymentSettlementModal } from '@/components/pos/PaymentSettlementModal';
 import { useCafeConfig } from '@/hooks/useCafeConfig';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface QROrderItem {
   id?: string;
@@ -281,9 +282,14 @@ export default function TableQROrdersPage() {
           Loading table QR orders...
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center space-y-2">
-          <span className="material-symbols-outlined text-[48px] text-slate-300">qr_code_2</span>
-          <h3 className="font-bold text-slate-700 text-sm">No QR orders found</h3>
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+          <EmptyState
+            icon="receipt_long"
+            title="No Orders in this Queue"
+            description="Incoming dining table QR orders and POS counter tickets will appear here for preparation and billing."
+            actionLabel="Open POS Terminal"
+            actionHref="/staff/pos"
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

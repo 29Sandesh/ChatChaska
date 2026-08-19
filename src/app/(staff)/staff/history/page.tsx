@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Bill } from '@/types';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
 import { useCafeConfig } from '@/hooks/useCafeConfig';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function StaffOrderHistoryPage() {
   const { config } = useCafeConfig();
@@ -129,8 +130,14 @@ export default function StaffOrderHistoryPage() {
           <tbody className="divide-y divide-slate-100 font-semibold">
             {bills.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-slate-400 font-bold">
-                  No completed bills found.
+                <td colSpan={6} className="p-4">
+                  <EmptyState
+                    icon="receipt_long"
+                    title="No Completed Bills Found"
+                    description="Bills settled and paid on the POS billing terminal will be recorded in this permanent ledger."
+                    actionLabel="Go to POS Terminal"
+                    actionHref="/staff/pos"
+                  />
                 </td>
               </tr>
             ) : (

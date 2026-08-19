@@ -29,7 +29,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET || 'dev_fallback_secret_must_b
 // Session Management
 // ============================================================
 
-function signToken(payload: any): string {
+export function signToken(payload: any): string {
   const payloadBase64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
   const hmac = crypto.createHmac('sha256', SESSION_SECRET);
   hmac.update(payloadBase64);
@@ -37,7 +37,7 @@ function signToken(payload: any): string {
   return `${payloadBase64}.${signature}`;
 }
 
-function verifyToken(token: string): any {
+export function verifyToken(token: string): any {
   if (!token) return null;
   const parts = token.split('.');
   if (parts.length !== 2) return null;
@@ -46,9 +46,17 @@ function verifyToken(token: string): any {
   hmac.update(payloadBase64);
   const expectedSignature = hmac.digest('hex');
   
+  if (signature.length !== expectedSignature.length) {
+    return null;
+  }
+
   if (crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
     try {
-      return JSON.parse(Buffer.from(payloadBase64, 'base64url').toString('utf-8'));
+      const payload = JSON.parse(Buffer.from(payloadBase64, 'base64url').toString('utf-8'));
+      if (payload.expiresAt && Date.now() > payload.expiresAt) {
+        return null; // Expired
+      }
+      return payload;
     } catch {
       return null;
     }
