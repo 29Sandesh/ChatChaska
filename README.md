@@ -1,34 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🍵 ChatChaska — Smart Restaurant POS & Customer Discovery Platform
 
-## Getting Started
+<p align="center">
+  <img src="public/chaska-c-logo.png" alt="ChatChaska Logo" width="100" />
+</p>
 
-First, run the development server:
+ChatChaska is an offline-first, lightning-fast Point of Sale (POS), Kitchen Display System (KDS), and customer QR self-ordering ecosystem built for modern Indian cafes, bakeries, and restaurants.
 
+---
+
+## ✨ Key Features
+
+### 🖥️ Cafe Staff & Billing Terminal
+- **Sub-100ms Billing**: Zero-lag SQLite local cache with instant thermal receipt & KOT printing.
+- **Dynamic NPCI UPI Pay-at-Table**: Pre-filled bill QR codes with 1-tap Google Pay / PhonePe deep links.
+- **Touchscreen PIN Keypad**: Fast 4-digit PIN authentication for cashiers, waiters, and kitchen chefs.
+- **Shift & Cash Drawer Reconciliation**: Opening cash float, real-time drawer balance, and end-of-shift Z-reports.
+- **Kitchen Display System (KDS)**: Real-time order queue with audio chimes and urgency color-coding.
+
+### 🏢 Cafe Owner & Admin Suite
+- **First-Run Onboarding Wizard**: 5-step guided setup for taxes (GST/FSSAI), floor plans, menu items, and staff PINs.
+- **5 Branded Tabletop QR Standees**: Export print-ready PNG and multi-page A4 PDF standees.
+- **Real-Time Analytics**: Net revenue, real payment mode distributions (Cash vs UPI vs Card), top dishes, and nightly WhatsApp summaries.
+- **Table Reservations Engine**: Manage advance dining bookings and table assignments.
+
+### 📱 Customer QR Discovery & Ordering
+- **Anti-Fake Order OTP**: Secure phone verification before order dispatch.
+- **Live Order Tracker**: Real-time status updates (*Order Received $\rightarrow$ Preparing $\rightarrow$ Ready $\rightarrow$ Served*).
+- **Digital WhatsApp Invoices**: Paperless hosted receipts with full tax breakdown.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 16.3 (App Router)](https://nextjs.org/) + React 19 + TypeScript
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Local Storage**: [SQLite (better-sqlite3)](https://github.com/WiseLibs/better-sqlite3) with WAL Mode
+- **Cloud Database**: [Supabase (PostgreSQL)](https://supabase.com/) with Row-Level Security (RLS) & Realtime
+- **Mobile Builds**: [Capacitor 7](https://capacitorjs.com/) (Android APK)
+- **Desktop Builds**: [Electron](https://www.electronjs.org/) (Windows NSIS Installer)
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+- Node.js 22+
+- npm 10+
+
+### 2. Installation
 ```bash
+# Clone the repository
+git clone https://github.com/29Sandesh/ChatChaska.git
+cd ChatChaska
+
+# Install dependencies
+npm install
+
+# Run local development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+Open `http://localhost:3000` to view the application.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔑 Default Credentials (Development)
 
-## Learn More
+| Portal | Role | Identifier / Email | Password / PIN |
+|---|---|---|---|
+| `/login` | **Cashier** | Select Staff $\rightarrow$ Cashier | `1234` |
+| `/login` | **Owner Admin** | `owner@cafe.com` | `password` |
+| `/login` | **Super Admin** | `29sandesh.agrawal@gmail.com` | `Sejal_2912` |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📦 Production Builds
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Web (Vercel)
+Connect repository to [Vercel](https://vercel.com) and deploy with standard Next.js presets.
 
-## Deploy on Vercel
+### Android APK
+```bash
+npm run build
+npx cap sync android
+cd android && ./gradlew assembleDebug
+```
+The APK is also automatically built via GitHub Actions (`.github/workflows/build-apk.yml`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 License
+Private & Proprietary © 2026 ChatChaska Technologies.

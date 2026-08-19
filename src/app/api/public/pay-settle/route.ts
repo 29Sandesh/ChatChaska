@@ -15,8 +15,7 @@ export async function POST(req: NextRequest) {
       await cloudAdminClient
         .from('cloud_orders')
         .update({
-          status: 'served',
-          served_at: new Date().toISOString(),
+          status: 'bill_requested',
         })
         .or(`id.eq.${order_id},order_number.eq.${order_id}`);
     }
@@ -30,7 +29,7 @@ export async function POST(req: NextRequest) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: `table-${table_number.toLowerCase().replace(/\s+/g, '')}`,
-            status: 'paid',
+            status: 'bill_requested',
           }),
         });
       } catch {}
@@ -38,7 +37,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Payment confirmed! Receipt generated.',
+      message: 'Bill requested. Your server will come to your table shortly.',
       settledAt: new Date().toISOString(),
     });
   } catch (error: any) {

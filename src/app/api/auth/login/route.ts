@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createSession, type UserRole } from '@/lib/auth';
 import { verifyPassword, verifyPin, checkRateLimit, resetRateLimit, logAuditEvent } from '@/lib/security';
 import { getDb } from '@/lib/database';
+import bcrypt from 'bcryptjs';
 
 /**
  * POST /api/auth/login
@@ -147,7 +148,7 @@ async function handlePinLogin(
 
   // Rate limit check
   const rateLimitKey = `login:pin:${ip}`;
-  const rateCheck = checkRateLimit(rateLimitKey, 10, 15 * 60 * 1000, 15 * 60 * 1000);
+  const rateCheck = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000, 15 * 60 * 1000);
   if (!rateCheck.allowed) {
     const retryMinutes = Math.ceil(rateCheck.retryAfterMs / 60000);
     return NextResponse.json(
@@ -156,11 +157,30 @@ async function handlePinLogin(
     );
   }
 
-  // Look up staff by PIN in local DB
+  // Look up ALL active staff in local DB to compare hashed pins
   const db = getDb();
-  const staff = db.prepare(
-    "SELECT * FROM staff WHERE pin = ? AND status = 'active'"
-  ).get(pin) as Record<string, string> | undefined;
+  const staffList = db.prepare(
+    "SELECT * FROM staff WHERE status = 'active'"
+  ).all() as Record<string, string>[];
+
+  let matchedStaff: Record<string, string> | undefined = undefined;
+
+  for (const s of staffList) {
+    if (s.pin && s.pin.startsWith('$2')) {
+      const isMatch = await bcrypt.compare(pin, s.pin);
+      if (isMatch) {
+        matchedStaff = s;
+        break;
+      }
+    } else if (s.pin === pin) {
+      matchedStaff = s;
+      const hashedPin = await bcrypt.hash(pin, 10);
+      db.prepare("UPDATE staff SET pin = ? WHERE id = ?").run(hashedPin, s.id);
+      break;
+    }
+  }
+
+  const staff = matchedStaff;
 
   if (!staff) {
     return NextResponse.json(

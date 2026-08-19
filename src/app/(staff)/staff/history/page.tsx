@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Bill } from '@/types';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
+import { useCafeConfig } from '@/hooks/useCafeConfig';
 
 export default function StaffOrderHistoryPage() {
+  const { config } = useCafeConfig();
   const [bills, setBills] = useState<Bill[]>([]);
   const [selectedBillData, setSelectedBillData] = useState<BillData | null>(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState<boolean>(false);
@@ -42,10 +44,10 @@ export default function StaffOrderHistoryPage() {
       billId: bill.id,
       orderId: bill.orderId,
       tokenNumber: bill.tokenNumber || '01',
-      restaurantName: bill.restaurantName || 'ChatChaska Cafe',
-      gstin: bill.gstin || '27AABCM1234A1Z5',
-      fssai: bill.fssai || '10019022009876',
-      address: bill.address || 'Shop #4, Main Street, Mumbai',
+      restaurantName: bill.restaurantName || config?.cafeName || 'ChatChaska Cafe',
+      gstin: bill.gstin || config?.gstin || '27AABCM1234A1Z5',
+      fssai: bill.fssai || config?.fssai || '10019022009876',
+      address: bill.address || config?.address || 'Shop #4, Main Street, Mumbai',
       date: formatDate(bill.createdAt),
       tableNumber: bill.tableNumber,
       waiterName: bill.waiterName || 'Staff',

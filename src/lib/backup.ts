@@ -12,14 +12,16 @@ export function getBackupDirectory(): string {
   return backupDir;
 }
 
-export function createDatabaseBackup(): { fileName: string; filePath: string; sizeBytes: number } {
-  const dbPath = getDbPath();
+export async function createDatabaseBackup(): Promise<{ fileName: string; filePath: string; sizeBytes: number }> {
   const backupDir = getBackupDirectory();
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const fileName = `chatchaska_backup_${timestamp}.sqlite`;
   const filePath = path.join(backupDir, fileName);
 
-  fs.copyFileSync(dbPath, filePath);
+  const { getDb } = await import('./database');
+  const db = getDb();
+  await db.backup(filePath);
+  
   const stats = fs.statSync(filePath);
 
   return {

@@ -254,6 +254,22 @@ function initDbSchema(db: Database.Database) {
       seated_at DATETIME,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS bill_sequence (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_bills_created ON bills(created_at);
+    CREATE INDEX IF NOT EXISTS idx_bills_status ON bills(status);
+    CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+    CREATE INDEX IF NOT EXISTS idx_orders_table ON orders(table_number);
+    CREATE INDEX IF NOT EXISTS idx_menu_items_category ON menu_items(category);
+    CREATE INDEX IF NOT EXISTS idx_offline_queue_synced ON offline_queue(synced);
+    CREATE INDEX IF NOT EXISTS idx_staff_role ON staff(role);
+    CREATE INDEX IF NOT EXISTS idx_tables_status ON tables(status);
+    CREATE INDEX IF NOT EXISTS idx_tables_floor ON tables(floor_id);
+    CREATE INDEX IF NOT EXISTS idx_held_orders_table ON held_orders(table_number);
   `);
 
   // Seed default categories if empty
@@ -744,9 +760,9 @@ export function getNextBillIdentifiers(customPrefix?: string): { billId: string;
     cleanPrefix = cleanPrefix.slice(0, 5);
   }
 
-  // Get current total count of bills in DB
-  const countRow = db.prepare("SELECT COUNT(*) as count FROM bills").get() as { count: number };
-  const counter = countRow.count + 1;
+  // Insert into sequence and get lastInsertRowid
+  const seqResult = db.prepare("INSERT INTO bill_sequence DEFAULT VALUES").run();
+  const counter = seqResult.lastInsertRowid as number;
 
   // 5-digit padded counter: 00001, 00002, ...
   const paddedSeq = String(counter).padStart(5, '0');
@@ -800,47 +816,60 @@ export function getAllBills(statusFilter?: string | null): Bill[] {
 export function saveBill(bill: Bill): Bill {
   const db = getDb();
   
-  // If bill ID is missing or invalid, generate 10-char ID & token
-  let finalId = bill.id;
-  let finalToken = bill.tokenNumber;
-  if (!finalId || finalId.length !== 10) {
-    const ids = getNextBillIdentifiers();
-    finalId = ids.billId;
-    finalToken = ids.tokenNumber;
+  let maxRetries = 5;
+  while (maxRetries > 0) {
+    let finalId = bill.id;
+    let finalToken = bill.tokenNumber;
+    // Generate new ID if missing, invalid, or during retry (when maxRetries < 5)
+    if (!finalId || finalId.length !== 10 || maxRetries < 5) {
+      const ids = getNextBillIdentifiers();
+      finalId = ids.billId;
+      finalToken = ids.tokenNumber;
+    }
+
+    try {
+      const stmt = db.prepare(`
+        INSERT INTO bills (
+          id, token_number, order_id, restaurant_id, restaurant_name, table_number, waiter_name,
+          items_json, subtotal, gst_percent, cgst_amount, sgst_amount, gst_amount,
+          discount_amount, grand_total, payment_mode, split_details_json, status, created_at, closed_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      stmt.run(
+        finalId,
+        finalToken || '01',
+        bill.orderId || null,
+        bill.restaurantId,
+        bill.restaurantName,
+        bill.tableNumber,
+        bill.waiterName,
+        JSON.stringify(bill.items),
+        bill.subtotal,
+        bill.gstPercent,
+        bill.cgstAmount,
+        bill.sgstAmount,
+        bill.gstAmount,
+        bill.discountAmount,
+        bill.grandTotal,
+        bill.paymentMode,
+        bill.splitDetails ? JSON.stringify(bill.splitDetails) : null,
+        bill.status,
+        bill.createdAt || new Date().toISOString(),
+        bill.closedAt || new Date().toISOString()
+      );
+
+      return { ...bill, id: finalId, tokenNumber: finalToken || '01' };
+    } catch (err: any) {
+      if (err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY' || (err.message && err.message.includes('UNIQUE constraint failed'))) {
+        maxRetries--;
+        if (maxRetries === 0) throw err;
+      } else {
+        throw err;
+      }
+    }
   }
-
-  const stmt = db.prepare(`
-    INSERT OR REPLACE INTO bills (
-      id, token_number, order_id, restaurant_id, restaurant_name, table_number, waiter_name,
-      items_json, subtotal, gst_percent, cgst_amount, sgst_amount, gst_amount,
-      discount_amount, grand_total, payment_mode, split_details_json, status, created_at, closed_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-
-  stmt.run(
-    finalId,
-    finalToken || '01',
-    bill.orderId || null,
-    bill.restaurantId,
-    bill.restaurantName,
-    bill.tableNumber,
-    bill.waiterName,
-    JSON.stringify(bill.items),
-    bill.subtotal,
-    bill.gstPercent,
-    bill.cgstAmount,
-    bill.sgstAmount,
-    bill.gstAmount,
-    bill.discountAmount,
-    bill.grandTotal,
-    bill.paymentMode,
-    bill.splitDetails ? JSON.stringify(bill.splitDetails) : null,
-    bill.status,
-    bill.createdAt || new Date().toISOString(),
-    bill.closedAt || new Date().toISOString()
-  );
-
-  return { ...bill, id: finalId, tokenNumber: finalToken || '01' };
+  throw new Error('Failed to save bill due to ID collision.');
 }
 
 export function updateBillStatus(id: string, status?: string, paymentMode?: string): boolean {

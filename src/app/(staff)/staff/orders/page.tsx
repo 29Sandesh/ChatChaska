@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { formatBillCurrency } from '@/lib/billing';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
+import { PaymentSettlementModal } from '@/components/pos/PaymentSettlementModal';
+import { useCafeConfig } from '@/hooks/useCafeConfig';
 
 interface QROrderItem {
   id?: string;
@@ -23,6 +25,7 @@ interface QROrder {
 }
 
 export default function TableQROrdersPage() {
+  const { config } = useCafeConfig();
   const [orders, setOrders] = useState<QROrder[]>([]);
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'PENDING' | 'KITCHEN' | 'COMPLETED'>('ALL');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
@@ -34,6 +37,9 @@ export default function TableQROrdersPage() {
 
   // Receipt Preview Modal State
   const [previewBillData, setPreviewBillData] = useState<BillData | null>(null);
+  
+  // Payment Settlement State
+  const [settlingOrder, setSettlingOrder] = useState<QROrder | null>(null);
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
@@ -94,8 +100,19 @@ export default function TableQROrdersPage() {
     setRejectingOrderId(null);
   };
 
-  // Generate Bill for completed QR order & open Receipt Preview Modal
-  const handleGenerateBill = async (order: QROrder) => {
+  const handleGenerateBillClick = (order: QROrder) => {
+    setSettlingOrder(order);
+  };
+
+  const handleConfirmPayment = async (details: {
+    paymentMethod: 'cash' | 'upi' | 'card';
+    customerName: string;
+    customerPhone: string;
+    txnReference?: string;
+  }) => {
+    if (!settlingOrder) return;
+    
+    const order = settlingOrder;
     const subtotal = (order.items || []).reduce((sum, item) => sum + item.price * item.quantity, 0);
     const gstPercent = 5;
     const taxable = subtotal;
@@ -107,7 +124,7 @@ export default function TableQROrdersPage() {
     const billPayload = {
       orderId: order.id,
       restaurantId: 'demo',
-      restaurantName: 'ChatChaska Cafe',
+      restaurantName: config?.cafeName || 'ChatChaska Cafe',
       tableNumber: order.tableNumber,
       waiterName: 'Staff',
       items: (order.items || []).map((i) => ({
@@ -123,7 +140,9 @@ export default function TableQROrdersPage() {
       gstAmount,
       discountAmount: 0,
       grandTotal,
-      paymentMode: 'cash',
+      paymentMode: details.paymentMethod,
+      customerName: details.customerName,
+      customerPhone: details.customerPhone,
       status: 'paid',
     };
 
@@ -136,12 +155,15 @@ export default function TableQROrdersPage() {
 
       const data = await res.json();
       const createdBill = data.bill || data;
+      setSettlingOrder(null);
 
       setPreviewBillData({
         billId: createdBill.id || `MHMMC0000${Math.floor(Math.random() * 90) + 10}`,
         tokenNumber: createdBill.tokenNumber || '01',
-        restaurantName: 'ChatChaska Cafe',
-        gstin: '27AABCM1234A1Z5',
+        restaurantName: config?.cafeName || 'ChatChaska Cafe',
+        gstin: config?.gstin || '27AABCM1234A1Z5',
+        fssai: config?.fssai,
+        address: config?.address,
         date: new Date().toLocaleString(),
         tableNumber: order.tableNumber,
         waiterName: 'Staff',
@@ -152,7 +174,7 @@ export default function TableQROrdersPage() {
         cgstAmount,
         sgstAmount,
         grandTotal,
-        paymentMode: 'CASH',
+        paymentMode: details.paymentMethod.toUpperCase(),
       });
     } catch (err) {
       console.error('Failed to generate bill:', err);
@@ -356,7 +378,7 @@ export default function TableQROrdersPage() {
                   {isPending && (
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleGenerateBill(order)}
+                        onClick={() => handleGenerateBillClick(order)}
                         className="py-2 px-3 bg-white hover:bg-slate-50 text-slate-800 font-black text-xs rounded-md border border-slate-300 transition-colors shadow-2xs cursor-pointer flex items-center gap-1"
                         title="View Bill Details & Reject Option"
                       >
@@ -375,7 +397,7 @@ export default function TableQROrdersPage() {
                   {isKitchen && (
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleGenerateBill(order)}
+                        onClick={() => handleGenerateBillClick(order)}
                         className="py-2 px-3 bg-white hover:bg-slate-50 text-slate-800 font-black text-xs rounded-md border border-slate-300 transition-colors shadow-2xs cursor-pointer flex items-center gap-1"
                       >
                         <span className="material-symbols-outlined text-[16px] text-blue-600">receipt_long</span>
@@ -393,7 +415,7 @@ export default function TableQROrdersPage() {
                   {/* Completed Order Action: Bill Button */}
                   {isCompleted && (
                     <button
-                      onClick={() => handleGenerateBill(order)}
+                      onClick={() => handleGenerateBillClick(order)}
                       className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-md shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                     >
                       <span className="material-symbols-outlined text-[16px]">receipt_long</span>
@@ -498,6 +520,21 @@ export default function TableQROrdersPage() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Payment Settlement Modal */}
+      {settlingOrder && (
+        <PaymentSettlementModal
+          isOpen={true}
+          onClose={() => setSettlingOrder(null)}
+          grandTotal={Math.round(
+            (settlingOrder.items || []).reduce((sum, item) => sum + item.price * item.quantity, 0) * 1.05
+          )}
+          tableNumber={settlingOrder.tableNumber}
+          itemCount={(settlingOrder.items || []).reduce((sum, item) => sum + item.quantity, 0)}
+          merchantUpiId={config?.upiId}
+          onConfirm={handleConfirmPayment}
+        />
       )}
 
       {/* Toast Notification */}

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { ToastProvider } from '@/components/ui/Toast';
 
 export const metadata: Metadata = {
   title: 'ChatChaska — Smart POS & Restaurant Management',
@@ -35,7 +36,9 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

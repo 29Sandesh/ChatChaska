@@ -95,8 +95,20 @@ export default function AdminStaffPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded font-mono font-bold text-[11px]">
-                      PIN: {s.pin || '****'}
+                      PIN: ••••
                     </span>
+                    <button
+                      onClick={async () => {
+                        const newPin = Math.floor(1000 + Math.random() * 9000).toString();
+                        alert(`New PIN for ${s.name} is: ${newPin}. Please note it down.`);
+                        await fetch('/api/staff', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...s, pin: newPin }) });
+                        fetchStaff();
+                      }}
+                      className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Reset PIN"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">key</span>
+                    </button>
                     <button
                       onClick={() => handleEdit(s)}
                       className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"

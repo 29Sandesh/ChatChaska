@@ -55,7 +55,24 @@ export function BillPanel({
     gstRate: 5,
   });
 
-  const tablesList = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'P1', 'P2', 'AC1', 'AC2', 'AC3', 'AC4', 'ROOF1', 'ROOF2'];
+  const defaultTablesList = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'P1', 'P2', 'AC1', 'AC2', 'AC3', 'AC4', 'ROOF1', 'ROOF2'];
+  const [tablesList, setTablesList] = useState<string[]>(defaultTablesList);
+
+  React.useEffect(() => {
+    fetch('/api/tables')
+      .then(res => res.json())
+      .then(data => {
+        if (data.tables && Array.isArray(data.tables)) {
+          const names = data.tables.map((t: any) => t.name || t.tableNumber).filter(Boolean);
+          if (names.length > 0) {
+            setTablesList(names);
+          }
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch tables:', err);
+      });
+  }, []);
 
   // Mouse Drag-to-Scroll State for Table selector
   const tableContainerRef = useRef<HTMLDivElement>(null);

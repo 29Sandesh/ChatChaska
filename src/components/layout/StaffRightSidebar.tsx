@@ -54,7 +54,7 @@ export function StaffRightSidebar({
       <div className={cn('flex items-center pb-3 mb-3 border-b border-slate-100', isExpanded ? 'px-1' : 'justify-center')}>
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center text-white font-extrabold text-xs shadow-xs flex-shrink-0">
-            MC
+            CC
           </div>
           {isExpanded && (
             <div className="min-w-0">

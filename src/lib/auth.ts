@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import crypto from 'crypto';
 
 // ============================================================
 // Types
@@ -22,39 +23,60 @@ export interface AuthSession {
 }
 
 const SESSION_COOKIE_NAME = 'chatchaska_session';
-const SESSION_MAX_AGE_SECONDS = 8 * 60 * 60; // 8 hours
+const SESSION_SECRET = process.env.SESSION_SECRET || 'dev_fallback_secret_must_be_long_enough_for_hmac';
 
 // ============================================================
 // Session Management
 // ============================================================
 
-/**
- * Create an encrypted session cookie for a logged-in user.
- * In production, this should use a proper JWT or encrypted token.
- * For now, we use a base64-encoded JSON string with HMAC validation.
- */
+function signToken(payload: any): string {
+  const payloadBase64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const hmac = crypto.createHmac('sha256', SESSION_SECRET);
+  hmac.update(payloadBase64);
+  const signature = hmac.digest('hex');
+  return `${payloadBase64}.${signature}`;
+}
+
+function verifyToken(token: string): any {
+  if (!token) return null;
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+  const [payloadBase64, signature] = parts;
+  const hmac = crypto.createHmac('sha256', SESSION_SECRET);
+  hmac.update(payloadBase64);
+  const expectedSignature = hmac.digest('hex');
+  
+  if (crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+    try {
+      return JSON.parse(Buffer.from(payloadBase64, 'base64url').toString('utf-8'));
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function createSession(user: SessionUser): Promise<void> {
+  const isOwner = user.role === 'super_admin' || user.role === 'cafe_owner';
+  const maxAgeSeconds = isOwner ? 24 * 60 * 60 : 8 * 60 * 60;
+
   const session: AuthSession = {
     user,
-    expiresAt: Date.now() + SESSION_MAX_AGE_SECONDS * 1000,
+    expiresAt: Date.now() + maxAgeSeconds * 1000,
   };
 
-  const sessionData = Buffer.from(JSON.stringify(session)).toString('base64');
+  const sessionData = signToken(session);
 
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, sessionData, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: SESSION_MAX_AGE_SECONDS,
+    sameSite: 'strict',
+    maxAge: maxAgeSeconds,
     path: '/',
   });
 }
 
-/**
- * Read the current session from the cookie.
- * Returns null if no session or session is expired.
- */
 export async function getSession(): Promise<AuthSession | null> {
   try {
     const cookieStore = await cookies();
@@ -64,11 +86,9 @@ export async function getSession(): Promise<AuthSession | null> {
       return null;
     }
 
-    const session: AuthSession = JSON.parse(
-      Buffer.from(sessionCookie.value, 'base64').toString('utf-8')
-    );
+    const session = verifyToken(sessionCookie.value);
+    if (!session) return null;
 
-    // Check expiry
     if (Date.now() > session.expiresAt) {
       return null;
     }
@@ -79,31 +99,27 @@ export async function getSession(): Promise<AuthSession | null> {
   }
 }
 
-/**
- * Get the current logged-in user from the session.
- * Returns null if not authenticated.
- */
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const session = await getSession();
   return session?.user ?? null;
 }
 
-/**
- * Destroy the current session (logout).
- */
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE_NAME);
 }
 
-// ============================================================
-// Authorization Helpers
-// ============================================================
+export async function requireAuth(...allowedRoles: UserRole[]): Promise<SessionUser> {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw { status: 401, message: 'Authentication required. Please log in.' };
+  }
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+    throw { status: 401, message: 'Unauthorized' };
+  }
+  return user;
+}
 
-/**
- * Verify the current user has the required role.
- * Throws an object with status and message if unauthorized.
- */
 export async function requireRole(...allowedRoles: UserRole[]): Promise<SessionUser> {
   const user = await getCurrentUser();
 
@@ -118,10 +134,6 @@ export async function requireRole(...allowedRoles: UserRole[]): Promise<SessionU
   return user;
 }
 
-/**
- * Verify the current user belongs to a specific cafe.
- * Super admins bypass this check.
- */
 export async function requireCafe(cafeId: string): Promise<SessionUser> {
   const user = await getCurrentUser();
 
@@ -129,7 +141,6 @@ export async function requireCafe(cafeId: string): Promise<SessionUser> {
     throw { status: 401, message: 'Authentication required. Please log in.' };
   }
 
-  // Super admins can access any cafe
   if (user.role === 'super_admin') {
     return user;
   }
@@ -141,17 +152,10 @@ export async function requireCafe(cafeId: string): Promise<SessionUser> {
   return user;
 }
 
-/**
- * Check if the current user is a Super Admin.
- */
 export async function isSuperAdmin(): Promise<boolean> {
   const user = await getCurrentUser();
   return user?.role === 'super_admin';
 }
-
-// ============================================================
-// Role Display Helpers
-// ============================================================
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   super_admin: 'Super Admin',

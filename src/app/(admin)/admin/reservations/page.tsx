@@ -7,6 +7,8 @@ export default function AdminReservationsPage() {
   const [reservations, setReservations] = useState<CloudReservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'seated'>('all');
+  const [selectedTables, setSelectedTables] = useState<Record<string, string>>({});
+  const tableOptions = ['Table 1', 'Table 2', 'Table 3', 'Table 4', 'Table 5', 'Table 6', 'Table 7', 'Table 8', 'Table 9', 'Table 10'];
 
   useEffect(() => {
     async function load() {
@@ -48,27 +50,28 @@ export default function AdminReservationsPage() {
   });
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 text-white">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 text-slate-900">
       {/* Top Header */}
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="material-symbols-outlined text-3xl text-orange-400">table_restaurant</span>
+            <span className="material-symbols-outlined text-3xl text-blue-600">table_restaurant</span>
             <h1 className="text-2xl font-black">Table Reservations & Bookings</h1>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Manage advance table booking requests from your discovery profile and assign tables.
           </p>
         </div>
 
+        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">Add Walk-in</button>
         {/* Filter Chips */}
-        <div className="flex items-center bg-slate-800 border border-slate-700 rounded-xl p-1 gap-1">
+        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1 gap-1">
           {['all', 'pending', 'confirmed', 'seated'].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f as any)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer ${
-                filter === f ? 'bg-orange-500 text-white shadow-md' : 'text-slate-400 hover:text-white'
+                filter === f ? 'bg-blue-600 text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               {f}
@@ -82,13 +85,13 @@ export default function AdminReservationsPage() {
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-slate-900 border border-slate-800 h-28 rounded-2xl animate-pulse" />
+              <div key={i} className="bg-white border border-slate-200 h-28 rounded-2xl animate-pulse" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-slate-900 border border-slate-800 p-12 rounded-3xl text-center space-y-2">
+          <div className="bg-white border border-slate-200 p-12 rounded-3xl text-center space-y-2">
             <span className="material-symbols-outlined text-4xl text-slate-600">event_seat</span>
-            <h3 className="font-bold text-slate-300 text-sm">No reservations found</h3>
+            <h3 className="font-bold text-slate-700 text-sm">No reservations found</h3>
             <p className="text-xs text-slate-500">New table booking requests from customer profiles will appear here.</p>
           </div>
         ) : (
@@ -96,11 +99,11 @@ export default function AdminReservationsPage() {
             {filtered.map((res) => (
               <div
                 key={res.id}
-                className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4 hover:border-slate-700 transition-all flex flex-col justify-between"
+                className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4 hover:border-slate-200 transition-all flex flex-col justify-between"
               >
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-sm text-slate-100">{res.customer_name}</span>
+                    <span className="font-bold text-sm text-slate-900">{res.customer_name}</span>
                     <span
                       className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
                         res.status === 'confirmed'
@@ -109,25 +112,25 @@ export default function AdminReservationsPage() {
                           ? 'bg-blue-500/20 text-blue-400 border-blue-500/40'
                           : res.status === 'declined'
                           ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
-                          : 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                          : 'bg-amber-500/20 text-amber-500 border-amber-500/40'
                       }`}
                     >
                       {res.status}
                     </span>
                   </div>
 
-                  <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-900 space-y-1 text-xs">
-                    <div className="flex justify-between text-slate-300">
+                  <div className="bg-slate-50/60 p-3 rounded-2xl border border-slate-200 space-y-1 text-xs">
+                    <div className="flex justify-between text-slate-700">
                       <span className="text-slate-500 font-semibold">GUESTS</span>
-                      <span className="font-bold text-orange-400">👥 {res.guest_count} Persons</span>
+                      <span className="font-bold text-blue-600">👥 {res.guest_count} Persons</span>
                     </div>
 
-                    <div className="flex justify-between text-slate-300">
+                    <div className="flex justify-between text-slate-700">
                       <span className="text-slate-500 font-semibold">DATE & TIME</span>
                       <span className="font-medium">{res.reservation_date} • {res.time_slot}</span>
                     </div>
 
-                    <div className="flex justify-between text-slate-300">
+                    <div className="flex justify-between text-slate-700">
                       <span className="text-slate-500 font-semibold">PHONE</span>
                       <a href={`tel:${res.customer_phone}`} className="text-emerald-400 font-mono hover:underline">
                         {res.customer_phone}
@@ -135,9 +138,9 @@ export default function AdminReservationsPage() {
                     </div>
 
                     {res.table_assigned && (
-                      <div className="flex justify-between text-slate-300 pt-1 border-t border-slate-800/80">
+                      <div className="flex justify-between text-slate-700 pt-1 border-t border-slate-200/80">
                         <span className="text-slate-500 font-semibold">ASSIGNED</span>
-                        <span className="font-bold text-slate-100">📍 {res.table_assigned}</span>
+                        <span className="font-bold text-slate-900">📍 {res.table_assigned}</span>
                       </div>
                     )}
                   </div>
@@ -150,28 +153,38 @@ export default function AdminReservationsPage() {
                 </div>
 
                 {/* Status Action Buttons */}
-                <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between gap-2">
                   {res.status === 'pending' && (
-                    <>
-                      <button
-                        onClick={() => handleUpdateStatus(res.id, 'declined')}
-                        className="flex-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    <div className="w-full space-y-2">
+                      <select
+                        value={selectedTables[res.id] || ''}
+                        onChange={(e) => setSelectedTables({ ...selectedTables, [res.id]: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1 text-xs text-slate-900 mb-2"
                       >
-                        Decline
-                      </button>
-                      <button
-                        onClick={() => handleUpdateStatus(res.id, 'confirmed', 'Table 4')}
-                        className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 text-white py-2 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
-                      >
-                        Confirm & Assign
-                      </button>
-                    </>
+                        <option value="" disabled>Select Table...</option>
+                        {tableOptions.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleUpdateStatus(res.id, 'declined')}
+                          className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                        >
+                          Decline
+                        </button>
+                        <button
+                          onClick={() => handleUpdateStatus(res.id, 'confirmed', selectedTables[res.id] || 'Table 1')}
+                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                        >
+                          Confirm &amp; Assign
+                        </button>
+                      </div>
+                    </div>
                   )}
 
                   {res.status === 'confirmed' && (
                     <button
                       onClick={() => handleUpdateStatus(res.id, 'seated')}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer flex items-center justify-center gap-1"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-slate-900 py-2 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer flex items-center justify-center gap-1"
                     >
                       <span className="material-symbols-outlined text-base">check_circle</span>
                       <span>Mark Guest Seated</span>
@@ -179,7 +192,7 @@ export default function AdminReservationsPage() {
                   )}
 
                   {res.status === 'seated' && (
-                    <span className="text-xs text-slate-400 font-semibold text-center w-full">
+                    <span className="text-xs text-slate-500 font-semibold text-center w-full">
                       ✅ Guest Currently Dining
                     </span>
                   )}

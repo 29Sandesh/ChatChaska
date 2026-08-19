@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { useCafeConfig } from '@/hooks/useCafeConfig';
 
 export interface PaymentSettlementModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ export interface PaymentSettlementModalProps {
   tableNumber: string;
   itemCount: number;
   merchantUpiId?: string;
+  tokenNumber?: string;
   onConfirm: (details: {
     paymentMethod: 'cash' | 'upi' | 'card';
     customerName: string;
@@ -24,14 +26,15 @@ export function PaymentSettlementModal({
   grandTotal,
   tableNumber,
   itemCount,
-  merchantUpiId = 'paytmqr6z1f01@ptys',
+  merchantUpiId,
+  tokenNumber,
   onConfirm,
 }: PaymentSettlementModalProps) {
+  const { config } = useCafeConfig();
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'card'>('cash');
   const [customerName, setCustomerName] = useState<string>('');
   const [customerPhone, setCustomerPhone] = useState<string>('');
   const [txnReference, setTxnReference] = useState<string>('');
-  const [upiVpa, setUpiVpa] = useState<string>('paytmqr6z1f01@ptys');
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,9 +52,8 @@ export function PaymentSettlementModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate mandatory WhatsApp mobile number
     const cleanPhone = customerPhone.trim();
-    if (!cleanPhone || cleanPhone.length < 10) {
+    if (cleanPhone && cleanPhone.length < 10) {
       setPhoneError('Please enter a valid 10-digit WhatsApp mobile number.');
       return;
     }
@@ -66,8 +68,9 @@ export function PaymentSettlementModal({
   };
 
   // Dynamic NPCI UPI string & QR code URL generator
-  const currentVpa = upiVpa.trim() || 'chatchaska@upi';
-  const upiString = `upi://pay?pa=${encodeURIComponent(currentVpa)}&pn=${encodeURIComponent('ChatChaska Cafe')}&am=${grandTotal}&tn=${encodeURIComponent(`Bill ${tableNumber}`)}`;
+  const currentVpa = merchantUpiId || config?.upiId || 'chatchaska@upi';
+  const cafeName = config?.cafeName || 'ChatChaska Cafe';
+  const upiString = `upi://pay?pa=${encodeURIComponent(currentVpa)}&pn=${encodeURIComponent(cafeName)}&am=${grandTotal}&tn=${encodeURIComponent(`Bill ${tableNumber}`)}`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiString)}`;
 
   return (
@@ -80,9 +83,11 @@ export function PaymentSettlementModal({
             <span className="px-2.5 py-1 rounded-md bg-blue-600 text-white font-black text-xs shadow-2xs">
               {tableNumber}
             </span>
-            <span className="px-2.5 py-1 rounded-md bg-slate-200 text-slate-900 font-black text-xs border border-slate-300">
-              Token : 01
-            </span>
+            {tokenNumber && (
+              <span className="px-2.5 py-1 rounded-md bg-slate-200 text-slate-900 font-black text-xs border border-slate-300">
+                Token : {tokenNumber}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1 font-black text-slate-900 text-sm">
@@ -151,9 +156,7 @@ export function PaymentSettlementModal({
               {/* BIG HIGH-RESOLUTION QR CODE */}
               <div className="flex justify-center bg-white p-3 rounded-md border border-slate-300 w-52 h-52 mx-auto shadow-sm">
                 <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
-                    `upi://pay?pa=${encodeURIComponent(merchantUpiId || 'paytmqr6z1f01@ptys')}&pn=${encodeURIComponent('ChatChaska Cafe')}&am=${grandTotal}&tn=${encodeURIComponent(`Bill ${tableNumber}`)}`
-                  )}`}
+                  src={qrCodeUrl}
                   alt="UPI QR Code"
                   className="w-full h-full object-contain"
                 />
@@ -180,7 +183,7 @@ export function PaymentSettlementModal({
             </div>
           )}
 
-          {/* MANDATORY WHATSAPP MOBILE NUMBER & CUSTOMER NAME */}
+          {/* WHATSAPP MOBILE NUMBER & CUSTOMER NAME */}
           <div className="space-y-2 pt-1 border-t border-slate-100">
             {/* Customer Name (Optional) */}
             <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-md px-3 py-2 text-xs focus-within:border-blue-600 focus-within:bg-white transition-all">
@@ -194,7 +197,7 @@ export function PaymentSettlementModal({
               />
             </div>
 
-            {/* MANDATORY WhatsApp Mobile Number */}
+            {/* WhatsApp Mobile Number (Optional) */}
             <div>
               <div className={cn(
                 'flex items-center gap-2 bg-slate-50 border rounded-md px-3 py-2 text-xs transition-all',
@@ -203,8 +206,7 @@ export function PaymentSettlementModal({
                 <span className="material-symbols-outlined text-[16px] text-emerald-600 font-bold">chat</span>
                 <input
                   type="tel"
-                  required
-                  placeholder="WhatsApp Mobile Number *"
+                  placeholder="WhatsApp Mobile Number (Optional)"
                   value={customerPhone}
                   onChange={(e) => {
                     setCustomerPhone(e.target.value);
@@ -245,3 +247,4 @@ export function PaymentSettlementModal({
     </div>
   );
 }
+

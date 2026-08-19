@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
+import { useCafeConfig } from '@/hooks/useCafeConfig';
 
 interface OrderItem {
   name: string;
@@ -20,6 +21,7 @@ interface LiveOrder {
 }
 
 export default function StaffLiveOrdersPage() {
+  const { config } = useCafeConfig();
   const [orders, setOrders] = useState<LiveOrder[]>([]);
   const [selectedBillData, setSelectedBillData] = useState<BillData | null>(null);
 
@@ -62,17 +64,18 @@ export default function StaffLiveOrdersPage() {
       billId: `MHMMC${ord.id.slice(-5).padStart(5, '0')}`,
       orderId: ord.id,
       tokenNumber: '01',
-      restaurantName: 'ChatChaska Cafe',
-      gstin: '27AABCM1234A1Z5',
-      address: 'Shop #4, Main Street, Mumbai',
+      restaurantName: config?.cafeName || 'ChatChaska Cafe',
+      gstin: config?.gstin || '27AABCM1234A1Z5',
+      fssai: config?.fssai,
+      address: config?.address || 'Shop #4, Main Street, Mumbai',
       date: new Date().toLocaleString(),
       tableNumber: formatTableLabel(ord.tableNumber),
       waiterName: 'Staff',
       items: (ord.items || []).map((i) => ({
         name: i.name,
         quantity: i.quantity,
-        unitPrice: i.price || 100,
-        lineTotal: (i.price || 100) * i.quantity,
+        unitPrice: i.price ?? 0,
+        lineTotal: (i.price ?? 0) * i.quantity,
       })),
       subtotal: ord.totalAmount,
       cgstAmount: Number((ord.totalAmount * 0.025).toFixed(2)),

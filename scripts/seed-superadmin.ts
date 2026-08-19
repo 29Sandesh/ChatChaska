@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Client } from 'pg';
 import { hashPassword } from '../src/lib/security';
 
