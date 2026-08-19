@@ -1,0 +1,165 @@
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #f8fafc;
+  overflow: hidden;
+}
+
+.searchHeader {
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.searchBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.searchBox input {
+  background: transparent;
+  border: none;
+  color: #1e293b;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+}
+
+.searchBox input::placeholder {
+  color: #94a3b8;
+}
+
+.filterBadge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  background-color: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.gridContent {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  align-content: start;
+}
+
+.itemCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 110px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  user-select: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.itemCard:hover {
+  border-color: #1a73e8;
+  transform: translateY(-2px);
+  background-color: #f8fafc;
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.12);
+}
+
+.itemCard:active {
+  transform: scale(0.98);
+}
+
+.itemHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.itemName {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #020617;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vegDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1.5px solid #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: #ffffff;
+}
+
+.vegDotInner {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #16a34a;
+}
+
+.nonVegDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1.5px solid #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: #ffffff;
+}
+
+.nonVegDotInner {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #dc2626;
+}
+
+.itemFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.itemPrice {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1a73e8;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 16px;
+  color: #94a3b8;
+}

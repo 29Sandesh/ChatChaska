@@ -1,0 +1,102 @@
+.container {
+  padding: 10px 12px;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* SQUARE 2-IN-1 HOLD/RECALL BUTTON */
+.squareHoldBtn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background-color: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.squareHoldBtn:hover {
+  background-color: #fde68a;
+  color: #b45309;
+}
+
+.squareHoldBtn.hasHeld {
+  background-color: #fff7ed;
+  border-color: #fdba74;
+  color: #ea580c;
+}
+
+.recallBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #0284c7;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.btn {
+  flex: 1;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.kotBtn {
+  background-color: #0284c7;
+  color: #ffffff;
+}
+
+.kotBtn:hover:not(:disabled) {
+  background-color: #0369a1;
+}
+
+.saveBtn {
+  background-color: #1a73e8;
+  color: #ffffff;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background-color: #1557b0;
+}

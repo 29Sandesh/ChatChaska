@@ -19,6 +19,15 @@
 
 # production
 /build
+/dist-desktop
+
+# database & archives
+*.sqlite
+*.db
+*.db-journal
+*.db-wal
+bills_pdf/
+reports_archive/
 
 # misc
 .DS_Store
@@ -30,8 +39,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
 .env*
+!.env.example
 
 # vercel
 .vercel

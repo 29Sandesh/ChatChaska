@@ -1,0 +1,17 @@
+body {
+  font: var(--text-body-md);
+  font-family: var(--font-family);
+  color: var(--color-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.text-display { font: var(--text-display); letter-spacing: var(--text-display-tracking); }
+.text-headline-lg { font: var(--text-headline-lg); letter-spacing: var(--text-headline-lg-tracking); }
+.text-headline-lg-mobile { font: var(--text-headline-lg-mobile); letter-spacing: var(--text-headline-lg-mobile-tracking); }
+.text-headline-md { font: var(--text-headline-md); letter-spacing: var(--text-headline-md-tracking); }
+.text-body-lg { font: var(--text-body-lg); }
+.text-body-md { font: var(--text-body-md); }
+.text-body-sm { font: var(--text-body-sm); }
+.text-label-md { font: var(--text-label-md); letter-spacing: var(--text-label-md-tracking); }
+.text-label-sm { font: var(--text-label-sm); letter-spacing: var(--text-label-sm-tracking); text-transform: uppercase; }
