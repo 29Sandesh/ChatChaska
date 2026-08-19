@@ -425,7 +425,22 @@ export interface CustomerSession {
   created_at: string;
 }
 
-/** QR code template configuration */
+/** Table Reservation & Advance Booking */
+export interface CloudReservation {
+  id: string;
+  cafe_id: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email?: string;
+  guest_count: number;
+  reservation_date: string;
+  time_slot: string;
+  special_request?: string;
+  status: 'pending' | 'confirmed' | 'seated' | 'cancelled' | 'declined';
+  table_assigned?: string;
+  created_at: string;
+}
+
 export interface QRTemplate {
   id: string;
   name: string;

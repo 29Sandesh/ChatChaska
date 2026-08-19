@@ -18,6 +18,17 @@ export default function CafeProfilePage() {
   const [reviewComment, setReviewComment] = useState('');
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
+  // Table Booking modal state
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [guestCount, setGuestCount] = useState(2);
+  const [bookingDate, setBookingDate] = useState(new Date().toISOString().split('T')[0]);
+  const [bookingTime, setBookingTime] = useState('07:30 PM');
+  const [bookerName, setBookerName] = useState('');
+  const [bookerPhone, setBookerPhone] = useState('');
+  const [specialRequest, setSpecialRequest] = useState('');
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+
   useEffect(() => {
     async function loadCafe() {
       if (!slug) return;
@@ -89,6 +100,38 @@ export default function CafeProfilePage() {
   const menuItems = data?.menuItems || [];
   const reviews = data?.reviews || [];
 
+  const handleBookingSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bookerName || !bookerPhone) return;
+    setBookingSubmitting(true);
+    try {
+      const res = await fetch('/api/public/reservations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cafe_slug: slug,
+          customer_name: bookerName,
+          customer_phone: bookerPhone,
+          guest_count: guestCount,
+          reservation_date: bookingDate,
+          time_slot: bookingTime,
+          special_request: specialRequest,
+        }),
+      });
+      if (res.ok) {
+        setBookingSuccess(true);
+        setTimeout(() => {
+          setIsBookingModalOpen(false);
+          setBookingSuccess(false);
+        }, 2200);
+      }
+    } catch (err) {
+      console.error('Booking failed:', err);
+    } finally {
+      setBookingSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white pb-24">
       {/* Hero Banner with Dark Gradient */}
@@ -151,6 +194,14 @@ export default function CafeProfilePage() {
 
       {/* Quick Action Buttons Bar */}
       <div className="max-w-5xl mx-auto px-4 pt-4 flex items-center gap-3 overflow-x-auto no-scrollbar">
+        <button
+          onClick={() => setIsBookingModalOpen(true)}
+          className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 px-4 py-2 rounded-xl text-xs font-bold text-white shadow-md whitespace-nowrap cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-base">table_restaurant</span>
+          <span>Book a Table</span>
+        </button>
+
         {cafe.google_maps_url ? (
           <a
             href={cafe.google_maps_url}
@@ -413,6 +464,129 @@ export default function CafeProfilePage() {
                 {reviewSubmitting ? 'Posting...' : 'Submit Review'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Table Booking Modal */}
+      {isBookingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 text-white">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-bold">Book a Table</h3>
+                <p className="text-xs text-slate-400">Reserve your spot at {cafe.name}</p>
+              </div>
+              <button
+                onClick={() => setIsBookingModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+
+            {bookingSuccess ? (
+              <div className="text-center py-8 space-y-2">
+                <span className="material-symbols-outlined text-5xl text-emerald-400 animate-bounce">
+                  check_circle
+                </span>
+                <h4 className="font-bold text-emerald-400 text-lg">Reservation Requested!</h4>
+                <p className="text-xs text-slate-300">
+                  The cafe manager will confirm your table shortly. A confirmation will be sent to your phone.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleBookingSubmit} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Number of Guests</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 4, 6, 8, 10].map((num) => (
+                      <button
+                        key={num}
+                        type="button"
+                        onClick={() => setGuestCount(num)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                          guestCount === num
+                            ? 'bg-orange-500 border-orange-400 text-white shadow-md'
+                            : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                        }`}
+                      >
+                        {num} {num === 1 ? 'Guest' : 'Guests'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Date</label>
+                    <input
+                      type="date"
+                      value={bookingDate}
+                      onChange={(e) => setBookingDate(e.target.value)}
+                      required
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Time Slot</label>
+                    <select
+                      value={bookingTime}
+                      onChange={(e) => setBookingTime(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    >
+                      {['12:30 PM', '01:00 PM', '02:00 PM', '07:00 PM', '07:30 PM', '08:00 PM', '08:30 PM', '09:00 PM'].map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Your Full Name *</label>
+                  <input
+                    type="text"
+                    value={bookerName}
+                    onChange={(e) => setBookerName(e.target.value)}
+                    placeholder="e.g. Ananya Deshmukh"
+                    required
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Mobile Number *</label>
+                  <input
+                    type="tel"
+                    value={bookerPhone}
+                    onChange={(e) => setBookerPhone(e.target.value)}
+                    placeholder="e.g. 9876543210"
+                    required
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Special Request (Optional)</label>
+                  <input
+                    type="text"
+                    value={specialRequest}
+                    onChange={(e) => setSpecialRequest(e.target.value)}
+                    placeholder="e.g. Window view, Anniversary celebration"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={bookingSubmitting}
+                  className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {bookingSubmitting ? 'Requesting...' : 'Confirm Table Booking'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
