@@ -294,7 +294,15 @@ export default function UnifiedLoginPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="block text-xs font-semibold text-slate-300">Password</label>
+                      <a
+                        href="/forgot-password"
+                        className="text-[11px] font-bold text-orange-400 hover:text-orange-300 transition-colors"
+                      >
+                        Forgot password?
+                      </a>
+                    </div>
                     <input
                       type="password"
                       value={password}
@@ -398,6 +406,17 @@ export default function UnifiedLoginPage() {
                 )}
               </button>
             </form>
+
+            {/* Signup Link for New Cafe Owners */}
+            <div className="text-center pt-1">
+              <span className="text-xs text-slate-400">New cafe owner? </span>
+              <a
+                href="/signup"
+                className="text-xs font-bold text-orange-400 hover:text-orange-300 underline transition-colors"
+              >
+                Start 14-Day Free Trial →
+              </a>
+            </div>
 
             {/* Quick Demo Autofill Links for Fast Testing */}
             <div className="pt-2 border-t border-slate-800/80 text-center space-y-2">

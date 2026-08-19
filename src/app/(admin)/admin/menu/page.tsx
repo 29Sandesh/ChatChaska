@@ -43,9 +43,48 @@ export default function MenuManagerPage() {
 
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
+  // Category Manager Modal state
+  const [isCatModalOpen, setIsCatModalOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatIcon, setNewCatIcon] = useState('🍽️');
+
   const showToast = (msg: string) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatName.trim()) return;
+    try {
+      const res = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newCatName.trim(), icon: newCatIcon }),
+      });
+      if (res.ok) {
+        showToast('Category created!');
+        setNewCatName('');
+        fetchCategories();
+      }
+    } catch {
+      showToast('Failed to create category');
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this category?')) return;
+    try {
+      const res = await fetch(`/api/categories?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        showToast('Category deleted');
+        fetchCategories();
+      }
+    } catch {
+      showToast('Failed to delete category');
+    }
   };
 
   const fetchItems = async () => {
@@ -247,13 +286,23 @@ export default function MenuManagerPage() {
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAddModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
-        >
-          <span className="material-symbols-outlined text-[16px]">add</span>
-          + Add Dish
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsCatModalOpen(true)}
+            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[16px]">folder</span>
+            Manage Categories
+          </button>
+
+          <button
+            onClick={handleOpenAddModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[16px]">add</span>
+            + Add Dish
+          </button>
+        </div>
       </div>
 
       {/* Minimal AI Menu Scanner Bar */}
@@ -571,18 +620,103 @@ export default function MenuManagerPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/2 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-600 hover:bg-slate-50"
+                  className="w-1/2 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="w-1/2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold shadow-sm active:scale-95 transition-all"
+                  className="w-1/2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold shadow-sm active:scale-95 transition-all cursor-pointer"
                 >
                   {editingItem ? 'Update Dish' : 'Save Dish'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* CATEGORY MANAGER MODAL */}
+      {isCatModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl space-y-4 border border-slate-200 animate-in fade-in zoom-in duration-150">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="font-black text-slate-900 text-base">📁 Manage Menu Categories</h3>
+                <p className="text-[11px] text-slate-500">Add, rename, or remove categories from your POS menu.</p>
+              </div>
+              <button
+                onClick={() => setIsCatModalOpen(false)}
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Quick Add Category Form */}
+            <form onSubmit={handleCreateCategory} className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Emoji (e.g. 🍕, ☕)"
+                value={newCatIcon}
+                onChange={(e) => setNewCatIcon(e.target.value)}
+                className="w-16 p-2 rounded-xl border border-slate-300 text-center text-sm outline-none focus:border-blue-600"
+              />
+              <input
+                type="text"
+                required
+                placeholder="Category Name (e.g. Desserts)"
+                value={newCatName}
+                onChange={(e) => setNewCatName(e.target.value)}
+                className="flex-1 p-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-900 outline-none focus:border-blue-600"
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+              >
+                + Add
+              </button>
+            </form>
+
+            {/* List of Existing Categories */}
+            <div className="space-y-2 max-h-60 overflow-y-auto pt-2">
+              {categories.map((cat) => {
+                const count = items.filter((i) => i.category === cat.id).length;
+                return (
+                  <div
+                    key={cat.id}
+                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-slate-50/50"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">{cat.icon || '🍽️'}</span>
+                      <span className="font-bold text-xs text-slate-900">{cat.name}</span>
+                      <span className="text-[10px] text-slate-400 font-semibold bg-slate-200 px-1.5 py-0.5 rounded-full">
+                        {count} dishes
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteCategory(cat.id)}
+                      className="text-slate-400 hover:text-rose-600 p-1 text-xs font-bold cursor-pointer"
+                      title="Delete category"
+                    >
+                      <span className="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="pt-2 text-right">
+              <button
+                type="button"
+                onClick={() => setIsCatModalOpen(false)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}

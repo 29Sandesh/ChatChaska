@@ -3,11 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [cafeName, setCafeName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [email, setEmail] = useState('');
@@ -21,114 +21,170 @@ export default function SignupPage() {
     setLoading(true);
     setErrorMsg('');
 
+    // Clean phone
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length !== 10) {
+      setErrorMsg('Please enter a valid 10-digit mobile number');
+      setLoading(false);
+      return;
+    }
+
     try {
-      // In production, this registers in Supabase platform_users and cafes tables
-      // For now, simulate smooth onboarding with a 14-day free trial
-      setTimeout(() => {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cafeName: cafeName.trim(),
+          ownerName: ownerName.trim(),
+          email: email.trim().toLowerCase(),
+          phone: cleanPhone,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrorMsg(data.error || 'Registration failed');
+        toast.error(data.error || 'Registration failed');
         setLoading(false);
+        return;
+      }
+
+      toast.success('🎉 Cafe registered successfully! Please log in.');
+      setTimeout(() => {
         router.push('/login?registered=true');
-      }, 700);
+      }, 1200);
     } catch {
-      setErrorMsg('Failed to create account. Please try again.');
+      setErrorMsg('Connection error. Please try again.');
+      toast.error('Network connection error');
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 select-none font-sans">
-      <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-8 shadow-xl space-y-6">
+    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 sm:p-6 font-sans select-none overflow-x-hidden relative">
+      {/* Ambient background glow */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative z-10">
         {/* Branding Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-1.5">
           <img
-            src="/chaska-logo.png"
+            src="/chaska-c-logo.png"
             alt="ChatChaska"
-            className="h-12 object-contain mx-auto shadow-2xs"
+            className="w-12 h-12 rounded-2xl mx-auto shadow-md shadow-orange-500/10"
           />
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">ChatChaska POS</h1>
-          <p className="text-xs text-slate-500 font-medium">
-            Start your 14-day free trial • No credit card required
+          <h1 className="text-2xl font-black text-slate-100 tracking-tight">Create Cafe Workspace</h1>
+          <p className="text-xs text-slate-400 font-medium">
+            Start your 14-day free trial • 0 setup fees
           </p>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+        <div className="grid grid-cols-2 gap-1 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
           <Link
             href="/login"
-            className="flex-1 py-2.5 text-center rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 transition-all"
+            className="py-2.5 text-center rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-all"
           >
             Sign In
           </Link>
-          <div className="flex-1 py-2.5 text-center rounded-xl text-xs font-bold bg-white text-blue-600 shadow-xs">
+          <div className="py-2.5 text-center rounded-xl text-xs font-bold bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md">
             Start Free Trial
           </div>
         </div>
 
         {errorMsg && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold rounded-xl text-center">
-            {errorMsg}
+          <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold rounded-xl text-center flex items-center justify-center gap-1.5 animate-in fade-in">
+            <span className="material-symbols-outlined text-base">error</span>
+            <span>{errorMsg}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Cafe / Restaurant Name"
-            icon="storefront"
-            type="text"
-            placeholder="e.g. Chai & Bites Cafe"
-            value={cafeName}
-            onChange={(e) => setCafeName(e.target.value)}
-            required
-          />
-
-          <Input
-            label="Owner Full Name"
-            icon="person"
-            type="text"
-            placeholder="e.g. Rahul Sharma"
-            value={ownerName}
-            onChange={(e) => setOwnerName(e.target.value)}
-            required
-          />
-
-          <Input
-            label="Work Email"
-            icon="mail"
-            type="email"
-            placeholder="owner@mycafe.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <Input
-            label="Contact Phone"
-            icon="phone"
-            type="tel"
-            placeholder="+91 98765 43210"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-          />
-
-          <Input
-            label="Password"
-            icon="lock"
-            type="password"
-            placeholder="Create a secure password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            helperText="Must be at least 6 characters long"
-            required
-          />
-
-          <div className="pt-2">
-            <Button type="submit" fullWidth loading={loading}>
-              Create Cafe &amp; Start Trial →
-            </Button>
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Cafe / Restaurant Name *</label>
+            <input
+              type="text"
+              placeholder="e.g. Chai &amp; Bites Cafe"
+              value={cafeName}
+              onChange={(e) => setCafeName(e.target.value)}
+              required
+              className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none"
+            />
           </div>
 
-          <p className="text-center font-body-sm text-[11px] text-slate-400 mt-3">
-            By signing up, you agree to ChatChaska terms of service.
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Owner Full Name *</label>
+            <input
+              type="text"
+              placeholder="e.g. Rahul Sharma"
+              value={ownerName}
+              onChange={(e) => setOwnerName(e.target.value)}
+              required
+              className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Work Email *</label>
+              <input
+                type="email"
+                placeholder="owner@cafe.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Mobile Phone (10 digits) *</label>
+              <input
+                type="tel"
+                placeholder="9876543210"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+                className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Password (min 8 chars) *</label>
+            <input
+              type="password"
+              placeholder="Create a secure password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black py-3.5 rounded-2xl text-xs shadow-xl transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <span>Registering Workspace...</span>
+              ) : (
+                <>
+                  <span>Create Cafe &amp; Launch Trial</span>
+                  <span className="material-symbols-outlined text-base">arrow_forward</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          <p className="text-center text-[10px] text-slate-500 mt-2">
+            By signing up, you agree to ChatChaska Terms of Service.
           </p>
         </form>
       </div>

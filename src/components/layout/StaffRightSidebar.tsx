@@ -17,8 +17,9 @@ const staffNavItems: StaffNavItem[] = [
   { id: 'orders', label: 'Orders', href: '/staff/orders', icon: 'receipt_long' },
   { id: 'kitchen', label: 'Kitchen Display', href: '/staff/kitchen', icon: 'soup_kitchen' },
   { id: 'tables', label: 'Table Map', href: '/staff/tables', icon: 'grid_view' },
+  { id: 'shift', label: 'Shift / Cash Drawer', href: '/staff/shift', icon: 'point_of_sale' },
   { id: 'live', label: 'Live Orders', href: '/staff/live', icon: 'visibility' },
-  { id: 'history', label: 'Order History', href: '/staff/history', icon: 'receipt_long' },
+  { id: 'history', label: 'Order History', href: '/staff/history', icon: 'history' },
 ];
 
 export function StaffRightSidebar({
@@ -29,6 +30,15 @@ export function StaffRightSidebar({
   onToggleExpand?: () => void;
 }) {
   const pathname = usePathname();
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // ignore
+    }
+    window.location.href = '/login?logout=true';
+  };
 
   return (
     <aside
@@ -94,17 +104,17 @@ export function StaffRightSidebar({
 
       {/* Footer / Exit Button */}
       <div className="pt-3 mt-auto border-t border-slate-100">
-        <Link
-          href="/login"
+        <button
+          onClick={handleLogout}
           className={cn(
-            'flex items-center text-xs font-bold text-slate-500 hover:text-rose-600 rounded-md hover:bg-rose-50 transition-colors',
+            'w-full flex items-center text-xs font-bold text-slate-500 hover:text-rose-600 rounded-md hover:bg-rose-50 transition-colors cursor-pointer',
             isExpanded ? 'gap-2 px-3 py-2.5' : 'justify-center p-2.5'
           )}
           title="Exit / Logout"
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>
           {isExpanded && <span>Logout</span>}
-        </Link>
+        </button>
       </div>
     </aside>
   );

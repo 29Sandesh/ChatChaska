@@ -33,6 +33,15 @@ export function AdminSidebar({
 }) {
   const pathname = usePathname();
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // ignore
+    }
+    window.location.href = '/login?logout=true';
+  };
+
   return (
     <aside
       className={cn(
@@ -76,16 +85,20 @@ export function AdminSidebar({
         )}
       </div>
 
-      {/* Staff Portal Switch Link */}
+      {/* Quick POS Mode Card */}
       {!isCollapsed ? (
-        <Link href="/staff/pos" className="mb-4">
-          <div className="w-full bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-bold p-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all border border-slate-200">
-            <span className="material-symbols-outlined text-[18px]">point_of_sale</span>
-            Open Staff POS
+        <Link
+          href="/staff/pos"
+          className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold text-xs shadow-sm hover:from-blue-700 hover:to-indigo-700 transition-all mb-4 group cursor-pointer"
+        >
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[20px]">point_of_sale</span>
+            <span>Billing POS Terminal</span>
           </div>
+          <span className="material-symbols-outlined text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
         </Link>
       ) : (
-        <Link href="/staff/pos" className="mb-4 flex justify-center">
+        <Link href="/staff/pos" className="flex justify-center mb-4 cursor-pointer">
           <div
             className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 flex items-center justify-center font-bold transition-all border border-slate-200"
             title="Open Staff POS"
@@ -126,16 +139,26 @@ export function AdminSidebar({
         })}
       </nav>
 
-      {/* Sidebar Footer */}
+      {/* Sidebar Footer with Real Logout */}
       <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 px-1">
-        {!isCollapsed && (
-          <Link href="/login" className="flex items-center gap-1 font-bold text-slate-500 hover:text-rose-600 text-xs">
+        {!isCollapsed ? (
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 font-bold text-slate-500 hover:text-rose-600 text-xs transition-colors cursor-pointer"
+          >
             <span className="material-symbols-outlined text-[16px]">logout</span>
-            Logout
-          </Link>
+            <span>Sign Out</span>
+          </button>
+        ) : (
+          <button
+            onClick={handleLogout}
+            className="w-full flex justify-center text-slate-400 hover:text-rose-600 py-1 cursor-pointer"
+            title="Sign Out"
+          >
+            <span className="material-symbols-outlined text-[18px]">logout</span>
+          </button>
         )}
       </div>
     </aside>
   );
 }
-

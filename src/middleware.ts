@@ -23,10 +23,17 @@ const SESSION_COOKIE_NAME = 'chatchaska_session';
 const PUBLIC_ROUTES = [
   '/login',
   '/signup',
+  '/forgot-password',
   '/api/auth/login',
+  '/api/auth/signup',
   '/api/auth/logout',
+  '/api/auth/reset-password',
+  '/api/cafe-config',
+  '/api/health',
   '/menu',
   '/explore',
+  '/my-orders',
+  '/my-profile',
   '/bill',
 ];
 
@@ -56,10 +63,12 @@ interface SessionPayload {
 
 function parseSession(cookieValue: string): SessionPayload | null {
   try {
-    const decoded = Buffer.from(cookieValue, 'base64').toString('utf-8');
+    // Handle both signed token format (payload.signature) and legacy base64
+    const rawPayload = cookieValue.includes('.') ? cookieValue.split('.')[0] : cookieValue;
+    const decoded = Buffer.from(rawPayload, 'base64').toString('utf-8');
     const session: SessionPayload = JSON.parse(decoded);
 
-    if (Date.now() > session.expiresAt) {
+    if (session.expiresAt && Date.now() > session.expiresAt) {
       return null; // Expired
     }
 

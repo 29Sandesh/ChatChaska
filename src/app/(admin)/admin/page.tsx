@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Bill } from '@/types';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
+import { useCafeConfig } from '@/hooks/useCafeConfig';
 
 interface DashboardMetrics {
   totalBills: number;
@@ -27,6 +28,7 @@ interface ItemSale {
 }
 
 export default function OwnerDashboardPage() {
+  const { config } = useCafeConfig();
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalBills: 0,
     grossSales: 0,
@@ -41,22 +43,38 @@ export default function OwnerDashboardPage() {
   const [recentBills, setRecentBills] = useState<Bill[]>([]);
   const [selectedBillData, setSelectedBillData] = useState<BillData | null>(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+  const [tableStats, setTableStats] = useState<{ occupied: number; total: number }>({ occupied: 0, total: 0 });
+  const [setupCompleted, setSetupCompleted] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [repRes, billsRes] = await Promise.all([
+        const [repRes, billsRes, tablesRes, settingRes] = await Promise.all([
           fetch('/api/reports?timeframe=today'),
           fetch('/api/bills'),
+          fetch('/api/tables'),
+          fetch('/api/settings?key=setup_completed'),
         ]);
 
         const repData = await repRes.json();
         const billsData = await billsRes.json();
+        const tablesData = await tablesRes.json();
+        const settingData = await settingRes.json();
 
         if (repData.summary) setMetrics(repData.summary);
         if (repData.paymentBreakdown) setPaymentBreakdown(repData.paymentBreakdown);
         if (repData.itemSales) setTopItems(repData.itemSales.slice(0, 5));
         if (billsData.bills) setRecentBills(billsData.bills.slice(0, 6));
+
+        if (tablesData.tables && Array.isArray(tablesData.tables)) {
+          const total = tablesData.tables.length;
+          const occupied = tablesData.tables.filter((t: any) => t.status === 'occupied' || t.status === 'running').length;
+          setTableStats({ occupied, total });
+        }
+
+        if (settingData && settingData.value !== 'true') {
+          setSetupCompleted(false);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -69,10 +87,10 @@ export default function OwnerDashboardPage() {
       billId: b.id,
       orderId: b.orderId,
       tokenNumber: b.tokenNumber || '01',
-      restaurantName: b.restaurantName || 'ChatChaska Cafe',
-      gstin: b.gstin || '27AABCM1234A1Z5',
-      fssai: b.fssai || '11521001000123',
-      address: b.address || 'MG Road, Main Market',
+      restaurantName: config.cafeName || b.restaurantName || 'ChatChaska Cafe',
+      gstin: config.gstin || b.gstin || '',
+      fssai: config.fssai || b.fssai || '',
+      address: config.address || b.address || '',
       date: new Date(b.createdAt).toLocaleString('en-IN', {
         day: '2-digit',
         month: 'short',
@@ -92,8 +110,8 @@ export default function OwnerDashboardPage() {
       })),
       subtotal: b.subtotal,
       discountAmount: b.discountAmount,
-      cgstRate: 2.5,
-      sgstRate: 2.5,
+      cgstRate: config.cgstRate || 2.5,
+      sgstRate: config.sgstRate || 2.5,
       cgstAmount: b.cgstAmount,
       sgstAmount: b.sgstAmount,
       grandTotal: b.grandTotal,
@@ -134,11 +152,35 @@ export default function OwnerDashboardPage() {
         </div>
       </div>
 
-      {/* Top 4 Minimal Metric Cards */}
+      {/* Setup Wizard Incomplete Banner */}
+      {!setupCompleted && (
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
+              🚀
+            </div>
+            <div>
+              <h3 className="font-bold text-sm">Finish Setting Up Your Cafe Workspace</h3>
+              <p className="text-xs text-blue-100">
+                Configure your GST/FSSAI numbers, dining tables, and staff PINs in 2 minutes.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href="/admin/setup"
+            className="px-4 py-2 bg-white text-blue-600 hover:bg-blue-50 font-black rounded-xl text-xs shadow-xs shrink-0 transition-all cursor-pointer"
+          >
+            Launch Setup Wizard →
+          </Link>
+        </div>
+      )}
+
+      {/* Top Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         <div className="p-4.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Today's Sales</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s Sales</span>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
           <div className="text-2xl md:text-3xl font-black text-blue-600">₹{metrics.netRevenue}</div>
@@ -152,9 +194,20 @@ export default function OwnerDashboardPage() {
         </div>
 
         <div className="p-4.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Live Dining</span>
+            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">LIVE</span>
+          </div>
+          <div className="text-2xl md:text-3xl font-black text-emerald-600">
+            {tableStats.occupied}/{tableStats.total || 8}
+          </div>
+          <div className="text-[11px] text-slate-400 font-medium">Tables Occupied</div>
+        </div>
+
+        <div className="p-4.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-1.5">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">GST Collected</span>
           <div className="text-2xl md:text-3xl font-black text-amber-600">₹{metrics.totalTax}</div>
-          <div className="text-[11px] text-slate-400 font-medium">5% total GST</div>
+          <div className="text-[11px] text-slate-400 font-medium">CGST + SGST</div>
         </div>
 
         <div className="p-4.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-1.5">

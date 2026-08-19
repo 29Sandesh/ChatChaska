@@ -119,25 +119,42 @@ export default function OwnerReportsPage() {
           <button
             onClick={() => {
               import('@/lib/eod-summary').then(({ buildEodWhatsAppUrl }) => {
+                // Calculate real breakdown from reportData
+                let cashSales = 0;
+                let upiSales = 0;
+                let cardSales = 0;
+
+                if (reportData?.paymentBreakdown && Array.isArray(reportData.paymentBreakdown)) {
+                  reportData.paymentBreakdown.forEach((p: any) => {
+                    if (p.payment_mode === 'cash') cashSales = p.amount;
+                    else if (p.payment_mode === 'upi') upiSales = p.amount;
+                    else if (p.payment_mode === 'card') cardSales = p.amount;
+                  });
+                }
+
+                const topItems = (reportData?.itemSales || []).slice(0, 5).map((it: any) => ({
+                  name: it.name,
+                  count: it.qty,
+                  revenue: it.revenue,
+                }));
+
                 const url = buildEodWhatsAppUrl(undefined, {
-                  cafeName: 'ChatChaska Cafe',
+                  cafeName: summary.restaurantName || 'ChatChaska Cafe',
                   dateStr: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
                   totalSales: summary.netRevenue || 0,
                   totalOrders: summary.totalBills || 0,
-                  cashSales: Math.round((summary.netRevenue || 0) * 0.4),
-                  upiSales: Math.round((summary.netRevenue || 0) * 0.6),
-                  cardSales: 0,
+                  cashSales,
+                  upiSales,
+                  cardSales,
                   totalTax: summary.totalTax || 0,
-                  topSellingItems: [
-                    { name: 'Special Masala Chai', count: 24, revenue: 1200 },
-                    { name: 'Paneer Tikka Roll', count: 18, revenue: 3240 },
-                    { name: 'Crispy French Fries', count: 14, revenue: 1680 },
+                  topSellingItems: topItems.length > 0 ? topItems : [
+                    { name: 'Regular Order', count: summary.totalBills || 1, revenue: summary.netRevenue || 0 },
                   ],
                 });
                 window.open(url, '_blank');
               });
             }}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95 cursor-pointer"
             title="Generate & Share End-of-Day Sales Report via WhatsApp"
           >
             <span className="material-symbols-outlined text-[16px]">chat</span>
