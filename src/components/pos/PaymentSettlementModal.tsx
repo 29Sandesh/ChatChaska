@@ -55,9 +55,9 @@ export function PaymentSettlementModal({
   if (!isOpen) return null;
 
   const handleAction = (isPayLater: boolean) => {
-    const cleanPhone = customerPhone.trim();
-    if (cleanPhone && cleanPhone.length < 10) {
-      setPhoneError('Please enter a valid 10-digit WhatsApp mobile number.');
+    const cleanPhone = customerPhone.replace(/\D/g, '').trim();
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setPhoneError('Please enter 10-digit WhatsApp number to send bill.');
       return;
     }
 
@@ -170,34 +170,45 @@ export function PaymentSettlementModal({
 
           {/* CUSTOMER DETAILS (Box Shaped) */}
           <div className="space-y-2.5">
+            {/* Customer Name (Optional) */}
             <div className="relative">
               <span className="material-symbols-outlined text-[17px] text-slate-400 absolute left-3 top-2.5">
                 person
               </span>
               <input
                 type="text"
-                placeholder="Customer Name"
+                placeholder="Customer Name (Optional)"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 className="w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF9F7] border border-[#E8DFC9] rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-black transition-all"
               />
             </div>
 
+            {/* WhatsApp Mobile Number (Required to send bill) */}
             <div className="relative">
               <span className="material-symbols-outlined text-[17px] text-slate-400 absolute left-3 top-2.5">
                 chat
               </span>
               <input
                 type="tel"
-                placeholder="WhatsApp Mobile Number"
+                placeholder="WhatsApp Mobile Number *"
                 value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
+                onChange={(e) => {
+                  setCustomerPhone(e.target.value);
+                  if (phoneError) setPhoneError(null);
+                }}
                 maxLength={10}
-                className="w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF9F7] border border-[#E8DFC9] rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-black transition-all"
+                className={cn(
+                  "w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF9F7] border rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-hidden transition-all",
+                  phoneError ? "border-rose-500 focus:border-rose-600 bg-rose-50/40" : "border-[#E8DFC9] focus:border-black"
+                )}
               />
             </div>
             {phoneError && (
-              <p className="text-[11px] text-rose-600 font-bold">{phoneError}</p>
+              <p className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-in fade-in">
+                <span className="material-symbols-outlined text-[14px]">error</span>
+                <span>{phoneError}</span>
+              </p>
             )}
           </div>
         </div>
