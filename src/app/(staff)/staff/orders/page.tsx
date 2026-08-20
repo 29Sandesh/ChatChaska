@@ -350,8 +350,8 @@ function OrdersContent() {
         </div>
       </header>
 
-      {/* 2. MAIN ORDERS GRID CONTENT */}
-      <div className="flex-1 overflow-y-auto p-4 max-w-7xl mx-auto w-full no-scrollbar space-y-4">
+      {/* 2. MAIN ORDERS GRID CONTENT: FULL WIDTH EDGE-TO-EDGE & 4 CARDS PER ROW */}
+      <div className="flex-1 overflow-y-auto p-4 w-full no-scrollbar space-y-4">
         {loading ? (
           <div className="bg-white border border-slate-200 rounded-md p-12 text-center text-slate-400 text-xs font-bold">
             Loading table QR orders...
@@ -367,7 +367,7 @@ function OrdersContent() {
             />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3.5 w-full">
             {filteredOrders.map((order) => {
               const isPending = order.status === 'pending';
               const isKitchen = order.status === 'preparing' || order.status === 'ready';
