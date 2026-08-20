@@ -13,27 +13,25 @@ export interface CartItem {
 
 interface BillPanelProps {
   cart: CartItem[];
-  orderType: 'DINE_IN' | 'PICKUP';
-  onOrderTypeChange: (type: 'DINE_IN' | 'PICKUP') => void;
-  selectedTable: string;
-  onTableSelect: (table: string) => void;
+  orderType?: 'DINE_IN' | 'PICKUP';
+  onOrderTypeChange?: (type: 'DINE_IN' | 'PICKUP') => void;
+  selectedTable?: string;
+  onTableSelect?: (table: string) => void;
   onUpdateQuantity: (itemId: string, delta: number) => void;
   onRemoveItem?: (itemId: string) => void;
-  paymentMethod: 'cash' | 'upi' | 'card';
-  onPaymentMethodChange: (method: 'cash' | 'upi' | 'card') => void;
+  paymentMethod?: 'cash' | 'upi' | 'card';
+  onPaymentMethodChange?: (method: 'cash' | 'upi' | 'card') => void;
   discountAmount: number;
   onDiscountChange: (amount: number) => void;
-  heldCount: number;
+  heldCount?: number;
   onHold: () => void;
-  onOpenHeld: () => void;
+  onOpenHeld?: () => void;
   onSaveBill: () => void;
-  onSendKOT: () => void;
+  onSendKOT?: () => void;
 }
 
 export function BillPanel({
   cart,
-  selectedTable,
-  onTableSelect,
   onUpdateQuantity,
   onRemoveItem,
   discountAmount,
@@ -41,11 +39,9 @@ export function BillPanel({
   onHold,
   onSaveBill,
 }: BillPanelProps) {
-  const [guestCount, setGuestCount] = useState<number>(6);
   const [orderNote, setOrderNote] = useState<string>('');
   const [isEditingNote, setIsEditingNote] = useState<boolean>(false);
   const [isEditingDiscount, setIsEditingDiscount] = useState<boolean>(false);
-  const [isTableModalOpen, setIsTableModalOpen] = useState<boolean>(false);
 
   const { subtotal, totalTax, grandTotal } = calculateBillTotals({
     items: cart.map((c) => ({ price: c.price, quantity: c.quantity })),
@@ -57,69 +53,8 @@ export function BillPanel({
 
   return (
     <aside className="w-[340px] xl:w-[370px] bg-white border-l border-[#EBEBEB] flex flex-col justify-between shrink-0 select-none h-full overflow-hidden">
-      {/* 1. Header Bar: Table Name + Guest Counter */}
-      <div className="px-4 py-3 border-b border-[#EBEBEB] flex items-center justify-between bg-white shrink-0">
-        {/* Table Selector / Label with Edit Pen */}
-        <button
-          type="button"
-          onClick={() => setIsTableModalOpen(!isTableModalOpen)}
-          className="flex items-center gap-1 text-slate-900 font-bold text-xs hover:text-blue-600 transition-colors cursor-pointer"
-        >
-          <span>Table: {selectedTable.replace('Table ', '')}</span>
-          <span className="material-symbols-outlined text-[15px] text-slate-400">
-            edit
-          </span>
-        </button>
-
-        {/* Guests Counter: Guests: 6 [-] [+] */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs font-semibold text-slate-700">Guests: {guestCount}</span>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setGuestCount((g) => Math.max(1, g - 1))}
-              className="w-5 h-5 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
-            >
-              -
-            </button>
-            <button
-              type="button"
-              onClick={() => setGuestCount((g) => g + 1)}
-              className="w-5 h-5 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
-            >
-              +
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Table Switcher Dropdown (If Table edit is clicked) */}
-      {isTableModalOpen && (
-        <div className="p-2.5 bg-slate-50 border-b border-slate-200 grid grid-cols-4 gap-1 animate-in fade-in">
-          {['Table 1', 'Table 2', 'Table 3', 'Table 4', 'Table 5', 'Table 6', 'Table 7', 'Table 8'].map(
-            (t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => {
-                  onTableSelect(t);
-                  setIsTableModalOpen(false);
-                }}
-                className={`py-1 px-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
-                  selectedTable === t
-                    ? 'border-black bg-black text-white'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                {t}
-              </button>
-            )
-          )}
-        </div>
-      )}
-
-      {/* 2. Scrollable Cart Items List */}
-      <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5 divide-y divide-slate-100 no-scrollbar">
+      {/* 1. Scrollable Cart Items List (Shifted a little below with clean top padding) */}
+      <div className="flex-1 overflow-y-auto pt-5 pb-3 px-4 space-y-2.5 divide-y divide-slate-100 no-scrollbar">
         {cart.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center text-slate-400">
             <span className="material-symbols-outlined text-4xl mb-1 text-slate-300">
@@ -213,7 +148,7 @@ export function BillPanel({
         </div>
       </div>
 
-      {/* 3. Totals & Calculation Section */}
+      {/* 2. Totals & Calculation Section */}
       <div className="px-4 py-3 border-t border-[#EBEBEB] bg-white space-y-1.5 shrink-0">
         {/* Items Summary */}
         <div className="flex justify-between items-center text-xs font-normal text-slate-600">
@@ -271,7 +206,7 @@ export function BillPanel({
         </div>
       </div>
 
-      {/* 4. Bottom 3 Action Buttons (Hold Order | Pay / Checkout | Save & Print) */}
+      {/* 3. Bottom 3 Action Buttons (Hold Order | Pay / Checkout | Save & Print) */}
       <div className="p-3 bg-white border-t border-[#EBEBEB] grid grid-cols-3 gap-2 shrink-0">
         {/* Hold Order */}
         <button

@@ -26,7 +26,6 @@ function StaffPOSContent() {
   const [dietaryFilter, setDietaryFilter] = useState<DietaryFilter>('ALL');
   
   const [cart, setCart] = useState<CartItem[]>([
-    // Initialize with default items if empty so it looks exactly alive as reference
     { id: 'item-chai-default', name: 'Masala Chai', price: 60, quantity: 6, veg: true },
     { id: 'item-paneer-default', name: 'Paneer Tikka', price: 280, quantity: 3, veg: true },
   ]);
@@ -544,250 +543,249 @@ function StaffPOSContent() {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
-      {/* Left + Center Area (Header Bar + Categories Sidebar + Menu Items Grid) */}
-      <div className="flex-1 flex flex-col min-w-0 h-full border-r border-[#EBEBEB] bg-[#FAF9F7]">
-        {/* 1. FULL-WIDTH TOP HEADER BAR (EXACT AS SCREENSHOT) */}
-        <div className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-3 shrink-0 select-none">
-          {/* BRAND LOGO ON FAR LEFT */}
-          <div className="flex items-center justify-start w-[190px] shrink-0">
-            <img
-              src="/chatchaska-logo.png"
-              alt="ChatChaska"
-              className="h-8 w-auto max-w-[160px] object-contain"
+    <div className="flex flex-col h-screen w-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
+      {/* 1. FULL-WIDTH TOP HEADER BAR (Spans 100% from left edge to far right corner) */}
+      <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-3 shrink-0 select-none z-20">
+        {/* BRAND LOGO ON FAR LEFT */}
+        <div className="flex items-center justify-start w-[190px] shrink-0">
+          <img
+            src="/chatchaska-logo.png"
+            alt="ChatChaska"
+            className="h-8 w-auto max-w-[160px] object-contain"
+          />
+        </div>
+
+        {/* CENTER: SEARCH INPUT + DIETARY FILTERS + QUICK ORDERS + DINE IN / PICK UP TOGGLE */}
+        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+          {/* Search Input Box */}
+          <div className="flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-xl px-3.5 py-1.5 text-xs w-[230px] xl:w-[260px] shadow-2xs focus-within:border-black transition-all">
+            <span className="material-symbols-outlined text-[17px] text-slate-400">
+              search
+            </span>
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search items... (F1)"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent outline-hidden w-full font-normal text-slate-900 placeholder:text-slate-400 text-xs"
             />
           </div>
 
-          {/* CENTER: SEARCH INPUT + DIETARY FILTERS + QUICK ORDERS + DINE IN / PICK UP TOGGLE */}
-          <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            {/* Search Input Box */}
-            <div className="flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-xl px-3.5 py-1.5 text-xs w-[230px] xl:w-[260px] shadow-2xs focus-within:border-black transition-all">
-              <span className="material-symbols-outlined text-[17px] text-slate-400">
-                search
-              </span>
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search items... (F1)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent outline-hidden w-full font-normal text-slate-900 placeholder:text-slate-400 text-xs"
-              />
-            </div>
-
-            {/* Dietary Filter Buttons: All (black) | • Veg | • Non-Veg | • Jain */}
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setDietaryFilter('ALL')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  dietaryFilter === 'ALL'
-                    ? 'bg-black text-white'
-                    : 'bg-white text-slate-700 border border-[#E5E5E5] hover:bg-slate-50'
-                }`}
-              >
-                All
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDietaryFilter('VEG')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                  dietaryFilter === 'VEG'
-                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-bold'
-                    : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-emerald-500'
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                <span>Veg</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDietaryFilter('NON_VEG')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                  dietaryFilter === 'NON_VEG'
-                    ? 'border-rose-500 bg-rose-50 text-rose-700 font-bold'
-                    : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-rose-500'
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
-                <span>Non-Veg</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDietaryFilter('JAIN')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                  dietaryFilter === 'JAIN'
-                    ? 'border-amber-500 bg-amber-50 text-amber-700 font-bold'
-                    : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-amber-500'
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-                <span>Jain</span>
-              </button>
-            </div>
-
-            {/* Quick Orders Button */}
+          {/* Dietary Filter Buttons: All (black) | • Veg | • Non-Veg | • Jain */}
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={() => setIsIncomingDrawerOpen(true)}
-              className="relative flex items-center gap-1.5 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              onClick={() => setDietaryFilter('ALL')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                dietaryFilter === 'ALL'
+                  ? 'bg-black text-white'
+                  : 'bg-white text-slate-700 border border-[#E5E5E5] hover:bg-slate-50'
+              }`}
             >
-              <span className="material-symbols-outlined text-[16px]">
-                bolt
-              </span>
-              <span>Quick Orders</span>
-              {incomingOrders.length > 0 && (
-                <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full animate-bounce">
-                  {incomingOrders.length}
-                </span>
-              )}
+              All
             </button>
 
-            {/* Dine In / Pick Up Segmented Pills */}
-            <div className="flex items-center gap-1 ml-auto">
-              <button
-                type="button"
-                onClick={() => setOrderType('DINE_IN')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  orderType === 'DINE_IN'
-                    ? 'bg-black text-white shadow-xs'
-                    : 'bg-[#F8EFE7] text-slate-800 hover:bg-[#F2E5D9]'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[16px]">
-                  flatware
-                </span>
-                <span>Dine In</span>
-              </button>
+            <button
+              type="button"
+              onClick={() => setDietaryFilter('VEG')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                dietaryFilter === 'VEG'
+                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-bold'
+                  : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-emerald-500'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+              <span>Veg</span>
+            </button>
 
-              <button
-                type="button"
-                onClick={() => setOrderType('PICKUP')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  orderType === 'PICKUP'
-                    ? 'bg-black text-white shadow-xs'
-                    : 'bg-[#F8EFE7] text-slate-800 hover:bg-[#F2E5D9]'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[16px]">
-                  shopping_bag
-                </span>
-                <span>Pick Up</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setDietaryFilter('NON_VEG')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                dietaryFilter === 'NON_VEG'
+                  ? 'border-rose-500 bg-rose-50 text-rose-700 font-bold'
+                  : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-rose-500'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
+              <span>Non-Veg</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setDietaryFilter('JAIN')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                dietaryFilter === 'JAIN'
+                  ? 'border-amber-500 bg-amber-50 text-amber-700 font-bold'
+                  : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-amber-500'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+              <span>Jain</span>
+            </button>
           </div>
 
-          {/* FAR RIGHT: CC AVATAR + HAMBURGER MENU */}
-          <div className="flex items-center gap-2 shrink-0 pl-2">
-            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs shadow-xs">
-              CC
-            </div>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
-                className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer"
-                title="Navigation Menu"
-              >
-                <span className="material-symbols-outlined text-[20px]">menu</span>
-              </button>
+          {/* Quick Orders Button */}
+          <button
+            type="button"
+            onClick={() => setIsIncomingDrawerOpen(true)}
+            className="relative flex items-center gap-1.5 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[16px]">
+              bolt
+            </span>
+            <span>Quick Orders</span>
+            {incomingOrders.length > 0 && (
+              <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full animate-bounce">
+                {incomingOrders.length}
+              </span>
+            )}
+          </button>
 
-              {/* Hamburger Dropdown Navigation */}
-              {isNavMenuOpen && (
-                <div className="absolute right-0 top-10 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in space-y-1">
+          {/* Dine In / Pick Up Segmented Pills */}
+          <div className="flex items-center gap-1 ml-auto">
+            <button
+              type="button"
+              onClick={() => setOrderType('DINE_IN')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                orderType === 'DINE_IN'
+                  ? 'bg-black text-white shadow-xs'
+                  : 'bg-[#F8EFE7] text-slate-800 hover:bg-[#F2E5D9]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">
+                flatware
+              </span>
+              <span>Dine In</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setOrderType('PICKUP')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                orderType === 'PICKUP'
+                  ? 'bg-black text-white shadow-xs'
+                  : 'bg-[#F8EFE7] text-slate-800 hover:bg-[#F2E5D9]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">
+                shopping_bag
+              </span>
+              <span>Pick Up</span>
+            </button>
+          </div>
+        </div>
+
+        {/* FAR RIGHT: CC AVATAR + HAMBURGER MENU ☰ (At the very top right corner) */}
+        <div className="flex items-center gap-2 shrink-0 pl-2">
+          <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs shadow-xs">
+            CC
+          </div>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
+              className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer"
+              title="Navigation Menu"
+            >
+              <span className="material-symbols-outlined text-[20px]">menu</span>
+            </button>
+
+            {/* Hamburger Dropdown Navigation */}
+            {isNavMenuOpen && (
+              <div className="absolute right-0 top-10 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in space-y-1">
+                <Link
+                  href="/staff/tables"
+                  onClick={() => setIsNavMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">grid_view</span>
+                  <span>Tables Map</span>
+                </Link>
+                <Link
+                  href="/staff/orders"
+                  onClick={() => setIsNavMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                  <span>Orders Queue</span>
+                </Link>
+                <Link
+                  href="/staff/kitchen"
+                  onClick={() => setIsNavMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">soup_kitchen</span>
+                  <span>Kitchen Display</span>
+                </Link>
+                <Link
+                  href="/staff/history"
+                  onClick={() => setIsNavMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">history</span>
+                  <span>Bill History</span>
+                </Link>
+                <div className="border-t border-slate-100 pt-1">
                   <Link
-                    href="/staff/tables"
+                    href="/login?logout=true"
                     onClick={() => setIsNavMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
                   >
-                    <span className="material-symbols-outlined text-[18px]">grid_view</span>
-                    <span>Tables Map</span>
+                    <span className="material-symbols-outlined text-[18px]">logout</span>
+                    <span>Exit Terminal</span>
                   </Link>
-                  <Link
-                    href="/staff/orders"
-                    onClick={() => setIsNavMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">receipt_long</span>
-                    <span>Orders Queue</span>
-                  </Link>
-                  <Link
-                    href="/staff/kitchen"
-                    onClick={() => setIsNavMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">soup_kitchen</span>
-                    <span>Kitchen Display</span>
-                  </Link>
-                  <Link
-                    href="/staff/history"
-                    onClick={() => setIsNavMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">history</span>
-                    <span>Bill History</span>
-                  </Link>
-                  <div className="border-t border-slate-100 pt-1">
-                    <Link
-                      href="/login?logout=true"
-                      onClick={() => setIsNavMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">logout</span>
-                      <span>Exit Terminal</span>
-                    </Link>
-                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
+      </header>
 
-        {/* CONTENT AREA: CATEGORY SIDEBAR (LEFT) + MENU DISHES GRID (RIGHT) */}
-        <div className="flex-1 flex min-h-0 overflow-hidden">
-          <CategoryPanel
-            categories={categoriesList}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-          />
+      {/* 2. MAIN BODY (Directly below the full-width header) */}
+      <div className="flex-1 flex min-h-0 overflow-hidden">
+        {/* Left Categories Sidebar */}
+        <CategoryPanel
+          categories={categoriesList}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
 
-          <MenuItemGrid
-            items={filteredItems}
-            onSelectItem={handleSelectItem}
-            categoryTitle={
-              selectedCategory === 'ALL'
-                ? 'All Items'
-                : selectedCategory === 'FAVORITES'
-                ? 'Favorites'
-                : categoriesList.find((c) => c.id === selectedCategory)?.name || 'All Items'
-            }
-            totalCount={301}
-          />
-        </div>
+        {/* Center Menu Dishes Grid */}
+        <MenuItemGrid
+          items={filteredItems}
+          onSelectItem={handleSelectItem}
+          categoryTitle={
+            selectedCategory === 'ALL'
+              ? 'All Items'
+              : selectedCategory === 'FAVORITES'
+              ? 'Favorites'
+              : categoriesList.find((c) => c.id === selectedCategory)?.name || 'All Items'
+          }
+          totalCount={301}
+        />
+
+        {/* Right Billing Panel (Shifted below with top padding) */}
+        <BillPanel
+          cart={cart}
+          orderType={orderType}
+          onOrderTypeChange={setOrderType}
+          selectedTable={selectedTable}
+          onTableSelect={setSelectedTable}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveItem={handleRemoveItem}
+          paymentMethod={paymentMethod}
+          onPaymentMethodChange={setPaymentMethod}
+          discountAmount={discountAmount}
+          onDiscountChange={setDiscountAmount}
+          heldCount={heldOrders.length}
+          onHold={handleHoldBill}
+          onOpenHeld={() => setIsHeldDrawerOpen(true)}
+          onSaveBill={handleSaveBill}
+          onSendKOT={handleSendKOT}
+        />
       </div>
-
-      {/* RIGHT SIDEBAR: BILLING PANEL */}
-      <BillPanel
-        cart={cart}
-        orderType={orderType}
-        onOrderTypeChange={setOrderType}
-        selectedTable={selectedTable}
-        onTableSelect={setSelectedTable}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        paymentMethod={paymentMethod}
-        onPaymentMethodChange={setPaymentMethod}
-        discountAmount={discountAmount}
-        onDiscountChange={setDiscountAmount}
-        heldCount={heldOrders.length}
-        onHold={handleHoldBill}
-        onOpenHeld={() => setIsHeldDrawerOpen(true)}
-        onSaveBill={handleSaveBill}
-        onSendKOT={handleSendKOT}
-      />
 
       {toastMessage && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 text-xs font-semibold z-50 animate-in fade-in">
