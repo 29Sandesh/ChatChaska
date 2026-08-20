@@ -239,30 +239,30 @@ function OrdersContent() {
           {/* All Filter */}
           <button
             onClick={() => setActiveFilter('ALL')}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+            className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'ALL'
                 ? 'bg-black text-white border-black'
                 : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-50'
             }`}
           >
             <span>All</span>
-            <span className={`px-2 py-0.5 rounded-md text-xs font-black ${activeFilter === 'ALL' ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'}`}>
+            <span className={`px-2 py-0.5 rounded-sm text-xs font-black ${activeFilter === 'ALL' ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'}`}>
               {orders.length}
             </span>
           </button>
 
-          {/* Table QR Orders Filter */}
+          {/* Table QR Orders Filter (#C3A27C Beige) */}
           <button
             onClick={() => setActiveFilter(activeFilter === 'TABLE_QR' ? 'ALL' : 'TABLE_QR')}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+            className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'TABLE_QR'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-slate-800 border-slate-300 hover:bg-blue-50'
+                ? 'bg-[#C3A27C] text-slate-950 border-[#B2906A]'
+                : 'bg-white text-slate-800 border-slate-300 hover:bg-[#FAF7F2]'
             }`}
           >
             <span className="material-symbols-outlined text-[15px]">qr_code_2</span>
             <span>Table QR</span>
-            <span className={`px-2 py-0.5 rounded-md text-xs font-black ${activeFilter === 'TABLE_QR' ? 'bg-white text-blue-700' : 'bg-blue-600 text-white'}`}>
+            <span className={`px-2 py-0.5 rounded-sm text-xs font-black ${activeFilter === 'TABLE_QR' ? 'bg-white text-slate-950' : 'bg-[#C3A27C] text-slate-950'}`}>
               {tableQrCount}
             </span>
           </button>
@@ -270,14 +270,14 @@ function OrdersContent() {
           {/* Pending Filter */}
           <button
             onClick={() => setActiveFilter(activeFilter === 'PENDING' ? 'ALL' : 'PENDING')}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+            className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'PENDING'
                 ? 'bg-amber-500 text-white border-amber-500'
                 : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-50'
             }`}
           >
             <span>Pending</span>
-            <span className={`px-2 py-0.5 rounded-md text-xs font-black ${activeFilter === 'PENDING' ? 'bg-white text-amber-700' : 'bg-slate-900 text-white'}`}>
+            <span className={`px-2 py-0.5 rounded-sm text-xs font-black ${activeFilter === 'PENDING' ? 'bg-white text-amber-700' : 'bg-slate-900 text-white'}`}>
               {pendingCount}
             </span>
           </button>
@@ -285,14 +285,14 @@ function OrdersContent() {
           {/* Kitchen Filter */}
           <button
             onClick={() => setActiveFilter(activeFilter === 'KITCHEN' ? 'ALL' : 'KITCHEN')}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+            className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'KITCHEN'
-                ? 'bg-blue-600 text-white border-blue-600'
+                ? 'bg-slate-900 text-white border-slate-900'
                 : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-50'
             }`}
           >
             <span>Kitchen</span>
-            <span className={`px-2 py-0.5 rounded-md text-xs font-black ${activeFilter === 'KITCHEN' ? 'bg-white text-blue-700' : 'bg-slate-900 text-white'}`}>
+            <span className={`px-2 py-0.5 rounded-sm text-xs font-black ${activeFilter === 'KITCHEN' ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'}`}>
               {kitchenCount}
             </span>
           </button>
@@ -300,14 +300,14 @@ function OrdersContent() {
           {/* Done Filter */}
           <button
             onClick={() => setActiveFilter(activeFilter === 'COMPLETED' ? 'ALL' : 'COMPLETED')}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+            className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'COMPLETED'
                 ? 'bg-emerald-600 text-white border-emerald-600'
                 : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-50'
             }`}
           >
             <span>Done</span>
-            <span className={`px-2 py-0.5 rounded-md text-xs font-black ${activeFilter === 'COMPLETED' ? 'bg-white text-emerald-700' : 'bg-slate-900 text-white'}`}>
+            <span className={`px-2 py-0.5 rounded-sm text-xs font-black ${activeFilter === 'COMPLETED' ? 'bg-white text-emerald-700' : 'bg-slate-900 text-white'}`}>
               {completedCount}
             </span>
           </button>
@@ -316,11 +316,11 @@ function OrdersContent() {
 
       {/* Orders Grid */}
       {loading ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center text-slate-400 text-xs font-bold">
+        <div className="bg-white border border-slate-200 rounded-md p-12 text-center text-slate-400 text-xs font-bold">
           Loading table QR orders...
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+        <div className="bg-white border border-slate-200 rounded-md p-6 shadow-xs">
           <EmptyState
             icon="receipt_long"
             title="No Orders in this Queue"
@@ -340,28 +340,28 @@ function OrdersContent() {
             return (
               <div
                 key={order.id}
-                className={`bg-white border rounded-xl p-4 flex flex-col justify-between space-y-3 transition-all ${
+                className={`bg-white border rounded-md p-4 flex flex-col justify-between space-y-3 transition-all ${
                   isPending
                     ? 'border-2 border-amber-400 bg-amber-50/40 shadow-xs'
                     : isCompleted
                     ? 'border border-emerald-300 bg-emerald-50/30 shadow-2xs'
                     : isCancelled
                     ? 'border border-rose-200 bg-rose-50/30 opacity-75'
-                    : 'border border-blue-200 bg-white shadow-2xs'
+                    : 'border border-slate-300 bg-white shadow-2xs'
                 }`}
               >
                 {/* Card Top Row */}
                 <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`px-2.5 py-1 h-7 font-black text-xs rounded-md shadow-2xs inline-flex items-center justify-center ${
+                      className={`px-2.5 py-1 h-7 font-black text-xs rounded-sm shadow-2xs inline-flex items-center justify-center ${
                         isPending
                           ? 'bg-amber-500 text-white'
                           : isCompleted
                           ? 'bg-emerald-600 text-white'
                           : isCancelled
                           ? 'bg-rose-500 text-white'
-                          : 'bg-blue-600 text-white'
+                          : 'bg-black text-white'
                       }`}
                     >
                       {order.tableNumber ? order.tableNumber.replace('Table ', 'T') : 'T1'}
@@ -372,18 +372,18 @@ function OrdersContent() {
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-black text-amber-700 bg-amber-100/90 border border-amber-300 px-2 py-0.5 rounded-md inline-flex items-center gap-1 h-6">
+                    <span className="text-[10px] font-black text-amber-800 bg-amber-100/90 border border-amber-300 px-2 py-0.5 rounded-sm inline-flex items-center gap-1 h-6">
                       ⏳ Post-Pay
                     </span>
                     <span
-                      className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md h-6 inline-flex items-center justify-center ${
+                      className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-sm h-6 inline-flex items-center justify-center ${
                         isPending
                           ? 'bg-amber-500 text-white'
                           : isCompleted
                           ? 'bg-emerald-600 text-white'
                           : isCancelled
                           ? 'bg-rose-500 text-white'
-                          : 'bg-blue-600 text-white'
+                          : 'bg-black text-white'
                       }`}
                     >
                       {order.status === 'preparing' ? 'Kitchen' : order.status}
@@ -400,13 +400,13 @@ function OrdersContent() {
                     {order.items.map((item, idx) => (
                       <li key={idx} className="flex justify-between items-center">
                         <span className="truncate pr-2">
-                          • {item.name} <strong className="text-blue-600">x{item.quantity}</strong>
+                          • {item.name} <strong className="text-black font-bold">x{item.quantity}</strong>
                         </span>
                       </li>
                     ))}
                   </ul>
                   {order.notes && (
-                    <p className="text-[11px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200 mt-2 font-semibold">
+                    <p className="text-[11px] text-amber-900 bg-amber-50 p-2 rounded-md border border-amber-200 mt-2 font-semibold">
                       📝 Note: {order.notes}
                     </p>
                   )}
@@ -416,9 +416,9 @@ function OrdersContent() {
                 <div className="pt-2 border-t border-slate-200 flex items-center gap-2">
                   <button
                     onClick={() => handleInitiateBill(order)}
-                    className="flex-1 py-2 bg-white hover:bg-slate-50 text-slate-800 font-black text-xs rounded-xl border border-slate-300 flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
+                    className="flex-1 py-2 bg-white hover:bg-[#FAF7F2] text-slate-900 font-bold text-xs rounded-md border border-[#C3A27C]/50 flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
                   >
-                    <span className="material-symbols-outlined text-[16px] text-blue-600">
+                    <span className="material-symbols-outlined text-[16px] text-slate-800">
                       receipt_long
                     </span>
                     <span>Bill</span>
@@ -428,13 +428,13 @@ function OrdersContent() {
                     <>
                       <button
                         onClick={() => handleUpdateStatus(order.id, 'preparing')}
-                        className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl transition-all shadow-xs cursor-pointer active:scale-95"
+                        className="flex-1 py-2 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-md transition-all shadow-xs cursor-pointer active:scale-95"
                       >
                         Accept & Cook
                       </button>
                       <button
                         onClick={() => handleInitiateReject(order.id)}
-                        className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-xl border border-rose-200 transition-all cursor-pointer"
+                        className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-md border border-rose-200 transition-all cursor-pointer"
                         title="Reject Order"
                       >
                         ✕
@@ -445,7 +445,7 @@ function OrdersContent() {
                   {isKitchen && (
                     <button
                       onClick={() => handleUpdateStatus(order.id, 'completed')}
-                      className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl transition-all shadow-xs cursor-pointer active:scale-95"
+                      className="flex-1 py-2 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-md transition-all shadow-xs cursor-pointer active:scale-95"
                     >
                       Mark as Completed
                     </button>

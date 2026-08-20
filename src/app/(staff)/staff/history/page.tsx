@@ -107,7 +107,7 @@ export default function StaffOrderHistoryPage() {
         <button
           onClick={handleSendDailyPdfReport}
           disabled={emailSending}
-          className="py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black text-xs rounded-md shadow-xs transition-colors cursor-pointer flex items-center gap-2"
+          className="py-2 px-4 bg-black hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs rounded-md shadow-xs transition-colors cursor-pointer flex items-center gap-2"
         >
           <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
           {emailSending ? 'Generating Report...' : 'Email Daily PDF Report to Owner'}
@@ -124,7 +124,7 @@ export default function StaffOrderHistoryPage() {
               <th className="p-3.5">Table / Order</th>
               <th className="p-3.5">Payment</th>
               <th className="p-3.5">Grand Total</th>
-              <th className="p-3.5 text-right">Reprint</th>
+              <th className="p-3.5 text-right">Receipt</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 font-semibold">
@@ -146,18 +146,18 @@ export default function StaffOrderHistoryPage() {
                   <td className="p-3.5 font-mono font-black text-slate-900">{b.id}</td>
                   <td className="p-3.5 text-slate-600 font-mono font-bold">{formatDate(b.createdAt)}</td>
                   <td className="p-3.5 font-bold text-slate-800">{b.tableNumber}</td>
-                  <td className="p-3.5 uppercase font-black text-amber-700">
-                    <span className="px-2 py-0.5 bg-amber-50 border border-amber-200 rounded-md text-[11px]">
+                  <td className="p-3.5 uppercase font-black text-slate-900">
+                    <span className="px-2 py-0.5 bg-[#FAF7F2] border border-[#C3A27C]/50 rounded-sm text-[11px]">
                       {b.paymentMode}
                     </span>
                   </td>
-                  <td className="p-3.5 font-black text-blue-600 text-sm">₹{b.grandTotal}</td>
+                  <td className="p-3.5 font-black text-slate-950 text-sm">₹{b.grandTotal}</td>
                   <td className="p-3.5 text-right">
                     <button
                       onClick={() => handleReprint(b)}
-                      className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-800 rounded-md font-extrabold border border-slate-300 shadow-2xs transition-colors cursor-pointer"
+                      className="px-3 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md font-bold text-xs border border-[#B3926C] shadow-2xs transition-colors cursor-pointer"
                     >
-                      Print Bill
+                      View Receipt
                     </button>
                   </td>
                 </tr>

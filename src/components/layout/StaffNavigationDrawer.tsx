@@ -58,14 +58,14 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
       {/* 1. Backdrop Overlay to Hide/Dim the Rest of Page */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
       />
 
-      {/* 2. Full-Height Left Slide Drawer */}
-      <aside className="fixed top-0 left-0 bottom-0 w-[300px] max-w-[85vw] bg-white shadow-2xl z-50 flex flex-col justify-between animate-in slide-in-from-left duration-300 border-r border-slate-200">
+      {/* 2. Full-Height RIGHT Slide Drawer */}
+      <aside className="fixed top-0 right-0 bottom-0 w-[310px] max-w-[85vw] bg-white shadow-2xl z-50 flex flex-col justify-between animate-in slide-in-from-right duration-300 border-l border-[#C3A27C]/30">
         {/* Top Header with Logo & Close Button */}
         <div>
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-[#FAF7F2]">
             <img
               src="/chatchaska-logo.png"
               alt="ChatChaska"
@@ -74,7 +74,7 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
             <button
               type="button"
               onClick={onClose}
-              className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-md bg-white hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-colors cursor-pointer border border-[#C3A27C]/40 shadow-2xs"
               title="Close Menu"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
@@ -82,8 +82,8 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
           </div>
 
           {/* Staff Info Banner */}
-          <div className="px-4 py-3 bg-[#FAF8F5] border-b border-[#EFE9DF] flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-sm shadow-xs shrink-0">
+          <div className="px-4 py-3 bg-[#FAF7F2] border-b border-[#C3A27C]/20 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-md bg-black text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0">
               CC
             </div>
             <div className="min-w-0">
@@ -92,8 +92,8 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-220px)] no-scrollbar">
+          {/* Navigation Links (Box Shaped with #C3A27C Beige) */}
+          <nav className="p-3 space-y-1.5 overflow-y-auto max-h-[calc(100vh-220px)] no-scrollbar">
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
               return (
@@ -101,22 +101,22 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                   key={link.href}
                   href={link.href}
                   onClick={onClose}
-                  className={`flex items-start gap-3 p-3 rounded-2xl transition-all cursor-pointer ${
+                  className={`flex items-start gap-3 p-3 rounded-md transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#F8EFE7] text-slate-900 font-bold shadow-2xs border border-[#E8DFC9]'
-                      : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
+                      ? 'bg-[#C3A27C] text-slate-950 font-bold shadow-2xs border border-[#B2906A]'
+                      : 'text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 border border-transparent'
                   }`}
                 >
                   <span
-                    className={`material-symbols-outlined text-[22px] shrink-0 mt-0.5 ${
-                      isActive ? 'text-slate-900' : 'text-slate-500'
+                    className={`material-symbols-outlined text-[20px] shrink-0 mt-0.5 ${
+                      isActive ? 'text-slate-950 font-bold' : 'text-slate-500'
                     }`}
                   >
                     {link.icon}
                   </span>
                   <div className="min-w-0">
                     <div className="text-xs font-bold leading-snug">{link.label}</div>
-                    <div className="text-[11px] text-slate-500 font-normal leading-tight mt-0.5">
+                    <div className={`text-[11px] font-normal leading-tight mt-0.5 ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>
                       {link.description}
                     </div>
                   </div>
@@ -127,11 +127,11 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
         </div>
 
         {/* Bottom Exit / Logout Link */}
-        <div className="p-3 border-t border-slate-100 bg-slate-50">
+        <div className="p-3 border-t border-slate-100 bg-[#FAF7F2]">
           <Link
             href="/login?logout=true"
             onClick={onClose}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-98"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-98"
           >
             <span className="material-symbols-outlined text-[18px]">logout</span>
             <span>Exit Terminal / Logout</span>
