@@ -13,8 +13,8 @@ interface CategoryPanelProps {
   categories: CategoryInfo[];
   selectedCategory: string;
   onSelectCategory: (categoryId: string) => void;
-  viewMode?: 'grid' | 'list' | 'dense';
-  onViewModeChange?: (mode: 'grid' | 'list' | 'dense') => void;
+  viewMode?: 'grid' | 'list';
+  onViewModeChange?: (mode: 'grid' | 'list') => void;
 }
 
 const CATEGORY_ITEMS = [
@@ -45,16 +45,16 @@ export function CategoryPanel({
   });
 
   return (
-    <aside className="w-[205px] bg-[#FAFAFA] border-r border-[#EBEBEB] flex flex-col justify-between shrink-0 select-none h-full overflow-hidden">
+    <aside className="w-[195px] bg-[#FAFAFA] border-r border-[#EBEBEB] flex flex-col justify-between shrink-0 select-none h-full overflow-hidden">
       {/* Scrollable Categories List */}
       <div className="flex-1 overflow-y-auto p-2.5 space-y-1 no-scrollbar">
-        {/* Top Header: Categories Heading + Grid/List View Mode Switcher */}
+        {/* Top Header: Categories Heading + Exactly 2 View Switcher Buttons (Grid & List) */}
         <div className="flex items-center justify-between px-1.5 pt-1 pb-2">
           <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
             Categories
           </span>
 
-          {/* Grid / List / Dense Switcher Buttons */}
+          {/* Exactly 2 Buttons: Grid & List */}
           {onViewModeChange && (
             <div className="flex items-center gap-0.5 bg-slate-200/80 p-0.5 rounded-lg border border-slate-300/80">
               <button
@@ -81,19 +81,6 @@ export function CategoryPanel({
                 title="List View"
               >
                 <span className="material-symbols-outlined text-[15px]">view_list</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => onViewModeChange('dense')}
-                className={`w-6 h-6 rounded-md flex items-center justify-center transition-all cursor-pointer ${
-                  viewMode === 'dense'
-                    ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-                title="Compact View"
-              >
-                <span className="material-symbols-outlined text-[15px]">apps</span>
               </button>
             </div>
           )}

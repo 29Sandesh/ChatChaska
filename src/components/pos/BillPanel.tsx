@@ -40,8 +40,6 @@ export function BillPanel({
   onSaveBill,
   onSendKOT,
 }: BillPanelProps) {
-  const [orderNote, setOrderNote] = useState<string>('');
-  const [isEditingNote, setIsEditingNote] = useState<boolean>(false);
   const [isEditingDiscount, setIsEditingDiscount] = useState<boolean>(false);
 
   const { subtotal, totalTax, grandTotal } = calculateBillTotals({
@@ -115,38 +113,6 @@ export function BillPanel({
             </div>
           ))
         )}
-
-        {/* Add Order Note Link */}
-        <div className="pt-2">
-          {isEditingNote ? (
-            <div className="flex items-center gap-1.5">
-              <input
-                type="text"
-                value={orderNote}
-                onChange={(e) => setOrderNote(e.target.value)}
-                placeholder="e.g. Less spicy, Extra tissue"
-                className="flex-1 p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-hidden focus:border-black"
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={() => setIsEditingNote(false)}
-                className="text-xs font-bold text-blue-600 hover:underline"
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsEditingNote(true)}
-              className="text-[11px] font-normal text-slate-400 hover:text-slate-700 flex items-center gap-1 cursor-pointer"
-            >
-              <span>+</span>
-              <span>{orderNote ? `Note: "${orderNote}"` : 'Add Order Note'}</span>
-            </button>
-          )}
-        </div>
       </div>
 
       {/* 2. Totals & Calculation Section */}
@@ -207,38 +173,38 @@ export function BillPanel({
         </div>
       </div>
 
-      {/* 3. Bottom Action Buttons: [ ⏸ ] [ ⚡ Send KOT ] [ 🖨️ Save & Print ] */}
+      {/* 3. Bottom Action Buttons: [ ⏸ ] [ 🍲 Send KOT ] [ 🖨️ Save & Print ] - Matching Warm Beige Styling */}
       <div className="p-3 bg-white border-t border-[#EBEBEB] flex items-center gap-2 shrink-0">
         {/* Hold Order Button (Yellow/Amber square button with pause icon) */}
         <button
           type="button"
           onClick={onHold}
           disabled={cart.length === 0}
-          className="w-12 h-11 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 disabled:opacity-40 rounded-xl flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
+          className="w-12 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-800 border border-[#E8DFC9] disabled:opacity-40 rounded-xl flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
           title="Hold / Park Order"
         >
-          <span className="material-symbols-outlined text-[20px]">pause_circle</span>
+          <span className="material-symbols-outlined text-[20px] text-slate-800">pause_circle</span>
         </button>
 
-        {/* Send KOT Button (Blue Button) */}
+        {/* Send KOT Button (Beige Button) */}
         <button
           type="button"
           onClick={onSendKOT}
           disabled={cart.length === 0}
-          className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
+          className="flex-1 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
         >
-          <span className="material-symbols-outlined text-[17px]">soup_kitchen</span>
+          <span className="material-symbols-outlined text-[17px] text-slate-800">soup_kitchen</span>
           <span>Send KOT</span>
         </button>
 
-        {/* Save & Print Button (Blue Button) */}
+        {/* Save & Print Button (Beige Button) */}
         <button
           type="button"
           onClick={onSaveBill}
           disabled={cart.length === 0}
-          className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
+          className="flex-1 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
         >
-          <span className="material-symbols-outlined text-[17px]">print</span>
+          <span className="material-symbols-outlined text-[17px] text-slate-800">print</span>
           <span>Save & Print</span>
         </button>
       </div>

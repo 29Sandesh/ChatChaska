@@ -23,7 +23,7 @@ function StaffPOSContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [dietaryFilter, setDietaryFilter] = useState<DietaryFilter>('ALL');
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'dense'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
   const [cart, setCart] = useState<CartItem[]>([
     { id: 'item-chai-default', name: 'Masala Chai', price: 60, quantity: 6, veg: true },
@@ -504,12 +504,12 @@ function StaffPOSContent() {
     <div className="flex flex-col h-screen w-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
       {/* 1. FULL-WIDTH TOP HEADER BAR */}
       <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-4 shrink-0 select-none z-20">
-        {/* BRAND LOGO ON FAR LEFT - ZOOMED IN 2X (BIG, CRISP & PROMINENT) */}
-        <div className="flex items-center justify-start shrink-0 overflow-visible py-1">
+        {/* BRAND LOGO ON FAR LEFT - SIZED TO PERFECTLY MATCH CATEGORIES PANEL WIDTH */}
+        <div className="flex items-center justify-start w-[195px] shrink-0">
           <img
             src="/chatchaska-logo.png"
             alt="ChatChaska"
-            className="h-12 w-auto max-w-[260px] object-contain drop-shadow-xs"
+            className="h-8 w-auto max-w-[165px] object-contain drop-shadow-2xs"
           />
         </div>
 
@@ -664,7 +664,7 @@ function StaffPOSContent() {
 
       {/* 2. MAIN BODY */}
       <div className="flex-1 flex min-h-0 overflow-hidden">
-        {/* Left Categories Sidebar (With Categories Heading + Grid/List View Mode Switcher) */}
+        {/* Left Categories Sidebar (With Categories Heading + 2 View Switcher Buttons) */}
         <CategoryPanel
           categories={categoriesList}
           selectedCategory={selectedCategory}
