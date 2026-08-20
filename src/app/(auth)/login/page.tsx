@@ -70,15 +70,17 @@ export default function UnifiedLoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center lg:justify-end select-none font-sans overflow-hidden bg-[#faf9f6] text-slate-900">
-      {/* Full-Screen High-Resolution Product Artwork Background */}
-      <Image
-        src={loginShowcase}
-        alt="ChatChaska — System Made to be Affordable, Reliable and Accessible"
-        fill
-        priority
-        className="object-cover object-center hidden lg:block pointer-events-none"
-      />
+    <div className="relative min-h-screen w-full flex items-center justify-center lg:justify-end select-none font-sans overflow-hidden bg-white text-slate-900">
+      {/* Full-Resolution Product Artwork - Fits completely without zooming or cropping */}
+      <div className="absolute inset-0 hidden lg:block pointer-events-none p-3 lg:p-6">
+        <Image
+          src={loginShowcase}
+          alt="ChatChaska — System Made to be Affordable, Reliable and Accessible"
+          fill
+          priority
+          className="object-contain object-left"
+        />
+      </div>
 
       {/* RIGHT SIDE: Floating Minimal Sign In / Sign Up Panel */}
       <div className="w-full lg:w-[48%] xl:w-[42%] flex items-center justify-center p-6 sm:p-10 relative z-10 lg:mr-6 xl:mr-16">
