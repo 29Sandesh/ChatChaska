@@ -24,6 +24,7 @@ function StaffPOSContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [dietaryFilter, setDietaryFilter] = useState<DietaryFilter>('ALL');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'dense'>('grid');
   
   const [cart, setCart] = useState<CartItem[]>([
     { id: 'item-chai-default', name: 'Masala Chai', price: 60, quantity: 6, veg: true },
@@ -544,7 +545,7 @@ function StaffPOSContent() {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
-      {/* 1. FULL-WIDTH TOP HEADER BAR (Spans 100% from left edge to far right corner) */}
+      {/* 1. FULL-WIDTH TOP HEADER BAR */}
       <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-3 shrink-0 select-none z-20">
         {/* BRAND LOGO ON FAR LEFT */}
         <div className="flex items-center justify-start w-[190px] shrink-0">
@@ -555,7 +556,7 @@ function StaffPOSContent() {
           />
         </div>
 
-        {/* CENTER: SEARCH INPUT + DIETARY FILTERS + QUICK ORDERS + DINE IN / PICK UP TOGGLE */}
+        {/* CENTER: SEARCH INPUT + DIETARY FILTERS + VIEW MODE + QUICK ORDERS + DINE IN / PICK UP TOGGLE */}
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
           {/* Search Input Box */}
           <div className="flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-xl px-3.5 py-1.5 text-xs w-[230px] xl:w-[260px] shadow-2xs focus-within:border-black transition-all">
@@ -626,6 +627,48 @@ function StaffPOSContent() {
             </button>
           </div>
 
+          {/* VIEW MODE SWITCHER (Placed in top bar on LEFT SIDE of Quick Orders) */}
+          <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-xl border border-slate-200/80">
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
+                viewMode === 'grid'
+                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+              title="Grid View"
+            >
+              <span className="material-symbols-outlined text-[17px]">grid_view</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
+                viewMode === 'list'
+                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+              title="List View"
+            >
+              <span className="material-symbols-outlined text-[17px]">view_list</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setViewMode('dense')}
+              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
+                viewMode === 'dense'
+                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+              title="Compact View"
+            >
+              <span className="material-symbols-outlined text-[17px]">apps</span>
+            </button>
+          </div>
+
           {/* Quick Orders Button */}
           <button
             type="button"
@@ -677,7 +720,7 @@ function StaffPOSContent() {
           </div>
         </div>
 
-        {/* FAR RIGHT: CC AVATAR + HAMBURGER MENU ☰ (At the very top right corner) */}
+        {/* FAR RIGHT: CC AVATAR + HAMBURGER MENU ☰ (At the top right corner) */}
         <div className="flex items-center gap-2 shrink-0 pl-2">
           <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs shadow-xs">
             CC
@@ -743,7 +786,7 @@ function StaffPOSContent() {
         </div>
       </header>
 
-      {/* 2. MAIN BODY (Directly below the full-width header) */}
+      {/* 2. MAIN BODY */}
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {/* Left Categories Sidebar */}
         <CategoryPanel
@@ -752,21 +795,14 @@ function StaffPOSContent() {
           onSelectCategory={setSelectedCategory}
         />
 
-        {/* Center Menu Dishes Grid */}
+        {/* Center Menu Dishes Grid (Starts directly from top without subheader) */}
         <MenuItemGrid
           items={filteredItems}
           onSelectItem={handleSelectItem}
-          categoryTitle={
-            selectedCategory === 'ALL'
-              ? 'All Items'
-              : selectedCategory === 'FAVORITES'
-              ? 'Favorites'
-              : categoriesList.find((c) => c.id === selectedCategory)?.name || 'All Items'
-          }
-          totalCount={301}
+          viewMode={viewMode}
         />
 
-        {/* Right Billing Panel (Shifted below with top padding) */}
+        {/* Right Billing Panel */}
         <BillPanel
           cart={cart}
           orderType={orderType}

@@ -19,17 +19,14 @@ export type DietaryFilter = 'ALL' | 'VEG' | 'NON_VEG' | 'JAIN';
 interface MenuItemGridProps {
   items: MenuItemData[];
   onSelectItem: (item: MenuItemData) => void;
-  categoryTitle?: string;
-  totalCount?: number;
+  viewMode?: 'grid' | 'list' | 'dense';
 }
 
 export function MenuItemGrid({
   items,
   onSelectItem,
-  categoryTitle = 'All Items',
-  totalCount = 301,
+  viewMode = 'grid',
 }: MenuItemGridProps) {
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'dense'>('grid');
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
@@ -44,61 +41,7 @@ export function MenuItemGrid({
 
   return (
     <div className="flex-1 flex flex-col h-full bg-[#FAF9F7] overflow-hidden select-none">
-      {/* Section Header with Title, Count, and View Switcher */}
-      <div className="px-5 py-3 bg-white border-b border-[#EBEBEB] flex items-center justify-between shrink-0">
-        <div className="flex items-baseline gap-2">
-          <h2 className="text-base font-black text-slate-900 tracking-tight">
-            {categoryTitle}
-          </h2>
-          <span className="text-xs font-semibold text-slate-400">
-            {totalCount} Items
-          </span>
-        </div>
-
-        {/* View Mode Switcher */}
-        <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-xl border border-slate-200/80">
-          <button
-            type="button"
-            onClick={() => setViewMode('grid')}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
-              viewMode === 'grid'
-                ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                : 'text-slate-400 hover:text-slate-700'
-            }`}
-            title="Grid View"
-          >
-            <span className="material-symbols-outlined text-[17px]">grid_view</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setViewMode('list')}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
-              viewMode === 'list'
-                ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                : 'text-slate-400 hover:text-slate-700'
-            }`}
-            title="List View"
-          >
-            <span className="material-symbols-outlined text-[17px]">view_list</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setViewMode('dense')}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
-              viewMode === 'dense'
-                ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                : 'text-slate-400 hover:text-slate-700'
-            }`}
-            title="Compact View"
-          >
-            <span className="material-symbols-outlined text-[17px]">apps</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Grid Content Area - Exact 5 Columns Grid */}
+      {/* Grid Content Area - Starts directly below top header */}
       <div className="flex-1 overflow-y-auto p-3.5 no-scrollbar">
         {items.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center text-slate-400">
@@ -107,11 +50,51 @@ export function MenuItemGrid({
             </span>
             <p className="text-xs font-bold text-slate-500">No dishes found</p>
           </div>
+        ) : viewMode === 'list' ? (
+          /* List View */
+          <div className="space-y-2 max-w-4xl mx-auto">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => onSelectItem(item)}
+                className="bg-white border border-[#EBEBEB] rounded-2xl p-3 flex items-center justify-between hover:border-slate-300 hover:shadow-2xs transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={(e) => toggleFavorite(item.id, e)}
+                    className="text-slate-300 hover:text-amber-500"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">
+                      {favoriteIds.has(item.id) ? 'star' : 'star_outline'}
+                    </span>
+                  </button>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900">{item.name}</h4>
+                    <span className="text-[11px] font-black text-slate-900">₹{item.price}</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="w-6 h-6 rounded-md border border-emerald-500 text-emerald-600 font-bold text-sm flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all cursor-pointer"
+                >
+                  +
+                </button>
+              </div>
+            ))}
+          </div>
         ) : (
-          <div className="grid grid-cols-5 gap-2.5">
+          /* Grid & Dense Views */
+          <div
+            className={`grid gap-2.5 ${
+              viewMode === 'dense'
+                ? 'grid-cols-6'
+                : 'grid-cols-5'
+            }`}
+          >
             {items.map((item) => {
               const isFavorite = favoriteIds.has(item.id);
-              // Tag specific items for authentic visuals
               const isBestseller =
                 item.bestseller ||
                 item.name.toLowerCase().includes('garlic mayo') ||
