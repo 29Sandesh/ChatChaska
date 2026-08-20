@@ -627,7 +627,7 @@ function StaffPOSContent() {
             </button>
           </div>
 
-          {/* VIEW MODE SWITCHER (Placed in top bar on LEFT SIDE of Quick Orders) */}
+          {/* VIEW MODE SWITCHER */}
           <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-xl border border-slate-200/80">
             <button
               type="button"
@@ -693,8 +693,8 @@ function StaffPOSContent() {
               onClick={() => setOrderType('DINE_IN')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 orderType === 'DINE_IN'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'bg-[#F8EFE7] text-slate-800 hover:bg-[#F2E5D9]'
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-xs'
+                  : 'bg-white border border-[#E5E5E5] text-slate-700 hover:bg-slate-50'
               }`}
             >
               <span className="material-symbols-outlined text-[16px]">
@@ -708,8 +708,8 @@ function StaffPOSContent() {
               onClick={() => setOrderType('PICKUP')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 orderType === 'PICKUP'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'bg-[#F8EFE7] text-slate-800 hover:bg-[#F2E5D9]'
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-xs'
+                  : 'bg-white border border-[#E5E5E5] text-slate-700 hover:bg-slate-50'
               }`}
             >
               <span className="material-symbols-outlined text-[16px]">
@@ -720,19 +720,16 @@ function StaffPOSContent() {
           </div>
         </div>
 
-        {/* FAR RIGHT: CC AVATAR + HAMBURGER MENU ☰ (At the top right corner) */}
-        <div className="flex items-center gap-2 shrink-0 pl-2">
-          <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs shadow-xs">
-            CC
-          </div>
+        {/* FAR RIGHT: HAMBURGER MENU ☰ (CC logo removed) */}
+        <div className="flex items-center shrink-0 pl-2">
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
-              className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer"
+              className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer"
               title="Navigation Menu"
             >
-              <span className="material-symbols-outlined text-[20px]">menu</span>
+              <span className="material-symbols-outlined text-[22px]">menu</span>
             </button>
 
             {/* Hamburger Dropdown Navigation */}
@@ -795,7 +792,7 @@ function StaffPOSContent() {
           onSelectCategory={setSelectedCategory}
         />
 
-        {/* Center Menu Dishes Grid (Starts directly from top without subheader) */}
+        {/* Center Menu Dishes Grid */}
         <MenuItemGrid
           items={filteredItems}
           onSelectItem={handleSelectItem}

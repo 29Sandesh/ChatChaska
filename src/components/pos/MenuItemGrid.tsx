@@ -41,7 +41,7 @@ export function MenuItemGrid({
 
   return (
     <div className="flex-1 flex flex-col h-full bg-[#FAF9F7] overflow-hidden select-none">
-      {/* Grid Content Area - Starts directly below top header */}
+      {/* Grid Content Area */}
       <div className="flex-1 overflow-y-auto p-3.5 no-scrollbar">
         {items.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center text-slate-400">
@@ -95,33 +95,16 @@ export function MenuItemGrid({
           >
             {items.map((item) => {
               const isFavorite = favoriteIds.has(item.id);
-              const isBestseller =
-                item.bestseller ||
-                item.name.toLowerCase().includes('garlic mayo') ||
-                item.name.toLowerCase().includes('royal meetha');
-              const isPopular =
-                item.popular ||
-                item.name.toLowerCase().includes('makki di roti');
 
               return (
                 <div
                   key={item.id}
                   onClick={() => onSelectItem(item)}
-                  className="bg-white border border-[#EBEBEB] rounded-2xl p-3 h-[115px] flex flex-col justify-between shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all relative group cursor-pointer active:scale-98"
+                  className="bg-white border border-[#EBEBEB] rounded-2xl p-3.5 h-[115px] flex flex-col justify-between shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all relative group cursor-pointer active:scale-98"
                 >
-                  {/* Top: Badges & Title */}
+                  {/* Top: Title */}
                   <div>
-                    {isBestseller ? (
-                      <span className="bg-[#FFF4EC] text-[#D97706] text-[9px] font-bold px-1.5 py-0.5 rounded-md inline-block mb-1">
-                        Bestseller
-                      </span>
-                    ) : isPopular ? (
-                      <span className="bg-[#EFF6FF] text-[#2563EB] text-[9px] font-bold px-1.5 py-0.5 rounded-md inline-block mb-1">
-                        Popular
-                      </span>
-                    ) : null}
-
-                    <h4 className="text-xs font-bold text-slate-900 leading-tight line-clamp-2 pr-4">
+                    <h4 className="text-xs font-bold text-slate-900 leading-snug line-clamp-2 pr-4">
                       {item.name}
                     </h4>
                   </div>

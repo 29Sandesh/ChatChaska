@@ -38,6 +38,7 @@ export function BillPanel({
   onDiscountChange,
   onHold,
   onSaveBill,
+  onSendKOT,
 }: BillPanelProps) {
   const [orderNote, setOrderNote] = useState<string>('');
   const [isEditingNote, setIsEditingNote] = useState<boolean>(false);
@@ -53,7 +54,7 @@ export function BillPanel({
 
   return (
     <aside className="w-[340px] xl:w-[370px] bg-white border-l border-[#EBEBEB] flex flex-col justify-between shrink-0 select-none h-full overflow-hidden">
-      {/* 1. Scrollable Cart Items List (Shifted a little below with clean top padding) */}
+      {/* 1. Scrollable Cart Items List */}
       <div className="flex-1 overflow-y-auto pt-5 pb-3 px-4 space-y-2.5 divide-y divide-slate-100 no-scrollbar">
         {cart.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center text-slate-400">
@@ -152,14 +153,14 @@ export function BillPanel({
       <div className="px-4 py-3 border-t border-[#EBEBEB] bg-white space-y-1.5 shrink-0">
         {/* Items Summary */}
         <div className="flex justify-between items-center text-xs font-normal text-slate-600">
-          <span>Items ({totalItemsCount})</span>
+          <span>Subtotal ({totalItemsCount} items)</span>
           <span className="font-semibold text-slate-900">₹{subtotal}</span>
         </div>
 
         {/* Discount Row */}
         <div className="flex justify-between items-center text-xs font-normal text-slate-600">
           <div className="flex items-center gap-1.5">
-            <span>Discount</span>
+            <span>Discount (₹)</span>
             {!isEditingDiscount && (
               <button
                 type="button"
@@ -185,14 +186,14 @@ export function BillPanel({
               />
             </div>
           ) : (
-            <span className="font-semibold text-slate-900">₹{discountAmount}</span>
+            <span className="font-semibold text-slate-900">{discountAmount}</span>
           )}
         </div>
 
         {/* GST (5%) */}
         <div className="flex justify-between items-center text-xs font-normal text-slate-600">
           <span>GST (5%)</span>
-          <span className="font-semibold text-slate-900">{formatBillCurrency(totalTax, true)}</span>
+          <span className="font-semibold text-slate-900">₹{formatBillCurrency(totalTax, true)}</span>
         </div>
 
         {/* TOTAL (Large Blue Font text-[#2563EB]) */}
@@ -206,43 +207,39 @@ export function BillPanel({
         </div>
       </div>
 
-      {/* 3. Bottom 3 Action Buttons (Hold Order | Pay / Checkout | Save & Print) */}
-      <div className="p-3 bg-white border-t border-[#EBEBEB] grid grid-cols-3 gap-2 shrink-0">
-        {/* Hold Order */}
+      {/* 3. Bottom Action Buttons: [ ⏸ ] [ ⚡ Send KOT ] [ 🖨️ Save & Print ] */}
+      <div className="p-3 bg-white border-t border-[#EBEBEB] flex items-center gap-2 shrink-0">
+        {/* Hold Order Button (Yellow/Amber square button with pause icon) */}
         <button
           type="button"
           onClick={onHold}
           disabled={cart.length === 0}
-          className="bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-800 disabled:opacity-40 font-bold text-xs py-3 px-1 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
+          className="w-12 h-11 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 disabled:opacity-40 rounded-xl flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
+          title="Hold / Park Order"
         >
-          <span className="material-symbols-outlined text-[17px]">pause_circle</span>
-          <span className="leading-tight">Hold Order</span>
+          <span className="material-symbols-outlined text-[20px]">pause_circle</span>
         </button>
 
-        {/* Pay / Checkout (F5) - Black Center Button */}
+        {/* Send KOT Button (Blue Button) */}
+        <button
+          type="button"
+          onClick={onSendKOT}
+          disabled={cart.length === 0}
+          className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
+        >
+          <span className="material-symbols-outlined text-[17px]">soup_kitchen</span>
+          <span>Send KOT</span>
+        </button>
+
+        {/* Save & Print Button (Blue Button) */}
         <button
           type="button"
           onClick={onSaveBill}
           disabled={cart.length === 0}
-          className="bg-black hover:bg-slate-900 text-white disabled:opacity-40 font-bold text-xs py-3 px-2 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer active:scale-95 shadow-md"
-        >
-          <div className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[16px]">point_of_sale</span>
-            <span className="leading-tight">Pay / Checkout</span>
-          </div>
-          <span className="text-[9px] font-normal text-slate-400">(F5)</span>
-        </button>
-
-        {/* Save & Print (F6) */}
-        <button
-          type="button"
-          onClick={onSaveBill}
-          disabled={cart.length === 0}
-          className="bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-800 disabled:opacity-40 font-bold text-xs py-3 px-1 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
+          className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
         >
           <span className="material-symbols-outlined text-[17px]">print</span>
-          <span className="leading-tight">Save & Print</span>
-          <span className="text-[9px] font-normal text-slate-500">(F6)</span>
+          <span>Save & Print</span>
         </button>
       </div>
     </aside>
