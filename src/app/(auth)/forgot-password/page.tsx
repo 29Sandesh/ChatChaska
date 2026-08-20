@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success('OTP sent! Check your email or dev console.');
+        toast.success('OTP sent! Check your email or console.');
         if (data.devOtp) {
           toast.info(`Dev Mode OTP: ${data.devOtp}`);
         }
@@ -58,9 +58,7 @@ export default function ForgotPasswordPage() {
       const data = await res.json();
       if (res.ok) {
         toast.success('🎉 Password reset successfully! Redirecting to login...');
-        setTimeout(() => {
-          router.push('/login');
-        }, 1500);
+        setTimeout(() => router.push('/login'), 1500);
       } else {
         toast.error(data.error || 'Password reset failed');
       }
@@ -72,12 +70,12 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 font-sans select-none">
-      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
+    <div className="w-full max-w-md mx-auto p-4 sm:p-6 select-none font-sans">
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/60 space-y-6 animate-in fade-in duration-200">
         <div className="text-center space-y-2">
-          <img src="/chaska-c-logo.png" alt="ChatChaska" className="w-12 h-12 rounded-2xl mx-auto shadow-md" />
-          <h1 className="text-xl font-black text-slate-100">Reset Password</h1>
-          <p className="text-xs text-slate-400">
+          <img src="/chaska-c-logo.png" alt="ChatChaska" className="w-12 h-12 rounded-2xl mx-auto shadow-sm object-contain" />
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Reset Password</h1>
+          <p className="text-xs text-slate-500 font-medium">
             {step === 'email' ? 'Enter your registered email to receive a reset code.' : 'Enter the 6-digit code and your new password.'}
           </p>
         </div>
@@ -85,21 +83,21 @@ export default function ForgotPasswordPage() {
         {step === 'email' ? (
           <form onSubmit={handleSendOtp} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">Registered Email Address</label>
+              <label className="block text-xs font-bold text-slate-600 mb-1">Registered Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="owner@mycafe.com"
                 required
-                className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none"
+                className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-hidden focus:border-blue-600 focus:bg-white transition-all"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-white font-bold py-3.5 rounded-xl text-xs shadow-md transition-all cursor-pointer disabled:opacity-50"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-2xl shadow-sm transition-all active:scale-98 cursor-pointer"
             >
               {loading ? 'Sending Code...' : 'Send Verification OTP →'}
             </button>
@@ -107,7 +105,7 @@ export default function ForgotPasswordPage() {
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">6-Digit Verification Code</label>
+              <label className="block text-xs font-bold text-slate-600 mb-1">6-Digit Verification Code</label>
               <input
                 type="text"
                 maxLength={6}
@@ -115,34 +113,34 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                 placeholder="123456"
                 required
-                className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-center font-mono font-bold text-base text-white focus:outline-none"
+                className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-center font-mono font-bold text-base text-slate-900 focus:outline-hidden focus:border-blue-600 focus:bg-white transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">New Password (min 6 characters)</label>
+              <label className="block text-xs font-bold text-slate-600 mb-1">New Password (min 6 characters)</label>
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Enter new secure password"
                 required
-                className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none"
+                className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-hidden focus:border-blue-600 focus:bg-white transition-all"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-bold py-3.5 rounded-xl text-xs shadow-md transition-all cursor-pointer disabled:opacity-50"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-2xl shadow-sm transition-all active:scale-98 cursor-pointer"
             >
-              {loading ? 'Resetting...' : 'Set New Password &amp; Log In'}
+              {loading ? 'Resetting...' : 'Set New Password & Log In'}
             </button>
           </form>
         )}
 
-        <div className="text-center pt-2 border-t border-slate-800">
-          <Link href="/login" className="text-xs font-bold text-slate-400 hover:text-white transition-colors">
+        <div className="text-center pt-2 border-t border-slate-100">
+          <Link href="/login" className="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors">
             ← Back to Login
           </Link>
         </div>
