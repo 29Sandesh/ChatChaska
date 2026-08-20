@@ -10,7 +10,7 @@ let serverProcess = null;
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 const PORT = process.env.PORT || 5678;
-const SERVER_URL = `http://localhost:${PORT}/pos`;
+const SERVER_URL = `http://localhost:${PORT}/login`;
 
 function getIconPath() {
   const candidates = [
