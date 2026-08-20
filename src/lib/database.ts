@@ -1366,22 +1366,9 @@ function seedDefaultTables(db: Database.Database) {
   // Seed default tables if empty
   const tablesCount = (db.prepare('SELECT COUNT(*) as count FROM tables').get() as { count: number }).count;
   if (tablesCount === 0) {
-    const insertTable = db.prepare('INSERT INTO tables (id, name, floor_id, seats) VALUES (?, ?, ?, ?)');
-    // Main Dining
-    for (let i = 1; i <= 10; i++) {
-      insertTable.run(`table-t${i}`, `T${i}`, 'floor-main', i <= 4 ? 2 : 4);
-    }
-    // Patio
-    for (let i = 1; i <= 5; i++) {
-      insertTable.run(`table-p${i}`, `P${i}`, 'floor-patio', 4);
-    }
-    // AC Section
-    for (let i = 1; i <= 5; i++) {
-      insertTable.run(`table-ac${i}`, `AC${i}`, 'floor-ac', 4);
-    }
-    // Roof Top
-    for (let i = 1; i <= 5; i++) {
-      insertTable.run(`table-rf${i}`, `RF${i}`, 'floor-rooftop', 6);
+    const insertTable = db.prepare('INSERT INTO tables (id, name, floor_id, seats, status) VALUES (?, ?, ?, ?, ?)');
+    for (let i = 1; i <= 8; i++) {
+      insertTable.run(`table-${i}`, `Table ${i}`, 'floor-main', i <= 2 ? 2 : i <= 6 ? 4 : 6, 'blank');
     }
   }
 }

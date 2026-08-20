@@ -55,7 +55,7 @@ export function BillPanel({
     gstRate: 5,
   });
 
-  const defaultTablesList = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'P1', 'P2', 'AC1', 'AC2', 'AC3', 'AC4', 'ROOF1', 'ROOF2'];
+  const defaultTablesList = ['Table 1', 'Table 2', 'Table 3', 'Table 4', 'Table 5', 'Table 6', 'Table 7', 'Table 8'];
   const [tablesList, setTablesList] = useState<string[]>(defaultTablesList);
 
   React.useEffect(() => {
