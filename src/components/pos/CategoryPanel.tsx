@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 export interface CategoryInfo {
@@ -33,6 +33,8 @@ export function CategoryPanel({
   selectedCategory,
   onSelectCategory,
 }: CategoryPanelProps) {
+  const [showSupportModal, setShowSupportModal] = useState<boolean>(false);
+
   const countMap: Record<string, number> = {};
   categories.forEach((c) => {
     countMap[c.id] = c.count;
@@ -42,7 +44,7 @@ export function CategoryPanel({
     <aside className="w-[195px] bg-[#FAFAFA] border-r border-[#EBEBEB] flex flex-col justify-between shrink-0 select-none h-full overflow-hidden">
       {/* Scrollable Categories List */}
       <div className="flex-1 overflow-y-auto p-2.5 space-y-1 no-scrollbar">
-        {/* All Items Button (Beige Active Card) */}
+        {/* All Items Button */}
         <button
           type="button"
           onClick={() => onSelectCategory('ALL')}
@@ -105,26 +107,73 @@ export function CategoryPanel({
         })}
       </div>
 
-      {/* Bottom Fixed Links: Reports & Settings */}
-      <div className="p-2.5 border-t border-[#EBEBEB] bg-[#FAFAFA] flex items-center gap-2">
+      {/* Bottom Left: Icon-Only Action Buttons [ 📊 Reports ] [ ⚙️ Settings ] [ 📞 Need Help? ] */}
+      <div className="p-2.5 border-t border-[#EBEBEB] bg-[#FAFAFA] flex items-center justify-between gap-1.5 relative">
+        {/* Reports Icon */}
         <Link
           href="/staff/history"
-          className="flex-1 py-2 bg-white hover:bg-slate-50 border border-[#E5E5E5] rounded-xl text-slate-700 font-semibold text-[11px] flex items-center justify-center gap-1.5 transition-all shadow-2xs"
+          className="flex-1 h-9 bg-white hover:bg-slate-50 border border-[#E5E5E5] rounded-xl text-slate-700 flex items-center justify-center transition-all shadow-2xs group relative"
+          title="Sales Reports & Bill History"
         >
-          <span className="material-symbols-outlined text-[15px] text-slate-500">
+          <span className="material-symbols-outlined text-[18px] text-slate-600 group-hover:text-black">
             description
           </span>
-          <span>Reports</span>
         </Link>
+
+        {/* Settings Icon */}
         <Link
           href="/admin"
-          className="flex-1 py-2 bg-white hover:bg-slate-50 border border-[#E5E5E5] rounded-xl text-slate-700 font-semibold text-[11px] flex items-center justify-center gap-1.5 transition-all shadow-2xs"
+          className="flex-1 h-9 bg-white hover:bg-slate-50 border border-[#E5E5E5] rounded-xl text-slate-700 flex items-center justify-center transition-all shadow-2xs group relative"
+          title="Settings (Profile, Printer, Staff & Menu Setup)"
         >
-          <span className="material-symbols-outlined text-[15px] text-slate-500">
+          <span className="material-symbols-outlined text-[18px] text-slate-600 group-hover:text-black">
             settings
           </span>
-          <span>Settings</span>
         </Link>
+
+        {/* Need Help / Calling Icon (9303228082) */}
+        <a
+          href="tel:9303228082"
+          onClick={(e) => {
+            if (typeof window !== 'undefined' && !window.navigator.userAgent.includes('Mobile')) {
+              e.preventDefault();
+              setShowSupportModal(!showSupportModal);
+            }
+          }}
+          className="flex-1 h-9 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-xl text-emerald-700 flex items-center justify-center transition-all shadow-2xs cursor-pointer group"
+          title="Need Help? Call: 9303228082"
+        >
+          <span className="material-symbols-outlined text-[18px] text-emerald-700 group-hover:scale-110 transition-transform">
+            phone_in_talk
+          </span>
+        </a>
+
+        {/* Support Phone Popup Modal */}
+        {showSupportModal && (
+          <div className="absolute bottom-12 left-2 right-2 bg-slate-900 text-white p-3 rounded-xl shadow-2xl z-50 animate-in fade-in border border-slate-700">
+            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
+              <span className="text-[11px] font-bold text-amber-400">
+                Need Help / Support?
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowSupportModal(false)}
+                className="text-slate-400 hover:text-white text-xs"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="pt-2">
+              <p className="text-[11px] text-slate-300">Call / WhatsApp Support:</p>
+              <a
+                href="tel:9303228082"
+                className="text-sm font-black text-emerald-400 block mt-1 hover:underline"
+              >
+                📞 +91 9303228082
+              </a>
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   );

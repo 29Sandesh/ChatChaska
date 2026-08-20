@@ -547,16 +547,16 @@ function StaffPOSContent() {
     <div className="flex flex-col h-screen w-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
       {/* 1. FULL-WIDTH TOP HEADER BAR */}
       <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-3 shrink-0 select-none z-20">
-        {/* BRAND LOGO ON FAR LEFT */}
-        <div className="flex items-center justify-start w-[190px] shrink-0">
+        {/* BRAND LOGO ON FAR LEFT - PROPERLY SIZED & PROMINENT */}
+        <div className="flex items-center justify-start w-[210px] shrink-0">
           <img
             src="/chatchaska-logo.png"
             alt="ChatChaska"
-            className="h-8 w-auto max-w-[160px] object-contain"
+            className="h-10 w-auto max-w-[200px] object-contain drop-shadow-2xs"
           />
         </div>
 
-        {/* CENTER: SEARCH INPUT + DIETARY FILTERS + VIEW MODE + QUICK ORDERS + DINE IN / PICK UP TOGGLE */}
+        {/* CENTER: SEARCH INPUT + DIETARY FILTERS + VIEW MODE + TABLE ORDERS (QR) */}
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
           {/* Search Input Box */}
           <div className="flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-xl px-3.5 py-1.5 text-xs w-[230px] xl:w-[260px] shadow-2xs focus-within:border-black transition-all">
@@ -669,58 +669,25 @@ function StaffPOSContent() {
             </button>
           </div>
 
-          {/* Quick Orders Button */}
+          {/* Table Orders Button (with QR Code logo) */}
           <button
             type="button"
             onClick={() => setIsIncomingDrawerOpen(true)}
             className="relative flex items-center gap-1.5 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[16px]">
-              bolt
+            <span className="material-symbols-outlined text-[17px]">
+              qr_code_2
             </span>
-            <span>Quick Orders</span>
+            <span>Table Orders</span>
             {incomingOrders.length > 0 && (
               <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full animate-bounce">
                 {incomingOrders.length}
               </span>
             )}
           </button>
-
-          {/* Dine In / Pick Up Segmented Pills */}
-          <div className="flex items-center gap-1 ml-auto">
-            <button
-              type="button"
-              onClick={() => setOrderType('DINE_IN')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                orderType === 'DINE_IN'
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-xs'
-                  : 'bg-white border border-[#E5E5E5] text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[16px]">
-                flatware
-              </span>
-              <span>Dine In</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setOrderType('PICKUP')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                orderType === 'PICKUP'
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-xs'
-                  : 'bg-white border border-[#E5E5E5] text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[16px]">
-                shopping_bag
-              </span>
-              <span>Pick Up</span>
-            </button>
-          </div>
         </div>
 
-        {/* FAR RIGHT: HAMBURGER MENU ☰ (CC logo removed) */}
+        {/* FAR RIGHT: HAMBURGER MENU ☰ */}
         <div className="flex items-center shrink-0 pl-2">
           <div className="relative">
             <button
