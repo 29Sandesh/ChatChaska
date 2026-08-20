@@ -105,9 +105,10 @@ export default function StaffKitchenPage() {
   };
 
   const formatTableLabel = (num: string) => {
-    if (!num) return 'T1';
-    const clean = num.replace(/^table\s*/i, '').trim();
-    return clean.startsWith('T') ? clean : `Table ${clean}`;
+    if (!num) return '1';
+    if (num.toLowerCase().includes('pickup') || num.toLowerCase().includes('takeaway')) return 'Takeaway';
+    const digits = num.replace(/\D/g, '');
+    return digits ? digits : num;
   };
 
   // Flatten active orders into continuation tickets

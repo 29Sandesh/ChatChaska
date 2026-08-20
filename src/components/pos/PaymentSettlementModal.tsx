@@ -85,7 +85,7 @@ export function PaymentSettlementModal({
         <div className="flex items-center justify-between px-5 py-3.5 bg-[#FAF7F2] border-b border-[#C3A27C]/30">
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-md bg-black text-white font-bold text-xs shadow-2xs">
-              {isPickUp ? 'Takeaway Counter' : tableNumber}
+              {isPickUp ? 'Takeaway Counter' : `Table ${tableNumber.replace(/\D/g, '') || tableNumber}`}
             </span>
             {isPickUp && (
               <span className="px-2.5 py-1 rounded-md bg-[#C3A27C] text-slate-950 border border-[#B2906A] font-bold text-xs">

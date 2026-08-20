@@ -153,16 +153,16 @@ export function OrderTypeModal({
                 <div className="grid grid-cols-4 gap-1.5 max-h-44 overflow-y-auto no-scrollbar pt-1">
                   {allTables.map((tbl) => {
                     const isSelected = selectedTable === tbl.name || selectedTable === tbl.id;
-                    const shortName = tbl.name.replace('Table ', 'T');
+                    const displayNum = tbl.name.replace(/\D/g, '') || tbl.id.replace(/\D/g, '') || tbl.name;
 
                     if (tbl.isOccupied) {
                       return (
                         <div
                           key={tbl.id}
                           className="py-2.5 px-1 text-xs font-bold rounded-sm border border-slate-200 bg-slate-100 text-slate-400 opacity-30 flex flex-col items-center justify-center cursor-not-allowed select-none"
-                          title={`${tbl.name} is currently occupied`}
+                          title={`Table ${displayNum} is currently occupied`}
                         >
-                          <span>{shortName}</span>
+                          <span>{displayNum}</span>
                         </div>
                       );
                     }
@@ -178,7 +178,7 @@ export function OrderTypeModal({
                             : 'bg-white border-[#C3A27C]/50 text-slate-900 hover:border-[#C3A27C] hover:bg-[#FAF7F2]'
                         }`}
                       >
-                        <span>{shortName}</span>
+                        <span>{displayNum}</span>
                       </button>
                     );
                   })}

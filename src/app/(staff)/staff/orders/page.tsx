@@ -405,7 +405,7 @@ function OrdersContent() {
                   <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
                     <div className="flex items-center gap-2">
                       <span
-                        className={`px-2.5 py-1 h-7 font-black text-xs rounded-sm shadow-2xs inline-flex items-center justify-center ${
+                        className={`px-2.5 py-1 h-7 font-black text-xs rounded-sm shadow-2xs inline-flex items-center justify-center min-w-[28px] ${
                           isPending
                             ? 'bg-amber-500 text-white'
                             : isCompleted
@@ -415,7 +415,12 @@ function OrdersContent() {
                             : 'bg-black text-white'
                         }`}
                       >
-                        {order.tableNumber ? order.tableNumber.replace('Table ', 'T') : 'T1'}
+                        {(() => {
+                          const raw = order.tableNumber || '';
+                          if (raw.toLowerCase().includes('pickup') || raw.toLowerCase().includes('takeaway')) return 'Takeaway';
+                          const digits = raw.replace(/\D/g, '');
+                          return digits ? digits : raw || '1';
+                        })()}
                       </span>
                       <span className="text-slate-400 font-mono text-[11px] font-bold">
                         #{order.id.slice(-5)}
