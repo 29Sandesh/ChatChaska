@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { formatBillCurrency } from '@/lib/billing';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
 import { PaymentSettlementModal } from '@/components/pos/PaymentSettlementModal';
+import { StaffNavigationDrawer } from '@/components/layout/StaffNavigationDrawer';
 import { useCafeConfig } from '@/hooks/useCafeConfig';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -37,6 +39,7 @@ function OrdersContent() {
   );
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isNavDrawerOpen, setIsNavDrawerOpen] = useState<boolean>(false);
 
   // Order Rejection Modal State
   const [rejectingOrderId, setRejectingOrderId] = useState<string | null>(null);
@@ -107,50 +110,53 @@ function OrdersContent() {
     setRejectingOrderId(null);
   };
 
-  // Open Payment Modal from Order card
   const handleInitiateBill = (order: QROrder) => {
     setSettlingOrder(order);
   };
 
-  // Confirm payment settlement from Modal
-  const handleConfirmSettlement = async (details: {
+  const handlePaymentConfirmed = async (details: {
     paymentMethod: 'cash' | 'upi' | 'card';
     customerName: string;
     customerPhone: string;
+    txnReference?: string;
+    isPayLater?: boolean;
   }) => {
     if (!settlingOrder) return;
     const order = settlingOrder;
     setSettlingOrder(null);
 
-    const subtotal = order.totalAmount || 0;
-    const gstPercent = 5;
-    const gstAmount = Math.round(subtotal * 0.05 * 100) / 100;
-    const cgstAmount = Math.round((gstAmount / 2) * 100) / 100;
-    const sgstAmount = Math.round((gstAmount / 2) * 100) / 100;
-    const grandTotal = Math.round(subtotal + gstAmount);
+    const subtotal = order.items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+    const gstRate = 5;
+    const gstAmount = Math.round((subtotal * gstRate) / 100);
+    const cgstAmount = Number((gstAmount / 2).toFixed(2));
+    const sgstAmount = Number((gstAmount / 2).toFixed(2));
+    const grandTotal = subtotal + gstAmount;
 
     const billPayload = {
-      restaurantId: config.cafeSlug || 'chatchaska-cafe',
+      orderId: order.id,
+      restaurantId: (config as any)?.restaurantId || 'demo',
       restaurantName: config.cafeName || 'ChatChaska Cafe',
       tableNumber: order.tableNumber || 'Table 1',
       waiterName: 'Staff',
+      customerName: details.customerName,
+      customerPhone: details.customerPhone,
       items: order.items.map((i) => ({
+        id: i.id || (i.name || 'dish').toLowerCase().replace(/\s+/g, '-'),
         name: i.name,
         quantity: i.quantity,
         unitPrice: i.price,
         lineTotal: i.price * i.quantity,
+        veg: true,
       })),
       subtotal,
-      gstPercent,
+      gstPercent: gstRate,
       cgstAmount,
       sgstAmount,
       gstAmount,
       discountAmount: 0,
       grandTotal,
       paymentMode: details.paymentMethod,
-      customerName: details.customerName,
-      customerPhone: details.customerPhone,
-      status: 'paid',
+      status: details.isPayLater ? 'open' : 'paid',
     };
 
     try {
@@ -160,20 +166,17 @@ function OrdersContent() {
         body: JSON.stringify(billPayload),
       });
 
-      const data = await res.json();
+      if (res.ok) {
+        const data = await res.json();
+        const savedBill = data.bill;
 
-      if (res.ok && data.bill) {
-        // Mark order completed & free table
+        // Auto mark order completed
         await handleUpdateStatus(order.id, 'completed');
-        await fetch('/api/tables', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: order.tableNumber, status: 'free' }),
-        }).catch(() => {});
 
         const newBillData: BillData = {
-          billId: data.bill.id,
-          tokenNumber: data.bill.tokenNumber || '01',
+          billId: savedBill?.id || `BILL-${order.id.slice(-4)}`,
+          orderId: order.id,
+          tokenNumber: savedBill?.tokenNumber || '01',
           restaurantName: config.cafeName || 'ChatChaska Cafe',
           address: config.address || 'Shop #4, Main Street, Mumbai',
           fssai: config.fssai || '10019022009876',
@@ -210,7 +213,6 @@ function OrdersContent() {
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
       if (activeFilter === 'TABLE_QR') {
-        // Orders with table assignment or QR source
         return Boolean(order.tableNumber);
       }
       if (activeFilter === 'PENDING') return order.status === 'pending';
@@ -226,18 +228,25 @@ function OrdersContent() {
   const completedCount = useMemo(() => orders.filter((o) => o.status === 'completed').length, [orders]);
 
   return (
-    <div className="p-4 max-w-7xl mx-auto space-y-4 select-none font-sans">
-      {/* TOP HEADER: TITLE ON LEFT | FILTER BUTTONS ON RIGHT */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-slate-200">
-        <h1 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
-          <span className="material-symbols-outlined text-blue-600 text-[20px]">receipt_long</span>
-          Orders Queue
-        </h1>
+    <div className="flex flex-col h-screen select-none font-sans bg-slate-50 overflow-hidden">
+      {/* 1. TOP HEADER: LOGO ON LEFT | FILTERS IN CENTER | [ POS ] + [ ☰ ] ON RIGHT */}
+      <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-4 shrink-0 select-none shadow-2xs z-30 sticky top-0">
+        {/* Left: Brand Logo & Title */}
+        <div className="flex items-center gap-4 shrink-0">
+          <Link href="/staff/pos" className="flex items-center">
+            <img
+              src="/chatchaska-logo.png"
+              alt="ChatChaska"
+              className="h-8 w-auto max-w-[160px] object-contain drop-shadow-2xs"
+            />
+          </Link>
+        </div>
 
-        {/* 5 STATUS FILTERS: ALL | TABLE QR | PENDING | KITCHEN | DONE */}
-        <div className="flex items-center gap-2 overflow-x-auto">
+        {/* Center: The 5 Filter Buttons (Placed right in the header bar!) */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
           {/* All Filter */}
           <button
+            type="button"
             onClick={() => setActiveFilter('ALL')}
             className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'ALL'
@@ -253,6 +262,7 @@ function OrdersContent() {
 
           {/* Table QR Orders Filter (#C3A27C Beige) */}
           <button
+            type="button"
             onClick={() => setActiveFilter(activeFilter === 'TABLE_QR' ? 'ALL' : 'TABLE_QR')}
             className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'TABLE_QR'
@@ -269,6 +279,7 @@ function OrdersContent() {
 
           {/* Pending Filter */}
           <button
+            type="button"
             onClick={() => setActiveFilter(activeFilter === 'PENDING' ? 'ALL' : 'PENDING')}
             className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'PENDING'
@@ -284,6 +295,7 @@ function OrdersContent() {
 
           {/* Kitchen Filter */}
           <button
+            type="button"
             onClick={() => setActiveFilter(activeFilter === 'KITCHEN' ? 'ALL' : 'KITCHEN')}
             className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'KITCHEN'
@@ -299,6 +311,7 @@ function OrdersContent() {
 
           {/* Done Filter */}
           <button
+            type="button"
             onClick={() => setActiveFilter(activeFilter === 'COMPLETED' ? 'ALL' : 'COMPLETED')}
             className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'COMPLETED'
@@ -312,149 +325,194 @@ function OrdersContent() {
             </span>
           </button>
         </div>
-      </div>
 
-      {/* Orders Grid */}
-      {loading ? (
-        <div className="bg-white border border-slate-200 rounded-md p-12 text-center text-slate-400 text-xs font-bold">
-          Loading table QR orders...
+        {/* Right: POS Quick Button + Right Navigation Drawer Trigger */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <Link
+            href="/staff/pos"
+            className="px-3.5 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs border border-[#B2906A]"
+          >
+            <span className="material-symbols-outlined text-[16px]">
+              point_of_sale
+            </span>
+            <span>POS</span>
+          </Link>
+
+          {/* Hamburger ☰ (Opens Navigation Drawer from the RIGHT) */}
+          <button
+            type="button"
+            onClick={() => setIsNavDrawerOpen(true)}
+            className="w-9 h-9 rounded-md hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer border border-slate-200"
+            title="Navigation Menu"
+          >
+            <span className="material-symbols-outlined text-[22px]">menu</span>
+          </button>
         </div>
-      ) : filteredOrders.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-md p-6 shadow-xs">
-          <EmptyState
-            icon="receipt_long"
-            title="No Orders in this Queue"
-            description="Incoming dining table QR orders and POS counter tickets will appear here for preparation and billing."
-            actionLabel="Open POS Terminal"
-            actionHref="/staff/pos"
-          />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredOrders.map((order) => {
-            const isPending = order.status === 'pending';
-            const isKitchen = order.status === 'preparing' || order.status === 'ready';
-            const isCompleted = order.status === 'completed';
-            const isCancelled = order.status === 'cancelled';
+      </header>
 
-            return (
-              <div
-                key={order.id}
-                className={`bg-white border rounded-md p-4 flex flex-col justify-between space-y-3 transition-all ${
-                  isPending
-                    ? 'border-2 border-amber-400 bg-amber-50/40 shadow-xs'
-                    : isCompleted
-                    ? 'border border-emerald-300 bg-emerald-50/30 shadow-2xs'
-                    : isCancelled
-                    ? 'border border-rose-200 bg-rose-50/30 opacity-75'
-                    : 'border border-slate-300 bg-white shadow-2xs'
-                }`}
-              >
-                {/* Card Top Row */}
-                <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`px-2.5 py-1 h-7 font-black text-xs rounded-sm shadow-2xs inline-flex items-center justify-center ${
-                        isPending
-                          ? 'bg-amber-500 text-white'
-                          : isCompleted
-                          ? 'bg-emerald-600 text-white'
-                          : isCancelled
-                          ? 'bg-rose-500 text-white'
-                          : 'bg-black text-white'
-                      }`}
+      {/* 2. MAIN ORDERS GRID CONTENT */}
+      <div className="flex-1 overflow-y-auto p-4 max-w-7xl mx-auto w-full no-scrollbar space-y-4">
+        {loading ? (
+          <div className="bg-white border border-slate-200 rounded-md p-12 text-center text-slate-400 text-xs font-bold">
+            Loading table QR orders...
+          </div>
+        ) : filteredOrders.length === 0 ? (
+          <div className="bg-white border border-slate-200 rounded-md p-6 shadow-xs">
+            <EmptyState
+              icon="receipt_long"
+              title="No Orders in this Queue"
+              description="Incoming dining table QR orders and POS counter tickets will appear here for preparation and billing."
+              actionLabel="Open POS Terminal"
+              actionHref="/staff/pos"
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredOrders.map((order) => {
+              const isPending = order.status === 'pending';
+              const isKitchen = order.status === 'preparing' || order.status === 'ready';
+              const isCompleted = order.status === 'completed';
+              const isCancelled = order.status === 'cancelled';
+
+              return (
+                <div
+                  key={order.id}
+                  className={`bg-white border rounded-md p-4 flex flex-col justify-between space-y-3 transition-all ${
+                    isPending
+                      ? 'border-2 border-amber-400 bg-amber-50/40 shadow-xs'
+                      : isCompleted
+                      ? 'border border-emerald-300 bg-emerald-50/30 shadow-2xs'
+                      : isCancelled
+                      ? 'border border-rose-200 bg-rose-50/30 opacity-75'
+                      : 'border border-slate-300 bg-white shadow-2xs'
+                  }`}
+                >
+                  {/* Card Top Row */}
+                  <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`px-2.5 py-1 h-7 font-black text-xs rounded-sm shadow-2xs inline-flex items-center justify-center ${
+                          isPending
+                            ? 'bg-amber-500 text-white'
+                            : isCompleted
+                            ? 'bg-emerald-600 text-white'
+                            : isCancelled
+                            ? 'bg-rose-500 text-white'
+                            : 'bg-black text-white'
+                        }`}
+                      >
+                        {order.tableNumber ? order.tableNumber.replace('Table ', 'T') : 'T1'}
+                      </span>
+                      <span className="text-slate-400 font-mono text-[11px] font-bold">
+                        #{order.id.slice(-5)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-black text-amber-800 bg-amber-100/90 border border-amber-300 px-2 py-0.5 rounded-sm inline-flex items-center gap-1 h-6">
+                        ⏳ Post-Pay
+                      </span>
+                      <span
+                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-sm h-6 inline-flex items-center justify-center ${
+                          isPending
+                            ? 'bg-amber-500 text-white'
+                            : isCompleted
+                            ? 'bg-emerald-600 text-white'
+                            : isCancelled
+                            ? 'bg-rose-500 text-white'
+                            : 'bg-black text-white'
+                        }`}
+                      >
+                        {order.status === 'preparing' ? 'Kitchen' : order.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Items List */}
+                  <div className="space-y-1.5 text-xs flex-1">
+                    <div className="flex justify-between items-center text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                      <span>ITEMS ({order.items.reduce((s, i) => s + i.quantity, 0)})</span>
+                    </div>
+                    <ul className="space-y-1 font-medium text-slate-800">
+                      {order.items.map((item, idx) => (
+                        <li key={idx} className="flex justify-between items-center">
+                          <span className="truncate pr-2">
+                            • {item.name} <strong className="text-black font-bold">x{item.quantity}</strong>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    {order.notes && (
+                      <p className="text-[11px] text-amber-900 bg-amber-50 p-2 rounded-md border border-amber-200 mt-2 font-semibold">
+                        📝 Note: {order.notes}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Bottom Actions */}
+                  <div className="pt-2 border-t border-slate-200 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleInitiateBill(order)}
+                      className="flex-1 py-2 bg-white hover:bg-[#FAF7F2] text-slate-900 font-bold text-xs rounded-md border border-[#C3A27C]/50 flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
                     >
-                      {order.tableNumber ? order.tableNumber.replace('Table ', 'T') : 'T1'}
-                    </span>
-                    <span className="text-slate-400 font-mono text-[11px] font-bold">
-                      #{order.id.slice(-5)}
-                    </span>
-                  </div>
+                      <span className="material-symbols-outlined text-[16px] text-slate-800">
+                        receipt_long
+                      </span>
+                      <span>Bill</span>
+                    </button>
 
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-black text-amber-800 bg-amber-100/90 border border-amber-300 px-2 py-0.5 rounded-sm inline-flex items-center gap-1 h-6">
-                      ⏳ Post-Pay
-                    </span>
-                    <span
-                      className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-sm h-6 inline-flex items-center justify-center ${
-                        isPending
-                          ? 'bg-amber-500 text-white'
-                          : isCompleted
-                          ? 'bg-emerald-600 text-white'
-                          : isCancelled
-                          ? 'bg-rose-500 text-white'
-                          : 'bg-black text-white'
-                      }`}
-                    >
-                      {order.status === 'preparing' ? 'Kitchen' : order.status}
-                    </span>
-                  </div>
-                </div>
+                    {isPending && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateStatus(order.id, 'preparing')}
+                          className="flex-1 py-2 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-md transition-all shadow-xs cursor-pointer active:scale-95"
+                        >
+                          Accept & Cook
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleInitiateReject(order.id)}
+                          className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-md border border-rose-200 transition-all cursor-pointer"
+                          title="Reject Order"
+                        >
+                          ✕
+                        </button>
+                      </>
+                    )}
 
-                {/* Items List */}
-                <div className="space-y-1.5 text-xs flex-1">
-                  <div className="flex justify-between items-center text-slate-400 text-[10px] uppercase font-bold tracking-wider">
-                    <span>ITEMS ({order.items.reduce((s, i) => s + i.quantity, 0)})</span>
-                  </div>
-                  <ul className="space-y-1 font-medium text-slate-800">
-                    {order.items.map((item, idx) => (
-                      <li key={idx} className="flex justify-between items-center">
-                        <span className="truncate pr-2">
-                          • {item.name} <strong className="text-black font-bold">x{item.quantity}</strong>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  {order.notes && (
-                    <p className="text-[11px] text-amber-900 bg-amber-50 p-2 rounded-md border border-amber-200 mt-2 font-semibold">
-                      📝 Note: {order.notes}
-                    </p>
-                  )}
-                </div>
-
-                {/* Bottom Actions */}
-                <div className="pt-2 border-t border-slate-200 flex items-center gap-2">
-                  <button
-                    onClick={() => handleInitiateBill(order)}
-                    className="flex-1 py-2 bg-white hover:bg-[#FAF7F2] text-slate-900 font-bold text-xs rounded-md border border-[#C3A27C]/50 flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
-                  >
-                    <span className="material-symbols-outlined text-[16px] text-slate-800">
-                      receipt_long
-                    </span>
-                    <span>Bill</span>
-                  </button>
-
-                  {isPending && (
-                    <>
+                    {isKitchen && (
                       <button
-                        onClick={() => handleUpdateStatus(order.id, 'preparing')}
+                        type="button"
+                        onClick={() => handleUpdateStatus(order.id, 'completed')}
                         className="flex-1 py-2 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-md transition-all shadow-xs cursor-pointer active:scale-95"
                       >
-                        Accept & Cook
+                        Mark as Completed
                       </button>
-                      <button
-                        onClick={() => handleInitiateReject(order.id)}
-                        className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-md border border-rose-200 transition-all cursor-pointer"
-                        title="Reject Order"
-                      >
-                        ✕
-                      </button>
-                    </>
-                  )}
-
-                  {isKitchen && (
-                    <button
-                      onClick={() => handleUpdateStatus(order.id, 'completed')}
-                      className="flex-1 py-2 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-md transition-all shadow-xs cursor-pointer active:scale-95"
-                    >
-                      Mark as Completed
-                    </button>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Global Staff Right Navigation Drawer */}
+      <StaffNavigationDrawer
+        isOpen={isNavDrawerOpen}
+        onClose={() => setIsNavDrawerOpen(false)}
+      />
+
+      {/* Receipt Preview Modal */}
+      {previewBillData && (
+        <ReceiptPreviewModal
+          isOpen={Boolean(previewBillData)}
+          onClose={() => setPreviewBillData(null)}
+          billData={previewBillData}
+          hideGoBack={true}
+        />
       )}
 
       {/* Payment Settlement Modal */}
@@ -462,41 +520,35 @@ function OrdersContent() {
         <PaymentSettlementModal
           isOpen={Boolean(settlingOrder)}
           onClose={() => setSettlingOrder(null)}
-          grandTotal={Math.round(settlingOrder.totalAmount * 1.05)}
-          tableNumber={settlingOrder.tableNumber}
+          grandTotal={
+            settlingOrder.items.reduce((s, i) => s + i.price * i.quantity, 0) +
+            Math.round((settlingOrder.items.reduce((s, i) => s + i.price * i.quantity, 0) * 5) / 100)
+          }
+          tableNumber={settlingOrder.tableNumber || 'Table 1'}
           itemCount={settlingOrder.items.reduce((s, i) => s + i.quantity, 0)}
-          onConfirm={handleConfirmSettlement}
-        />
-      )}
-
-      {/* Receipt Modal */}
-      {previewBillData && (
-        <ReceiptPreviewModal
-          isOpen={Boolean(previewBillData)}
-          onClose={() => setPreviewBillData(null)}
-          billData={previewBillData}
+          onConfirm={handlePaymentConfirmed}
         />
       )}
 
       {/* Reject Reason Modal */}
       {rejectingOrderId && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in">
-          <div className="bg-white rounded-2xl p-5 max-w-sm w-full space-y-4 shadow-xl border border-slate-200">
-            <h3 className="text-sm font-black text-slate-900">Select Rejection Reason</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 select-none">
+          <div className="bg-white border border-slate-200 rounded-md p-5 max-w-sm w-full shadow-2xl space-y-4 font-sans">
+            <h3 className="font-bold text-slate-900 text-sm">Select Rejection Reason</h3>
             <div className="space-y-2">
               {[
                 'Item Out of Stock',
-                'Kitchen Overloaded',
+                'Kitchen Overloaded / Too Busy',
+                'Closing Time / Kitchen Closed',
                 'Duplicate Order',
-                'Kitchen Closed',
+                'Customer Requested Cancellation',
               ].map((reason) => (
                 <label
                   key={reason}
-                  onClick={() => setRejectionReason(reason)}
-                  className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
+                  className={`flex items-center gap-2.5 p-2.5 rounded-md border text-xs font-semibold cursor-pointer transition-all ${
                     rejectionReason === reason
-                      ? 'border-rose-500 bg-rose-50 text-rose-700'
-                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                      ? 'bg-rose-50 border-rose-300 text-rose-900 font-bold'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <input
@@ -514,14 +566,14 @@ function OrdersContent() {
               <button
                 type="button"
                 onClick={() => setRejectingOrderId(null)}
-                className="flex-1 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100"
+                className="flex-1 py-2 rounded-md border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmReject}
-                className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold"
+                className="flex-1 py-2 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold"
               >
                 Confirm Reject
               </button>
@@ -532,7 +584,7 @@ function OrdersContent() {
 
       {/* Toast Notification */}
       {toastMsg && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold z-50 animate-in fade-in border border-slate-700">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-md shadow-xl text-xs font-bold z-50 animate-in fade-in border border-slate-700">
           {toastMsg}
         </div>
       )}

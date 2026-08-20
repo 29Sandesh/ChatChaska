@@ -9,11 +9,12 @@ export function StaffNavbar() {
   const pathname = usePathname();
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
-  const isPOS = pathname === '/staff/pos';
+  // Pages with their own customized full-width top headers
+  const isCustomHeader = pathname === '/staff/pos' || pathname === '/staff/orders';
 
   return (
     <>
-      {!isPOS && (
+      {!isCustomHeader && (
         <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-4 shrink-0 select-none shadow-2xs z-30 sticky top-0 font-sans">
           {/* Left: Official Brand Logo */}
           <div className="flex items-center gap-4">
@@ -26,16 +27,16 @@ export function StaffNavbar() {
             </Link>
           </div>
 
-          {/* Right: Only Key Actions for Non-POS Pages (Back to POS + Right Navigation Drawer Trigger) */}
+          {/* Right: POS Quick Button + Right Navigation Drawer Trigger */}
           <div className="flex items-center gap-2.5">
             <Link
               href="/staff/pos"
               className="px-3.5 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs border border-[#B3926C]"
             >
               <span className="material-symbols-outlined text-[16px]">
-                arrow_back
+                point_of_sale
               </span>
-              <span>Back to POS</span>
+              <span>POS</span>
             </Link>
 
             {/* Hamburger ☰ (Opens Navigation Drawer from the RIGHT) */}
