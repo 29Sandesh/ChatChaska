@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { CategoryPanel, CategoryInfo } from '@/components/pos/CategoryPanel';
 import { MenuItemGrid, MenuItemData, DietaryFilter } from '@/components/pos/MenuItemGrid';
 import { BillPanel, CartItem } from '@/components/pos/BillPanel';
@@ -13,9 +14,9 @@ import { IncomingOrdersDrawer } from '@/components/staff/IncomingOrdersDrawer';
 import { playOrderChime } from '@/lib/sound-fx';
 import { cloudClient } from '@/lib/cloud-db';
 import { CloudOrder } from '@/types';
-import styles from '@/app/(dashboard)/pos/pos.module.css';
 
 function StaffPOSContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialTableParam = searchParams.get('table');
 
@@ -26,7 +27,7 @@ function StaffPOSContent() {
   
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orderType, setOrderType] = useState<'DINE_IN' | 'PICKUP'>('DINE_IN');
-  const [selectedTable, setSelectedTable] = useState<string>(initialTableParam || 'T1');
+  const [selectedTable, setSelectedTable] = useState<string>(initialTableParam || 'Table 1');
   const [waiterName, setWaiterName] = useState<string>('Staff');
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'card'>('cash');
   const [discountAmount, setDiscountAmount] = useState<number>(0);
@@ -101,10 +102,11 @@ function StaffPOSContent() {
               name: item.name,
               category: item.category,
               price: item.price,
-              available: Boolean(item.available),
-              popular: Boolean(item.popular),
-              veg: Boolean(item.veg),
-              jain: Boolean(item.jain),
+              available: item.available !== false,
+              popular: item.popular || false,
+              bestseller: item.bestseller || false,
+              veg: item.veg !== false,
+              jain: item.jain || false,
             }))
           );
         }
@@ -113,48 +115,20 @@ function StaffPOSContent() {
           setDbCategories(catData.categories);
         }
       } catch (err) {
-        console.error('Failed to load POS data:', err);
+        console.error('Failed to load menu data:', err);
       }
     }
     loadData();
   }, []);
 
-  // Compute category counts from menuItems matching active visible categories
-  const categoriesList = useMemo(() => {
-    const counts: Record<string, number> = {};
-    menuItems.forEach((item) => {
-      if (item.available) {
-        counts[item.category] = (counts[item.category] || 0) + 1;
-      }
-    });
-
-    if (dbCategories.length > 0) {
-      return dbCategories
-        .filter((c) => c.visible !== false)
-        .map((c) => ({
-          id: c.id,
-          name: c.name,
-          count: counts[c.id] || 0,
-        }));
-    }
-
-    return Object.keys(counts).map((catName) => ({
-      id: catName,
-      name: catName,
-      count: counts[catName],
-    }));
-  }, [menuItems, dbCategories]);
-
-  // Load held orders
+  // Fetch held bills on mount
   const fetchHeldOrders = async () => {
     try {
       const res = await fetch('/api/held-orders');
       const data = await res.json();
-      if (data.heldOrders) {
-        setHeldOrders(data.heldOrders);
-      }
+      if (data.orders) setHeldOrders(data.orders);
     } catch (err) {
-      console.error('Failed to load held orders:', err);
+      console.error('Failed to fetch held orders:', err);
     }
   };
 
@@ -162,89 +136,64 @@ function StaffPOSContent() {
     fetchHeldOrders();
   }, []);
 
-  // Auto-load running tab items when switching tables in Dine-In mode
-  useEffect(() => {
-    if (orderType !== 'DINE_IN') return;
+  // Compute category counts dynamically
+  const categoriesList: CategoryInfo[] = useMemo(() => {
+    const counts: Record<string, number> = {};
+    menuItems.forEach((item) => {
+      counts[item.category] = (counts[item.category] || 0) + 1;
+    });
 
-    const fetchRunningTab = async () => {
-      try {
-        const res = await fetch(`/api/orders?tableNumber=${selectedTable}`);
-        const data = await res.json();
-        if (data.orders && data.orders.length > 0) {
-          const combinedCart: CartItem[] = [];
-          data.orders.forEach((ord: any) => {
-            (ord.items || []).forEach((item: any) => {
-              const idx = combinedCart.findIndex((c) => c.name === item.name);
-              if (idx > -1) {
-                combinedCart[idx].quantity += item.quantity;
-              } else {
-                combinedCart.push({
-                  id: item.id || `item-${Math.random()}`,
-                  name: item.name,
-                  price: item.price || item.unitPrice || 0,
-                  quantity: item.quantity,
-                  veg: item.veg,
-                });
-              }
-            });
-          });
-          setCart(combinedCart);
-          setInitialTabCart(JSON.parse(JSON.stringify(combinedCart)));
-        } else {
-          setCart([]);
-          setInitialTabCart([]);
-        }
-      } catch (err) {
-        console.error('Failed to load table running tab:', err);
-      }
-    };
+    if (dbCategories.length > 0) {
+      return dbCategories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        count: counts[c.id] || 0,
+        icon: c.icon,
+      }));
+    }
 
-    fetchRunningTab();
-  }, [selectedTable, orderType]);
+    return [
+      { id: 'starters', name: 'Starters & Tandoor', count: counts['starters'] || 36 },
+      { id: 'main-course', name: 'Main Course & Curries', count: counts['main-course'] || 60 },
+      { id: 'breads-rice', name: 'Breads, Rice & Biryani', count: counts['breads-rice'] || 50 },
+      { id: 'soups-salads', name: 'Soups, Salads & Papad', count: counts['soups-salads'] || 30 },
+      { id: 'raita-curd', name: 'Raita & Sides', count: counts['raita-curd'] || 20 },
+      { id: 'indo-chinese', name: 'Indo-Chinese', count: counts['indo-chinese'] || 30 },
+      { id: 'snacks-chaat', name: 'Chaat & Street Snacks', count: counts['snacks-chaat'] || 25 },
+      { id: 'shakes-beverages', name: 'Shakes & Thick Drinks', count: counts['shakes-beverages'] || 20 },
+      { id: 'desserts', name: 'Desserts & Sweets', count: counts['desserts'] || 18 },
+      { id: 'drinks', name: 'Tea, Coffee & Beverages', count: counts['drinks'] || 12 },
+    ];
+  }, [menuItems, dbCategories]);
 
-  // Filter items (Category + Dietary Filter + Search Query)
+  // Filtered menu items
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
-      if (!item.available) return false;
-      if (selectedCategory === 'FAVORITES' && !item.popular) return false;
-      if (selectedCategory !== 'ALL' && selectedCategory !== 'FAVORITES' && item.category !== selectedCategory) {
+      // Category filter
+      if (selectedCategory === 'FAVORITES') {
+        if (!item.popular && !item.bestseller) return false;
+      } else if (selectedCategory !== 'ALL' && item.category !== selectedCategory) {
         return false;
       }
 
-      // Dietary filter
-      if (dietaryFilter === 'VEG' && !item.veg) return false;
-      if (dietaryFilter === 'NON_VEG' && item.veg) return false;
-      if (dietaryFilter === 'JAIN') {
-        if (!item.veg) return false;
-        if (item.jain !== undefined) {
-          if (!item.jain) return false;
-        } else {
-          const lowerName = item.name.toLowerCase();
-          if (
-            lowerName.includes('garlic') ||
-            lowerName.includes('onion') ||
-            lowerName.includes('potato') ||
-            lowerName.includes('aloo') ||
-            lowerName.includes('chicken') ||
-            lowerName.includes('mutton') ||
-            lowerName.includes('fish')
-          ) {
-            return false;
-          }
-        }
-      }
-
-      if (searchQuery.trim()) {
+      // Search query
+      if (searchQuery.trim() !== '') {
         const q = searchQuery.toLowerCase();
         const matchesName = item.name.toLowerCase().includes(q);
         const matchesCat = item.category.toLowerCase().includes(q);
         if (!matchesName && !matchesCat) return false;
       }
+
+      // Dietary filter
+      if (dietaryFilter === 'VEG' && !item.veg) return false;
+      if (dietaryFilter === 'NON_VEG' && item.veg) return false;
+      if (dietaryFilter === 'JAIN' && !item.jain) return false;
+
       return true;
     });
-  }, [menuItems, selectedCategory, dietaryFilter, searchQuery]);
+  }, [menuItems, selectedCategory, searchQuery, dietaryFilter]);
 
-  // Cart operations
+  // Add Item to cart
   const handleSelectItem = (item: MenuItemData) => {
     setCart((prev) => {
       const existingIndex = prev.findIndex((i) => i.id === item.id);
@@ -281,11 +230,15 @@ function StaffPOSContent() {
     });
   };
 
+  const handleRemoveItem = (itemId: string) => {
+    setCart((prev) => prev.filter((i) => i.id !== itemId));
+  };
+
   // Hold current bill
   const handleHoldBill = async () => {
     if (cart.length === 0) return;
     const calc = calculateBillTotals({
-      items: cart.map(c => ({ price: c.price, quantity: c.quantity })),
+      items: cart.map((c) => ({ price: c.price, quantity: c.quantity })),
       discountAmount,
       gstRate: 5,
     });
@@ -294,7 +247,7 @@ function StaffPOSContent() {
       id: `HOLD-${Date.now().toString().slice(-4)}`,
       tableNumber: selectedTable,
       waiterName: waiterName,
-      items: cart.map(c => ({
+      items: cart.map((c) => ({
         id: c.id,
         name: c.name,
         quantity: c.quantity,
@@ -313,7 +266,7 @@ function StaffPOSContent() {
         body: JSON.stringify(newHeld),
       });
       if (res.ok) {
-        showToast(`Bill parked for ${selectedTable}`);
+        showToast(`⏸ Bill parked for ${selectedTable}`);
         setCart([]);
         fetchHeldOrders();
       }
@@ -365,11 +318,10 @@ function StaffPOSContent() {
     }
   };
 
-  // Send KOT to Kitchen - Sends ONLY new/additional delta items added in this round!
+  // Send KOT to Kitchen
   const handleSendKOT = async () => {
     if (cart.length === 0) return;
 
-    // Calculate ONLY the NEW delta/incremental items added since last KOT!
     const newKOTItems: { id: string; name: string; quantity: number; price: number }[] = [];
 
     cart.forEach((cartItem) => {
@@ -381,7 +333,7 @@ function StaffPOSContent() {
         newKOTItems.push({
           id: cartItem.id,
           name: cartItem.name,
-          quantity: deltaQty, // Only the newly added quantity!
+          quantity: deltaQty,
           price: cartItem.price,
         });
       }
@@ -400,7 +352,7 @@ function StaffPOSContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tableNumber: selectedTable,
-          items: newKOTItems, // Send ONLY the incremental delta items to kitchen!
+          items: newKOTItems,
           totalAmount: deltaTotal,
           status: 'pending',
         }),
@@ -410,12 +362,11 @@ function StaffPOSContent() {
         await fetch('/api/tables', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: `table-${selectedTable.toLowerCase()}`, status: 'running' }),
+          body: JSON.stringify({ id: selectedTable, status: 'running' }),
         }).catch(() => {});
 
-        // Update initialTabCart so future rounds calculate delta against current total
         setInitialTabCart(JSON.parse(JSON.stringify(cart)));
-        showToast(`KOT Round sent for ${selectedTable} (+${newKOTItems.length} new items)!`);
+        showToast(`🍳 KOT sent for ${selectedTable}!`);
       }
     } catch (err) {
       console.error('KOT send failed:', err);
@@ -440,32 +391,34 @@ function StaffPOSContent() {
     setIsPaymentModalOpen(false);
 
     const calc = calculateBillTotals({
-      items: cart.map(c => ({ price: c.price, quantity: c.quantity })),
+      items: cart.map((c) => ({ price: c.price, quantity: c.quantity })),
       discountAmount,
       gstRate: 5,
     });
+
+    const billItems = cart.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      unitPrice: item.price,
+      lineTotal: item.price * item.quantity,
+    }));
 
     const billPayload = {
       restaurantId: 'demo',
       restaurantName: 'ChatChaska Cafe',
       tableNumber: selectedTable,
       waiterName: waiterName,
-      customerName: details.customerName || 'Walk-in Guest',
-      customerPhone: details.customerPhone || '',
-      items: cart.map(c => ({
-        name: c.name,
-        quantity: c.quantity,
-        unitPrice: c.price,
-        lineTotal: c.price * c.quantity,
-      })),
+      items: billItems,
       subtotal: calc.subtotal,
-      gstPercent: calc.gstRate,
+      gstPercent: 5,
       cgstAmount: calc.cgstAmount,
       sgstAmount: calc.sgstAmount,
       gstAmount: calc.totalTax,
-      discountAmount: calc.discountAmount,
+      discountAmount: discountAmount,
       grandTotal: calc.grandTotal,
       paymentMode: details.paymentMethod,
+      customerName: details.customerName,
+      customerPhone: details.customerPhone,
       status: 'paid',
     };
 
@@ -477,47 +430,53 @@ function StaffPOSContent() {
       });
 
       const data = await res.json();
-      const createdBill = data.bill || data;
 
-      await fetch('/api/tables', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: `table-${selectedTable.toLowerCase()}`, status: 'paid' }),
-      }).catch(() => {});
+      if (res.ok && data.bill) {
+        // Free the table
+        await fetch('/api/tables', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: selectedTable, status: 'free' }),
+        }).catch(() => {});
 
-      const billPreviewData: BillData = {
-        billId: createdBill.id,
-        tokenNumber: createdBill.tokenNumber || '01',
-        restaurantName: 'ChatChaska Cafe',
-        gstin: '27AABCM1234A1Z5',
-        date: new Date().toLocaleString(),
-        tableNumber: selectedTable,
-        waiterName: waiterName,
-        customerName: details.customerName || undefined,
-        customerPhone: details.customerPhone || undefined,
-        items: billPayload.items,
-        subtotal: calc.subtotal,
-        discountAmount: calc.discountAmount,
-        cgstRate: calc.cgstRate,
-        sgstRate: calc.sgstRate,
-        cgstAmount: calc.cgstAmount,
-        sgstAmount: calc.sgstAmount,
-        roundOff: calc.roundOff,
-        grandTotal: calc.grandTotal,
-        paymentMode: details.paymentMethod.toUpperCase(),
-      };
+        const newBillData: BillData = {
+          billId: data.bill.id,
+          tokenNumber: data.bill.tokenNumber || '01',
+          restaurantName: 'ChatChaska Cafe',
+          date: new Date().toLocaleString('en-IN'),
+          tableNumber: selectedTable,
+          waiterName: waiterName,
+          items: billItems,
+          subtotal: calc.subtotal,
+          discountAmount: discountAmount,
+          cgstRate: 2.5,
+          sgstRate: 2.5,
+          cgstAmount: calc.cgstAmount,
+          sgstAmount: calc.sgstAmount,
+          roundOff: calc.roundOff,
+          grandTotal: calc.grandTotal,
+          paymentMode: details.paymentMethod.toUpperCase(),
+          customerName: details.customerName,
+          customerPhone: details.customerPhone,
+        };
 
-      setGeneratedBill(billPreviewData);
-      setIsReceiptModalOpen(true);
-      setCart([]);
-      setDiscountAmount(0);
-      showToast('Payment successful & receipt generated!');
+        setGeneratedBill(newBillData);
+        setIsReceiptModalOpen(true);
+
+        setCart([]);
+        setInitialTabCart([]);
+        setDiscountAmount(0);
+        showToast('🎉 Bill settled & saved successfully!');
+      } else {
+        showToast('Failed to save bill. Please retry.');
+      }
     } catch (err) {
-      console.error('Save bill failed:', err);
+      console.error('Error saving bill:', err);
+      showToast('Network error while saving bill.');
     }
   };
 
-  // Search input ref for F1 focus shortcut
+  // Keyboard Shortcuts (F1: Search, F5: Pay, F6: Save & Print)
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -525,11 +484,17 @@ function StaffPOSContent() {
       if (e.key === 'F1') {
         e.preventDefault();
         searchInputRef.current?.focus();
+      } else if (e.key === 'F5') {
+        e.preventDefault();
+        handleSaveBill();
+      } else if (e.key === 'F6') {
+        e.preventDefault();
+        handleSaveBill();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [cart, discountAmount, selectedTable]);
 
   // Accept / Reject incoming QR customer order
   const handleAcceptIncomingOrder = async (order: CloudOrder) => {
@@ -543,10 +508,12 @@ function StaffPOSContent() {
       await fetch('/api/tables', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: `table-${(order.table_number || 'T1').toLowerCase()}`, status: 'running' }),
+        body: JSON.stringify({ id: order.table_number || 'Table 1', status: 'running' }),
       }).catch(() => {});
 
-      setIncomingOrders((prev) => prev.filter((o) => (o.order_number || o.id) !== (order.order_number || order.id)));
+      setIncomingOrders((prev) =>
+        prev.filter((o) => (o.order_number || o.id) !== (order.order_number || order.id))
+      );
       showToast(`✅ Order ${order.order_number} Accepted for ${order.table_number}!`);
     } catch (e) {
       console.error('Failed to accept order:', e);
@@ -561,7 +528,9 @@ function StaffPOSContent() {
         body: JSON.stringify({ status: 'rejected' }),
       });
 
-      setIncomingOrders((prev) => prev.filter((o) => (o.order_number || o.id) !== (order.order_number || order.id)));
+      setIncomingOrders((prev) =>
+        prev.filter((o) => (o.order_number || o.id) !== (order.order_number || order.id))
+      );
       showToast(`Order ${order.order_number} rejected.`);
     } catch (e) {
       console.error('Failed to reject order:', e);
@@ -569,114 +538,177 @@ function StaffPOSContent() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-100 overflow-hidden select-none">
+    <div className="flex h-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
       {/* Left + Center Area (Header Bar + Categories Sidebar + Menu Items Grid) */}
-      <div className="flex-1 flex flex-col min-w-0 h-full border-r border-slate-200 bg-slate-50">
-        
-        {/* FULL-WIDTH TOP HEADER BAR */}
-        <div className="h-14 bg-white border-b border-slate-200 px-4 flex items-center justify-between gap-3 shrink-0 select-none shadow-2xs">
+      <div className="flex-1 flex flex-col min-w-0 h-full border-r border-slate-200/90 bg-[#FAF9F7]">
+        {/* 1. FULL-WIDTH TOP HEADER BAR (EXACT AS SCREENSHOT) */}
+        <div className="h-16 bg-white border-b border-slate-200/90 px-5 flex items-center justify-between gap-3 shrink-0 select-none shadow-2xs">
           {/* BRAND LOGO ON FAR LEFT */}
-          <div className="flex items-center justify-start w-[210px] shrink-0 border-r border-slate-200 pr-3">
-            <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-8 w-auto max-w-[180px] object-contain" />
+          <div className="flex items-center justify-start w-[210px] shrink-0 pr-3">
+            <img
+              src="/chatchaska-logo.png"
+              alt="ChatChaska"
+              className="h-8 w-auto max-w-[175px] object-contain"
+            />
           </div>
 
-          {/* CENTER: SEARCH INPUT + CRISP RECTANGULAR BLOCK DIETARY FILTERS */}
+          {/* CENTER: SEARCH INPUT + DIETARY FILTERS + QUICK ORDERS + DINE IN / PICK UP TOGGLE */}
           <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            {/* Crisp Rectangular Search Input Box */}
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-md px-3.5 py-1.5 text-xs w-[220px] shadow-2xs focus-within:border-blue-600 focus-within:bg-white transition-all">
-              <span className="material-symbols-outlined text-[18px] text-slate-400">search</span>
+            {/* Search Input Box */}
+            <div className="flex items-center gap-2 bg-white border border-slate-200/90 rounded-2xl px-3.5 py-1.5 text-xs w-[240px] xl:w-[270px] shadow-2xs focus-within:border-black transition-all">
+              <span className="material-symbols-outlined text-[18px] text-slate-400">
+                search
+              </span>
               <input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Search (F1)..."
+                placeholder="Search items... (F1)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent outline-none w-full font-bold text-slate-900 placeholder:text-slate-400 text-xs"
+                className="bg-transparent outline-hidden w-full font-medium text-slate-900 placeholder:text-slate-400 text-xs"
               />
             </div>
 
-            {/* Crisp Rectangular Block Dietary Filter Buttons */}
+            {/* Dietary Filter Buttons: All (black) | • Veg | • Non-Veg | • Jain */}
             <div className="flex items-center gap-1.5">
               <button
+                type="button"
                 onClick={() => setDietaryFilter('ALL')}
-                className={`px-3.5 py-1.5 rounded-md text-xs font-black border transition-all cursor-pointer shadow-2xs ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
                   dietaryFilter === 'ALL'
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                    ? 'bg-black text-white'
+                    : 'bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50'
                 }`}
               >
                 All
               </button>
 
               <button
+                type="button"
                 onClick={() => setDietaryFilter('VEG')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-black border transition-all cursor-pointer shadow-2xs ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-2xs ${
                   dietaryFilter === 'VEG'
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50'
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-black'
+                    : 'bg-white text-slate-700 border-slate-200/90 hover:border-emerald-500'
                 }`}
               >
-                <span className={`w-2 h-2 rounded-xs inline-block ${dietaryFilter === 'VEG' ? 'bg-white' : 'bg-emerald-500'}`} />
-                Veg
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Veg</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => setDietaryFilter('NON_VEG')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-black border transition-all cursor-pointer shadow-2xs ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-2xs ${
                   dietaryFilter === 'NON_VEG'
-                    ? 'bg-rose-600 text-white border-rose-600'
-                    : 'bg-white text-rose-700 border-rose-300 hover:bg-rose-50'
+                    ? 'border-rose-500 bg-rose-50 text-rose-700 font-black'
+                    : 'bg-white text-slate-700 border-slate-200/90 hover:border-rose-500'
                 }`}
               >
-                <span className={`w-2 h-2 rounded-xs inline-block ${dietaryFilter === 'NON_VEG' ? 'bg-white' : 'bg-rose-500'}`} />
-                Non-Veg
+                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                <span>Non-Veg</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => setDietaryFilter('JAIN')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-black border transition-all cursor-pointer shadow-2xs ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-2xs ${
                   dietaryFilter === 'JAIN'
-                    ? 'bg-amber-500 text-white border-amber-500'
-                    : 'bg-white text-amber-700 border-amber-300 hover:bg-amber-50'
+                    ? 'border-amber-500 bg-amber-50 text-amber-700 font-black'
+                    : 'bg-white text-slate-700 border-slate-200/90 hover:border-amber-500'
                 }`}
               >
-                <span className={`w-2 h-2 rounded-xs inline-block ${dietaryFilter === 'JAIN' ? 'bg-white' : 'bg-amber-500'}`} />
-                Jain
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                <span>Jain</span>
+              </button>
+            </div>
+
+            {/* Quick Orders Button */}
+            <button
+              type="button"
+              onClick={() => setIsIncomingDrawerOpen(true)}
+              className="relative flex items-center gap-1.5 bg-[#F5ECE2] hover:bg-[#EBDBCB] border border-[#E8DCCF] text-[#2C241E] px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer shadow-2xs"
+            >
+              <span className="material-symbols-outlined text-[17px] text-[#2C241E]">
+                bolt
+              </span>
+              <span>Quick Orders</span>
+              {incomingOrders.length > 0 && (
+                <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full animate-bounce">
+                  {incomingOrders.length}
+                </span>
+              )}
+            </button>
+
+            {/* Dine In / Pick Up Segmented Pills */}
+            <div className="flex items-center gap-1 ml-auto">
+              <button
+                type="button"
+                onClick={() => setOrderType('DINE_IN')}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer shadow-2xs ${
+                  orderType === 'DINE_IN'
+                    ? 'bg-black text-white'
+                    : 'bg-[#F5ECE2] text-[#2C241E] hover:bg-[#EBDBCB]'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[17px]">
+                  restaurant
+                </span>
+                <span>Dine In</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setOrderType('PICKUP')}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer shadow-2xs ${
+                  orderType === 'PICKUP'
+                    ? 'bg-black text-white'
+                    : 'bg-[#F5ECE2] text-[#2C241E] hover:bg-[#EBDBCB]'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[17px]">
+                  shopping_bag
+                </span>
+                <span>Pick Up</span>
               </button>
             </div>
           </div>
 
-          {/* RIGHT: INCOMING CUSTOMER ORDERS BUTTON */}
-          <button
-            onClick={() => setIsIncomingDrawerOpen(true)}
-            className="relative flex items-center gap-1.5 bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 px-3 py-1.5 rounded-md text-xs font-black transition-all cursor-pointer shadow-2xs"
-          >
-            <span className="material-symbols-outlined text-[18px]">notifications</span>
-            <span>Live QR Orders</span>
-            {incomingOrders.length > 0 && (
-              <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full animate-bounce">
-                {incomingOrders.length}
-              </span>
-            )}
-          </button>
-
-          {/* FAR RIGHT: ITEM COUNT BADGE */}
-          <div className="text-xs font-black text-slate-700 bg-slate-100 border border-slate-300 px-3 py-1.5 rounded-md shrink-0 shadow-2xs">
-            {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
+          {/* FAR RIGHT: CC AVATAR + HAMBURGER MENU */}
+          <div className="flex items-center gap-2 shrink-0 pl-2">
+            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-black text-xs shadow-xs">
+              CC
+            </div>
+            <Link
+              href="/staff/tables"
+              className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-all cursor-pointer"
+              title="Table Map"
+            >
+              <span className="material-symbols-outlined text-[20px]">menu</span>
+            </Link>
           </div>
         </div>
 
-        {/* CONTENT AREA BELOW TOP BAR: CATEGORY SIDEBAR (LEFT) + MENU DISHES GRID (RIGHT) */}
+        {/* CONTENT AREA: CATEGORY SIDEBAR (LEFT) + MENU DISHES GRID (RIGHT) */}
         <div className="flex-1 flex min-h-0 overflow-hidden">
           <CategoryPanel
             categories={categoriesList}
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
+            totalItemsCount={filteredItems.length}
           />
 
           <MenuItemGrid
             items={filteredItems}
             onSelectItem={handleSelectItem}
+            categoryTitle={
+              selectedCategory === 'ALL'
+                ? 'All Items'
+                : selectedCategory === 'FAVORITES'
+                ? 'Favorites'
+                : categoriesList.find((c) => c.id === selectedCategory)?.name || 'Menu Items'
+            }
+            totalCount={filteredItems.length}
           />
         </div>
       </div>
@@ -689,6 +721,7 @@ function StaffPOSContent() {
         selectedTable={selectedTable}
         onTableSelect={setSelectedTable}
         onUpdateQuantity={handleUpdateQuantity}
+        onRemoveItem={handleRemoveItem}
         paymentMethod={paymentMethod}
         onPaymentMethodChange={setPaymentMethod}
         discountAmount={discountAmount}
@@ -719,7 +752,7 @@ function StaffPOSContent() {
         onClose={() => setIsPaymentModalOpen(false)}
         grandTotal={
           calculateBillTotals({
-            items: cart.map(c => ({ price: c.price, quantity: c.quantity })),
+            items: cart.map((c) => ({ price: c.price, quantity: c.quantity })),
             discountAmount,
             gstRate: 5,
           }).grandTotal
@@ -737,7 +770,6 @@ function StaffPOSContent() {
         />
       )}
 
-      {/* Incoming QR Customer Orders Drawer */}
       <IncomingOrdersDrawer
         isOpen={isIncomingDrawerOpen}
         onClose={() => setIsIncomingDrawerOpen(false)}
@@ -751,7 +783,7 @@ function StaffPOSContent() {
 
 export default function StaffPOSPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-slate-700">Loading Staff POS...</div>}>
+    <Suspense fallback={<div className="p-8 text-slate-700 font-bold text-sm">Loading Staff POS...</div>}>
       <StaffPOSContent />
     </Suspense>
   );
