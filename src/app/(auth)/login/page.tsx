@@ -2,9 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import loginShowcase from '@/../public/login-showcase.png';
 
 type PortalType = 'staff' | 'owner' | 'superadmin';
 type StaffRole = 'cashier' | 'waiter' | 'kitchen';
@@ -71,19 +69,15 @@ export default function UnifiedLoginPage() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center lg:justify-end select-none font-sans overflow-hidden bg-white text-slate-900">
-      {/* Full-Resolution Product Artwork - Fits completely without zooming or cropping */}
-      <div className="absolute inset-0 hidden lg:block pointer-events-none p-3 lg:p-6">
-        <Image
-          src={loginShowcase}
-          alt="ChatChaska — System Made to be Affordable, Reliable and Accessible"
-          fill
-          priority
-          className="object-contain object-left"
-        />
-      </div>
+      {/* Full-Screen Graphic - Takes 100% of desktop view edge-to-edge */}
+      <img
+        src="/login-showcase.png"
+        alt="ChatChaska — System Made to be Affordable, Reliable and Accessible"
+        className="absolute inset-0 w-full h-full object-fill hidden lg:block pointer-events-none"
+      />
 
       {/* RIGHT SIDE: Floating Minimal Sign In / Sign Up Panel */}
-      <div className="w-full lg:w-[48%] xl:w-[42%] flex items-center justify-center p-6 sm:p-10 relative z-10 lg:mr-6 xl:mr-16">
+      <div className="w-full lg:w-[48%] xl:w-[42%] flex items-center justify-center p-6 sm:p-10 relative z-10 lg:mr-8 xl:mr-16">
         <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-6 animate-in fade-in duration-200">
           {/* Header */}
           <div className="text-center space-y-1.5">
