@@ -71,12 +71,12 @@ export function BillPanel({
                 </p>
               </div>
 
-              {/* Stepper: [-] Qty [+] */}
+              {/* Stepper: [-] Qty [+] (Box-Shaped) */}
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   type="button"
                   onClick={() => onUpdateQuantity(item.id, -1)}
-                  className="w-5 h-5 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
+                  className="w-5 h-5 rounded-sm border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
                 >
                   -
                 </button>
@@ -86,7 +86,7 @@ export function BillPanel({
                 <button
                   type="button"
                   onClick={() => onUpdateQuantity(item.id, 1)}
-                  className="w-5 h-5 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
+                  className="w-5 h-5 rounded-sm border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
                 >
                   +
                 </button>
@@ -101,7 +101,7 @@ export function BillPanel({
               <button
                 type="button"
                 onClick={() => (onRemoveItem ? onRemoveItem(item.id) : onUpdateQuantity(item.id, -item.quantity))}
-                className="text-rose-400 hover:text-rose-600 p-0.5 rounded-md transition-colors cursor-pointer shrink-0"
+                className="text-rose-400 hover:text-rose-600 p-0.5 rounded-sm transition-colors cursor-pointer shrink-0"
                 title="Remove item"
               >
                 <span className="material-symbols-outlined text-[16px]">delete_outline</span>
@@ -127,7 +127,7 @@ export function BillPanel({
               <button
                 type="button"
                 onClick={() => setIsEditingDiscount(true)}
-                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
+                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-sm bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
               >
                 Add
               </button>
@@ -142,7 +142,7 @@ export function BillPanel({
                 value={discountAmount || ''}
                 onChange={(e) => onDiscountChange(Number(e.target.value) || 0)}
                 placeholder="0"
-                className="w-14 p-0.5 bg-slate-50 border border-slate-300 rounded text-right text-xs font-bold text-slate-900"
+                className="w-14 p-0.5 bg-slate-50 border border-slate-300 rounded-sm text-right text-xs font-bold text-slate-900"
                 autoFocus
                 onBlur={() => setIsEditingDiscount(false)}
               />
@@ -169,26 +169,26 @@ export function BillPanel({
         </div>
       </div>
 
-      {/* 3. Bottom Action Buttons: EXACTLY 2 BUTTONS (1/3 Hold, 2/3 Next) */}
+      {/* 3. Bottom Action Buttons: EXACTLY 2 BOX-SHAPED BUTTONS (1/3 Hold, 2/3 Next) */}
       <div className="p-3 bg-white border-t border-[#EBEBEB] flex items-center gap-2 shrink-0">
-        {/* Hold Order Button (1/3 width) */}
+        {/* Hold Order Button (1/3 width, Box-Shaped rounded-md) */}
         <button
           type="button"
           onClick={onHold}
           disabled={cart.length === 0}
-          className="w-1/3 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-800 border border-[#E8DFC9] disabled:opacity-40 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
+          className="w-1/3 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
           title="Hold / Park Order"
         >
           <span className="material-symbols-outlined text-[18px] text-slate-800">pause_circle</span>
           <span className="text-xs font-bold">Hold</span>
         </button>
 
-        {/* Next Button (2/3 width) */}
+        {/* Next Button (2/3 width, Box-Shaped rounded-md) */}
         <button
           type="button"
           onClick={onNext}
           disabled={cart.length === 0}
-          className="w-2/3 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-2xs"
+          className="w-2/3 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 font-bold text-xs rounded-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-2xs"
         >
           <span>Next</span>
           <span className="material-symbols-outlined text-[18px] text-slate-800">arrow_forward</span>

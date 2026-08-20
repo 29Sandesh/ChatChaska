@@ -19,7 +19,7 @@ export type DietaryFilter = 'ALL' | 'VEG' | 'NON_VEG' | 'JAIN';
 interface MenuItemGridProps {
   items: MenuItemData[];
   onSelectItem: (item: MenuItemData) => void;
-  viewMode?: 'grid' | 'list' | 'dense';
+  viewMode?: 'grid' | 'list';
 }
 
 export function MenuItemGrid({
@@ -39,13 +39,13 @@ export function MenuItemGrid({
             <p className="text-xs font-bold text-slate-500">No dishes found</p>
           </div>
         ) : viewMode === 'list' ? (
-          /* List View */
+          /* List View (Box Shaped Cards) */
           <div className="space-y-2 max-w-4xl mx-auto">
             {items.map((item) => (
               <div
                 key={item.id}
                 onClick={() => onSelectItem(item)}
-                className="bg-white border border-[#EBEBEB] rounded-2xl p-3 flex items-center justify-between hover:border-slate-300 hover:shadow-2xs transition-all cursor-pointer"
+                className="bg-white border border-[#EBEBEB] rounded-md p-3 flex items-center justify-between hover:border-slate-300 hover:shadow-2xs transition-all cursor-pointer"
               >
                 <div>
                   <h4 className="text-xs font-bold text-slate-900">{item.name}</h4>
@@ -54,7 +54,7 @@ export function MenuItemGrid({
 
                 <button
                   type="button"
-                  className="w-6 h-6 rounded-md border border-emerald-500 text-emerald-600 font-bold text-sm flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all cursor-pointer"
+                  className="w-6 h-6 rounded-sm border border-emerald-500 text-emerald-600 font-bold text-sm flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all cursor-pointer"
                 >
                   +
                 </button>
@@ -62,20 +62,14 @@ export function MenuItemGrid({
             ))}
           </div>
         ) : (
-          /* Grid & Dense Views */
-          <div
-            className={`grid gap-2.5 ${
-              viewMode === 'dense'
-                ? 'grid-cols-6'
-                : 'grid-cols-5'
-            }`}
-          >
+          /* Grid View (Box Shaped Dish Cards with Clean Square Structure) */
+          <div className="grid gap-2.5 grid-cols-5">
             {items.map((item) => {
               return (
                 <div
                   key={item.id}
                   onClick={() => onSelectItem(item)}
-                  className="bg-white border border-[#EBEBEB] rounded-2xl p-3.5 h-[115px] flex flex-col justify-between shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all relative group cursor-pointer active:scale-98"
+                  className="bg-white border border-[#EBEBEB] rounded-md p-3.5 h-[115px] flex flex-col justify-between shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all relative group cursor-pointer active:scale-98"
                 >
                   {/* Top: Title */}
                   <div>
@@ -96,7 +90,7 @@ export function MenuItemGrid({
                         e.stopPropagation();
                         onSelectItem(item);
                       }}
-                      className="w-5 h-5 rounded-md border border-emerald-500 text-emerald-600 font-bold text-xs flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all cursor-pointer active:scale-90"
+                      className="w-5 h-5 rounded-sm border border-emerald-500 text-emerald-600 font-bold text-xs flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all cursor-pointer active:scale-90"
                     >
                       +
                     </button>

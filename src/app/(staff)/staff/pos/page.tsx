@@ -487,7 +487,7 @@ function StaffPOSContent() {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
-      {/* 1. FULL-WIDTH TOP HEADER BAR */}
+      {/* 1. FULL-WIDTH TOP HEADER BAR (Box-Shaped Elements with Subtle Radius) */}
       <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-4 shrink-0 select-none z-20">
         {/* BRAND LOGO ON FAR LEFT - SIZED TO PERFECTLY MATCH CATEGORIES PANEL WIDTH */}
         <div className="flex items-center justify-start w-[195px] shrink-0">
@@ -501,7 +501,7 @@ function StaffPOSContent() {
         {/* RIGHT-ALIGNED CONTROLS: SEARCH + DIETARY FILTERS + TABLE ORDERS + MENU */}
         <div className="flex items-center gap-2.5 ml-auto">
           {/* Search Input Box */}
-          <div className="flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-xl px-3.5 py-1.5 text-xs w-[210px] xl:w-[240px] shadow-2xs focus-within:border-black transition-all">
+          <div className="flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-md px-3.5 py-1.5 text-xs w-[210px] xl:w-[240px] shadow-2xs focus-within:border-black transition-all">
             <span className="material-symbols-outlined text-[17px] text-slate-400">
               search
             </span>
@@ -520,7 +520,7 @@ function StaffPOSContent() {
             <button
               type="button"
               onClick={() => setDietaryFilter('ALL')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
                 dietaryFilter === 'ALL'
                   ? 'bg-black text-white'
                   : 'bg-white text-slate-700 border border-[#E5E5E5] hover:bg-slate-50'
@@ -532,39 +532,39 @@ function StaffPOSContent() {
             <button
               type="button"
               onClick={() => setDietaryFilter('VEG')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold border transition-all cursor-pointer ${
                 dietaryFilter === 'VEG'
                   ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-bold'
                   : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-emerald-500'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+              <span className="w-2 h-2 rounded-sm bg-[#10B981]" />
               <span>Veg</span>
             </button>
 
             <button
               type="button"
               onClick={() => setDietaryFilter('NON_VEG')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold border transition-all cursor-pointer ${
                 dietaryFilter === 'NON_VEG'
                   ? 'border-rose-500 bg-rose-50 text-rose-700 font-bold'
                   : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-rose-500'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
+              <span className="w-2 h-2 rounded-sm bg-[#EF4444]" />
               <span>Non-Veg</span>
             </button>
 
             <button
               type="button"
               onClick={() => setDietaryFilter('JAIN')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold border transition-all cursor-pointer ${
                 dietaryFilter === 'JAIN'
                   ? 'border-amber-500 bg-amber-50 text-amber-700 font-bold'
                   : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-amber-500'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+              <span className="w-2 h-2 rounded-sm bg-[#F59E0B]" />
               <span>Jain</span>
             </button>
           </div>
@@ -572,14 +572,14 @@ function StaffPOSContent() {
           {/* Table Orders Button (Direct Link to /staff/orders?filter=table) */}
           <Link
             href="/staff/orders?filter=table"
-            className="relative flex items-center gap-1.5 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
+            className="relative flex items-center gap-1.5 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer shadow-2xs border border-[#E8DFC9]"
           >
             <span className="material-symbols-outlined text-[17px]">
               qr_code_2
             </span>
             <span>Table Orders</span>
             {incomingOrdersCount > 0 && (
-              <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full animate-bounce">
+              <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-sm animate-bounce">
                 {incomingOrdersCount}
               </span>
             )}
@@ -590,7 +590,7 @@ function StaffPOSContent() {
             <button
               type="button"
               onClick={() => setIsNavDrawerOpen(true)}
-              className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer"
+              className="w-9 h-9 rounded-md hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer"
               title="Navigation Menu"
             >
               <span className="material-symbols-outlined text-[22px]">menu</span>
@@ -617,7 +617,7 @@ function StaffPOSContent() {
           viewMode={viewMode}
         />
 
-        {/* Right Billing Panel (With 2 Buttons: Hold and Next) */}
+        {/* Right Billing Panel (With 2 Box-Shaped Buttons: Hold and Next) */}
         <BillPanel
           cart={cart}
           orderType={orderType}
@@ -648,7 +648,7 @@ function StaffPOSContent() {
       />
 
       {toastMessage && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 text-xs font-semibold z-50 animate-in fade-in">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-md shadow-xl border border-slate-700 text-xs font-semibold z-50 animate-in fade-in">
           {toastMessage}
         </div>
       )}

@@ -48,19 +48,19 @@ export function CategoryPanel({
     <aside className="w-[195px] bg-[#FAFAFA] border-r border-[#EBEBEB] flex flex-col justify-between shrink-0 select-none h-full overflow-hidden">
       {/* Scrollable Categories List */}
       <div className="flex-1 overflow-y-auto p-2.5 space-y-1 no-scrollbar">
-        {/* Top Header: Categories Heading + Exactly 2 View Switcher Buttons (Grid & List) */}
+        {/* Top Header: Categories Heading + Exactly 2 Box View Switcher Buttons (Grid & List) */}
         <div className="flex items-center justify-between px-1.5 pt-1 pb-2">
           <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
             Categories
           </span>
 
-          {/* Exactly 2 Buttons: Grid & List */}
+          {/* Exactly 2 Box Buttons: Grid & List */}
           {onViewModeChange && (
-            <div className="flex items-center gap-0.5 bg-slate-200/80 p-0.5 rounded-lg border border-slate-300/80">
+            <div className="flex items-center gap-0.5 bg-slate-200/80 p-0.5 rounded-md border border-slate-300/80">
               <button
                 type="button"
                 onClick={() => onViewModeChange('grid')}
-                className={`w-6 h-6 rounded-md flex items-center justify-center transition-all cursor-pointer ${
+                className={`w-6 h-6 rounded-sm flex items-center justify-center transition-all cursor-pointer ${
                   viewMode === 'grid'
                     ? 'bg-white text-slate-900 shadow-2xs font-bold'
                     : 'text-slate-500 hover:text-slate-800'
@@ -73,7 +73,7 @@ export function CategoryPanel({
               <button
                 type="button"
                 onClick={() => onViewModeChange('list')}
-                className={`w-6 h-6 rounded-md flex items-center justify-center transition-all cursor-pointer ${
+                className={`w-6 h-6 rounded-sm flex items-center justify-center transition-all cursor-pointer ${
                   viewMode === 'list'
                     ? 'bg-white text-slate-900 shadow-2xs font-bold'
                     : 'text-slate-500 hover:text-slate-800'
@@ -86,13 +86,13 @@ export function CategoryPanel({
           )}
         </div>
 
-        {/* All Items Button */}
+        {/* All Items Button (Box Shaped) */}
         <button
           type="button"
           onClick={() => onSelectCategory('ALL')}
-          className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 transition-all cursor-pointer ${
+          className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2.5 transition-all cursor-pointer ${
             selectedCategory === 'ALL'
-              ? 'bg-[#F8EFE7] text-slate-900 font-bold'
+              ? 'bg-[#F8EFE7] text-slate-900 font-bold border border-[#E8DFC9]'
               : 'text-slate-700 hover:bg-slate-100 font-medium'
           }`}
         >
@@ -102,13 +102,13 @@ export function CategoryPanel({
           <span className="text-xs font-bold">All Items</span>
         </button>
 
-        {/* Favorites */}
+        {/* Favorites (Box Shaped) */}
         <button
           type="button"
           onClick={() => onSelectCategory('FAVORITES')}
-          className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 transition-all cursor-pointer ${
+          className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2.5 transition-all cursor-pointer ${
             selectedCategory === 'FAVORITES'
-              ? 'bg-[#F8EFE7] text-slate-900 font-bold'
+              ? 'bg-[#F8EFE7] text-slate-900 font-bold border border-[#E8DFC9]'
               : 'text-slate-700 hover:bg-slate-100 font-medium'
           }`}
         >
@@ -118,7 +118,7 @@ export function CategoryPanel({
           <span className="text-xs">Favorites</span>
         </button>
 
-        {/* Category List Items */}
+        {/* Category List Items (Box Shaped) */}
         {CATEGORY_ITEMS.map((cat) => {
           const isSelected = selectedCategory === cat.id;
           const count = countMap[cat.id] || cat.defaultCount;
@@ -128,9 +128,9 @@ export function CategoryPanel({
               key={cat.id}
               type="button"
               onClick={() => onSelectCategory(cat.id)}
-              className={`w-full text-left px-2.5 py-2 rounded-xl flex items-center justify-between transition-all cursor-pointer ${
+              className={`w-full text-left px-2.5 py-2 rounded-md flex items-center justify-between transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-[#F8EFE7] text-slate-900 font-bold'
+                  ? 'bg-[#F8EFE7] text-slate-900 font-bold border border-[#E8DFC9]'
                   : 'text-slate-700 hover:bg-slate-100 font-medium'
               }`}
             >
@@ -141,7 +141,7 @@ export function CategoryPanel({
                 <span className="text-xs truncate leading-tight">{cat.name}</span>
               </div>
 
-              <span className="text-[10px] font-semibold text-slate-500 bg-[#EFEFEF] px-1.5 py-0.5 rounded-md shrink-0">
+              <span className="text-[10px] font-semibold text-slate-600 bg-[#EFEFEF] px-1.5 py-0.5 rounded-sm shrink-0">
                 {count}
               </span>
             </button>
@@ -149,12 +149,12 @@ export function CategoryPanel({
         })}
       </div>
 
-      {/* Bottom Left: Icon-Only Action Buttons [ 📊 Reports ] [ ⚙️ Settings ] [ 📞 Need Help? ] */}
+      {/* Bottom Left: Box-Shaped Icon Action Buttons [ 📊 Reports ] [ ⚙️ Settings ] [ 📞 Need Help? ] */}
       <div className="p-2.5 border-t border-[#EBEBEB] bg-[#FAFAFA] flex items-center justify-between gap-1.5 relative">
         {/* Reports Icon */}
         <Link
           href="/staff/history"
-          className="flex-1 h-9 bg-white hover:bg-slate-50 border border-[#E5E5E5] rounded-xl text-slate-700 flex items-center justify-center transition-all shadow-2xs group relative"
+          className="flex-1 h-9 bg-white hover:bg-slate-50 border border-[#E5E5E5] rounded-md text-slate-700 flex items-center justify-center transition-all shadow-2xs group relative"
           title="Sales Reports & Bill History"
         >
           <span className="material-symbols-outlined text-[18px] text-slate-600 group-hover:text-black">
@@ -165,7 +165,7 @@ export function CategoryPanel({
         {/* Settings Icon */}
         <Link
           href="/admin"
-          className="flex-1 h-9 bg-white hover:bg-slate-50 border border-[#E5E5E5] rounded-xl text-slate-700 flex items-center justify-center transition-all shadow-2xs group relative"
+          className="flex-1 h-9 bg-white hover:bg-slate-50 border border-[#E5E5E5] rounded-md text-slate-700 flex items-center justify-center transition-all shadow-2xs group relative"
           title="Settings (Profile, Printer, Staff & Menu Setup)"
         >
           <span className="material-symbols-outlined text-[18px] text-slate-600 group-hover:text-black">
@@ -182,7 +182,7 @@ export function CategoryPanel({
               setShowSupportModal(!showSupportModal);
             }
           }}
-          className="flex-1 h-9 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-xl text-emerald-700 flex items-center justify-center transition-all shadow-2xs cursor-pointer group"
+          className="flex-1 h-9 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-md text-emerald-700 flex items-center justify-center transition-all shadow-2xs cursor-pointer group"
           title="Need Help? Call: 9303228082"
         >
           <span className="material-symbols-outlined text-[18px] text-emerald-700 group-hover:scale-110 transition-transform">
@@ -192,7 +192,7 @@ export function CategoryPanel({
 
         {/* Support Phone Popup Modal */}
         {showSupportModal && (
-          <div className="absolute bottom-12 left-2 right-2 bg-slate-900 text-white p-3 rounded-xl shadow-2xl z-50 animate-in fade-in border border-slate-700">
+          <div className="absolute bottom-12 left-2 right-2 bg-slate-900 text-white p-3 rounded-md shadow-2xl z-50 animate-in fade-in border border-slate-700">
             <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
               <span className="text-[11px] font-bold text-amber-400">
                 Need Help / Support?

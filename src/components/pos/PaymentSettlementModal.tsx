@@ -79,16 +79,16 @@ export function PaymentSettlementModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200 select-none font-sans">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-[#E8DFC9] overflow-hidden flex flex-col">
+      <div className="w-full max-w-sm bg-white rounded-lg shadow-2xl border border-[#E8DFC9] overflow-hidden flex flex-col">
         
-        {/* BRAND THEMED HEADER: BEIGE/WHITE/BLACK */}
+        {/* BRAND THEMED HEADER: BOX SHAPED */}
         <div className="flex items-center justify-between px-5 py-3.5 bg-[#FAF9F7] border-b border-[#E8DFC9]">
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-xl bg-black text-white font-bold text-xs shadow-2xs">
+            <span className="px-3 py-1 rounded-md bg-black text-white font-bold text-xs shadow-2xs">
               {isPickUp ? 'Takeaway Counter' : tableNumber}
             </span>
             {isPickUp && (
-              <span className="px-2.5 py-1 rounded-xl bg-[#F8EFE7] text-slate-900 border border-[#E8DFC9] font-bold text-xs">
+              <span className="px-2.5 py-1 rounded-md bg-[#F8EFE7] text-slate-900 border border-[#E8DFC9] font-bold text-xs">
                 Token #{tokenNumber}
               </span>
             )}
@@ -107,14 +107,14 @@ export function PaymentSettlementModal({
             <span className="font-semibold">{itemCount} {itemCount === 1 ? 'Item' : 'Items'}</span>
           </div>
 
-          {/* PAYMENT MODE SELECTION (Beige & Black Theme) */}
+          {/* PAYMENT MODE SELECTION (Box-Shaped rounded-md) */}
           <div className="grid grid-cols-3 gap-2">
             {/* CASH */}
             <button
               type="button"
               onClick={() => setPaymentMethod('cash')}
               className={cn(
-                'flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-2xs',
+                'flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-md border text-xs font-bold transition-all cursor-pointer shadow-2xs',
                 paymentMethod === 'cash'
                   ? 'bg-black text-white border-black'
                   : 'bg-white text-slate-800 border-slate-200 hover:bg-[#FAF9F7]'
@@ -129,7 +129,7 @@ export function PaymentSettlementModal({
               type="button"
               onClick={() => setPaymentMethod('upi')}
               className={cn(
-                'flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-2xs',
+                'flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-md border text-xs font-bold transition-all cursor-pointer shadow-2xs',
                 paymentMethod === 'upi'
                   ? 'bg-black text-white border-black'
                   : 'bg-white text-slate-800 border-slate-200 hover:bg-[#FAF9F7]'
@@ -144,7 +144,7 @@ export function PaymentSettlementModal({
               type="button"
               onClick={() => setPaymentMethod('card')}
               className={cn(
-                'flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-2xs',
+                'flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-md border text-xs font-bold transition-all cursor-pointer shadow-2xs',
                 paymentMethod === 'card'
                   ? 'bg-black text-white border-black'
                   : 'bg-white text-slate-800 border-slate-200 hover:bg-[#FAF9F7]'
@@ -157,8 +157,8 @@ export function PaymentSettlementModal({
 
           {/* DYNAMIC UPI QR DISPLAY */}
           {paymentMethod === 'upi' && (
-            <div className="flex flex-col items-center justify-center p-3.5 bg-[#FAF9F7] border border-[#E8DFC9] rounded-xl space-y-2 animate-in fade-in">
-              <div className="bg-white p-2 rounded-xl border border-[#E8DFC9] shadow-xs">
+            <div className="flex flex-col items-center justify-center p-3.5 bg-[#FAF9F7] border border-[#E8DFC9] rounded-md space-y-2 animate-in fade-in">
+              <div className="bg-white p-2 rounded-md border border-[#E8DFC9] shadow-xs">
                 <img
                   src={qrCodeUrl}
                   alt="UPI QR Code"
@@ -172,7 +172,7 @@ export function PaymentSettlementModal({
             </div>
           )}
 
-          {/* CUSTOMER DETAILS (Optional) */}
+          {/* CUSTOMER DETAILS (Box Shaped) */}
           <div className="space-y-2.5">
             <div className="relative">
               <span className="material-symbols-outlined text-[17px] text-slate-400 absolute left-3 top-2.5">
@@ -183,7 +183,7 @@ export function PaymentSettlementModal({
                 placeholder={isPickUp ? 'Customer Name for Takeaway Token' : 'Customer Name (Optional)'}
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                className="w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF9F7] border border-[#E8DFC9] rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-black transition-all"
+                className="w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF9F7] border border-[#E8DFC9] rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-black transition-all"
               />
             </div>
 
@@ -197,7 +197,7 @@ export function PaymentSettlementModal({
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
                 maxLength={10}
-                className="w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF9F7] border border-[#E8DFC9] rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-black transition-all"
+                className="w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF9F7] border border-[#E8DFC9] rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-black transition-all"
               />
             </div>
             {phoneError && (
@@ -206,13 +206,13 @@ export function PaymentSettlementModal({
           </div>
         </div>
 
-        {/* BOTTOM ACTION BUTTONS: BEIGE, WHITE & BLACK THEMED */}
+        {/* BOTTOM ACTION BUTTONS: BOX-SHAPED (rounded-md) */}
         <div className="p-4 bg-[#FAF9F7] border-t border-[#E8DFC9] flex items-center gap-2">
           {/* Cancel */}
           <button
             type="button"
             onClick={onClose}
-            className="py-2.5 px-3.5 rounded-xl border border-[#D9C4B0] bg-white hover:bg-[#F2E5D9] text-slate-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+            className="py-2.5 px-3.5 rounded-md border border-[#D9C4B0] bg-white hover:bg-[#F2E5D9] text-slate-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
           >
             Cancel
           </button>
@@ -222,7 +222,7 @@ export function PaymentSettlementModal({
             <button
               type="button"
               onClick={() => handleAction(true)}
-              className="flex-1 py-2.5 px-3 rounded-xl border border-[#D9C4B0] bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              className="flex-1 py-2.5 px-3 rounded-md border border-[#D9C4B0] bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
               title="Keep table open and pay later"
             >
               Pay Later
@@ -233,7 +233,7 @@ export function PaymentSettlementModal({
           <button
             type="button"
             onClick={() => handleAction(false)}
-            className="flex-1 py-2.5 px-3 rounded-xl bg-black hover:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
+            className="flex-1 py-2.5 px-3 rounded-md bg-black hover:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
           >
             <span className="material-symbols-outlined text-[16px]">receipt_long</span>
             <span>{isPickUp ? 'Settle & Print' : 'Confirm & Print'}</span>
