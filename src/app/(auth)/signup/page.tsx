@@ -61,36 +61,40 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 sm:p-6 select-none font-sans">
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/60 space-y-6 animate-in fade-in duration-200">
+    <div className="min-h-screen w-full bg-slate-950 text-white flex items-center justify-center p-4 sm:p-6 font-sans select-none overflow-x-hidden relative">
+      {/* Ambient background glow */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative z-10">
         {/* Branding Header */}
         <div className="text-center space-y-1.5">
           <img
             src="/chaska-c-logo.png"
             alt="ChatChaska"
-            className="w-12 h-12 rounded-2xl mx-auto shadow-sm object-contain"
+            className="w-12 h-12 rounded-2xl mx-auto shadow-md shadow-orange-500/10 object-contain"
           />
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Create Cafe Workspace</h1>
-          <p className="text-xs text-slate-500 font-medium">
+          <h1 className="text-2xl font-black text-slate-100 tracking-tight">Create Cafe Workspace</h1>
+          <p className="text-xs text-slate-400 font-medium">
             Start your 14-day free trial • 0 setup fees
           </p>
         </div>
 
         {/* Tab Switcher */}
-        <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1.5 rounded-2xl">
+        <div className="grid grid-cols-2 gap-1 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
           <Link
             href="/login"
-            className="py-2.5 text-center rounded-xl text-xs font-bold text-slate-500 hover:text-slate-900 transition-all cursor-pointer"
+            className="py-2.5 text-center rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer"
           >
             Sign In
           </Link>
-          <div className="py-2.5 text-center rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs">
+          <div className="py-2.5 text-center rounded-xl text-xs font-bold bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md">
             Start Free Trial
           </div>
         </div>
 
         {errorMsg && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl text-center flex items-center justify-center gap-1.5 animate-in fade-in">
+          <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold rounded-xl text-center flex items-center justify-center gap-1.5 animate-in fade-in">
             <span className="material-symbols-outlined text-base">error</span>
             <span>{errorMsg}</span>
           </div>
@@ -98,44 +102,44 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">Cafe / Restaurant Name *</label>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Cafe / Restaurant Name *</label>
             <input
               type="text"
               placeholder="e.g. Chai &amp; Bites Cafe"
               required
               value={cafeName}
               onChange={(e) => setCafeName(e.target.value)}
-              className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-hidden focus:border-blue-600 focus:bg-white transition-all"
+              className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-hidden"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">Owner / Manager Full Name *</label>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Owner / Manager Full Name *</label>
             <input
               type="text"
               placeholder="e.g. Rahul Sharma"
               required
               value={ownerName}
               onChange={(e) => setOwnerName(e.target.value)}
-              className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-hidden focus:border-blue-600 focus:bg-white transition-all"
+              className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-hidden"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1">Work Email *</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Work Email *</label>
               <input
                 type="email"
                 placeholder="owner@cafe.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-hidden focus:border-blue-600 focus:bg-white transition-all"
+                className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-hidden"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1">Mobile Number *</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Mobile Number *</label>
               <input
                 type="tel"
                 placeholder="10-digit number"
@@ -143,13 +147,13 @@ export default function SignupPage() {
                 maxLength={10}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-hidden focus:border-blue-600 focus:bg-white transition-all"
+                className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-hidden"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">Password *</label>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Password *</label>
             <input
               type="password"
               placeholder="Minimum 6 characters"
@@ -157,21 +161,21 @@ export default function SignupPage() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-hidden focus:border-blue-600 focus:bg-white transition-all"
+              className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-hidden"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-2xl shadow-sm transition-all active:scale-98 cursor-pointer mt-2"
+            className="w-full font-black py-3.5 rounded-2xl text-sm transition-all shadow-xl cursor-pointer flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white disabled:opacity-50 mt-2"
           >
             {loading ? 'Creating Workspace...' : 'Create My Cafe Workspace →'}
           </button>
         </form>
 
         {/* Benefits Footer */}
-        <div className="pt-2 border-t border-slate-100 grid grid-cols-3 gap-2 text-center text-[11px] font-semibold text-slate-500">
+        <div className="pt-2 border-t border-slate-800/80 grid grid-cols-3 gap-2 text-center text-[11px] font-semibold text-slate-400">
           <div>⚡ 0 Setup Fees</div>
           <div>📱 Tabletop QR</div>
           <div>🖨️ Thermal Billing</div>
