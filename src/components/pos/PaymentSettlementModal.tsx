@@ -176,7 +176,7 @@ export function PaymentSettlementModal({
               </span>
               <input
                 type="text"
-                placeholder={isPickUp ? 'Customer Name for Takeaway Token' : 'Customer Name (Optional)'}
+                placeholder="Customer Name"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 className="w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF9F7] border border-[#E8DFC9] rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-black transition-all"
@@ -189,7 +189,7 @@ export function PaymentSettlementModal({
               </span>
               <input
                 type="tel"
-                placeholder="WhatsApp Mobile Number (Optional)"
+                placeholder="WhatsApp Mobile Number"
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
                 maxLength={10}
