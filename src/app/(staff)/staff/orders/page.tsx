@@ -228,7 +228,7 @@ function OrdersContent() {
   const completedCount = useMemo(() => orders.filter((o) => o.status === 'completed').length, [orders]);
 
   return (
-    <div className="flex flex-col h-screen select-none font-sans bg-slate-50 overflow-hidden">
+    <div className="flex-1 flex flex-col h-full w-full select-none font-sans bg-slate-50 overflow-hidden">
       {/* 1. TOP HEADER: LOGO ON LEFT | FILTERS IN CENTER | [ POS ] + [ ☰ ] ON RIGHT */}
       <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-4 shrink-0 select-none shadow-2xs z-30 sticky top-0">
         {/* Left: Brand Logo & Title */}

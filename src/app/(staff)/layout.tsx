@@ -10,7 +10,7 @@ export default function StaffPortalLayout({ children }: { children: React.ReactN
       <StaffNavbar />
 
       {/* Main Page Content */}
-      <main className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
         {children}
       </main>
     </div>

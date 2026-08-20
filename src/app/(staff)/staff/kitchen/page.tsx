@@ -152,7 +152,7 @@ export default function StaffKitchenPage() {
   const visibleTickets = displayTickets;
 
   return (
-    <div className="bg-black min-h-screen text-white select-none font-mono flex flex-col justify-between overflow-hidden">
+    <div className="bg-black flex-1 flex flex-col h-full w-full text-white select-none font-mono justify-between overflow-hidden">
       {/* 1. TOP BLACK HEADER: LOGO ON LEFT | ACTIVE TICKETS BADGE IN CENTER | [ POS ] + [ ☰ ] ON RIGHT */}
       <header className="h-16 bg-black border-b border-neutral-800 px-5 flex items-center justify-between gap-4 shrink-0 select-none sticky top-0 z-30 font-sans">
         {/* Left: Brand Logo & Title */}
