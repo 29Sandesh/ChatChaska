@@ -513,7 +513,7 @@ function StaffPOSContent() {
           />
         </div>
 
-        {/* RIGHT-ALIGNED CONTROLS: SEARCH + DIETARY FILTERS + VIEW MODE + TABLE ORDERS + MENU */}
+        {/* RIGHT-ALIGNED CONTROLS: SEARCH + DIETARY FILTERS + TABLE ORDERS + MENU */}
         <div className="flex items-center gap-2.5 ml-auto">
           {/* Search Input Box */}
           <div className="flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-xl px-3.5 py-1.5 text-xs w-[210px] xl:w-[240px] shadow-2xs focus-within:border-black transition-all">
@@ -584,49 +584,7 @@ function StaffPOSContent() {
             </button>
           </div>
 
-          {/* VIEW MODE SWITCHER */}
-          <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-xl border border-slate-200/80">
-            <button
-              type="button"
-              onClick={() => setViewMode('grid')}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
-                viewMode === 'grid'
-                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                  : 'text-slate-400 hover:text-slate-700'
-              }`}
-              title="Grid View"
-            >
-              <span className="material-symbols-outlined text-[17px]">grid_view</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setViewMode('list')}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
-                viewMode === 'list'
-                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                  : 'text-slate-400 hover:text-slate-700'
-              }`}
-              title="List View"
-            >
-              <span className="material-symbols-outlined text-[17px]">view_list</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setViewMode('dense')}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
-                viewMode === 'dense'
-                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                  : 'text-slate-400 hover:text-slate-700'
-              }`}
-              title="Compact View"
-            >
-              <span className="material-symbols-outlined text-[17px]">apps</span>
-            </button>
-          </div>
-
-          {/* Table Orders Button (Direct Link to /staff/orders?filter=table - No popup!) */}
+          {/* Table Orders Button (Direct Link to /staff/orders?filter=table) */}
           <Link
             href="/staff/orders?filter=table"
             className="relative flex items-center gap-1.5 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
@@ -706,11 +664,13 @@ function StaffPOSContent() {
 
       {/* 2. MAIN BODY */}
       <div className="flex-1 flex min-h-0 overflow-hidden">
-        {/* Left Categories Sidebar */}
+        {/* Left Categories Sidebar (With Categories Heading + Grid/List View Mode Switcher) */}
         <CategoryPanel
           categories={categoriesList}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
 
         {/* Center Menu Dishes Grid */}

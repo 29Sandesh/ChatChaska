@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 
 export interface MenuItemData {
   id: string;
@@ -27,18 +27,6 @@ export function MenuItemGrid({
   onSelectItem,
   viewMode = 'grid',
 }: MenuItemGridProps) {
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
-
-  const toggleFavorite = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setFavoriteIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
   return (
     <div className="flex-1 flex flex-col h-full bg-[#FAF9F7] overflow-hidden select-none">
       {/* Grid Content Area */}
@@ -59,20 +47,9 @@ export function MenuItemGrid({
                 onClick={() => onSelectItem(item)}
                 className="bg-white border border-[#EBEBEB] rounded-2xl p-3 flex items-center justify-between hover:border-slate-300 hover:shadow-2xs transition-all cursor-pointer"
               >
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={(e) => toggleFavorite(item.id, e)}
-                    className="text-slate-300 hover:text-amber-500"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">
-                      {favoriteIds.has(item.id) ? 'star' : 'star_outline'}
-                    </span>
-                  </button>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">{item.name}</h4>
-                    <span className="text-[11px] font-black text-slate-900">₹{item.price}</span>
-                  </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">{item.name}</h4>
+                  <span className="text-[11px] font-black text-slate-900">₹{item.price}</span>
                 </div>
 
                 <button
@@ -94,8 +71,6 @@ export function MenuItemGrid({
             }`}
           >
             {items.map((item) => {
-              const isFavorite = favoriteIds.has(item.id);
-
               return (
                 <div
                   key={item.id}
@@ -104,21 +79,10 @@ export function MenuItemGrid({
                 >
                   {/* Top: Title */}
                   <div>
-                    <h4 className="text-xs font-bold text-slate-900 leading-snug line-clamp-2 pr-4">
+                    <h4 className="text-xs font-bold text-slate-900 leading-snug line-clamp-2">
                       {item.name}
                     </h4>
                   </div>
-
-                  {/* Favorite Star (Top Right) */}
-                  <button
-                    type="button"
-                    onClick={(e) => toggleFavorite(item.id, e)}
-                    className="absolute top-2.5 right-2.5 text-slate-300 hover:text-amber-500 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">
-                      {isFavorite ? 'star' : 'star_outline'}
-                    </span>
-                  </button>
 
                   {/* Bottom Row: Price & Plus Button */}
                   <div className="flex items-center justify-between mt-auto">
