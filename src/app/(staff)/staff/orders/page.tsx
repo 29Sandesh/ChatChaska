@@ -409,9 +409,20 @@ function OrdersContent() {
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-black text-amber-800 bg-amber-100/90 border border-amber-300 px-2 py-0.5 rounded-sm inline-flex items-center gap-1 h-6">
-                        ⏳ Post-Pay
-                      </span>
+                      {/* Payment Indicator: Payment Pending vs Payment Done */}
+                      {isCompleted || (order.notes && order.notes.includes('Paid via')) ? (
+                        <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-sm inline-flex items-center gap-1 h-6">
+                          <span className="material-symbols-outlined text-[13px] text-emerald-700">payments</span>
+                          <span>Payment Done</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-300 px-2 py-0.5 rounded-sm inline-flex items-center gap-1 h-6">
+                          <span className="material-symbols-outlined text-[13px] text-amber-700">payments</span>
+                          <span>Payment Pending</span>
+                        </span>
+                      )}
+
+                      {/* Kitchen / Order Status */}
                       <span
                         className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-sm h-6 inline-flex items-center justify-center ${
                           isPending
@@ -442,11 +453,16 @@ function OrdersContent() {
                         </li>
                       ))}
                     </ul>
-                    {order.notes && (
-                      <p className="text-[11px] text-amber-900 bg-amber-50 p-2 rounded-md border border-amber-200 mt-2 font-semibold">
-                        📝 Note: {order.notes}
-                      </p>
-                    )}
+
+                    {/* Customer Cooking Note (Only shown for actual custom requests, not auto-payment messages) */}
+                    {order.notes &&
+                      !order.notes.startsWith('Paid via') &&
+                      !order.notes.startsWith('Pay Later') &&
+                      order.notes.trim().length > 0 && (
+                        <p className="text-[11px] text-slate-700 bg-slate-100 p-2 rounded-md border border-slate-200 mt-2 font-medium">
+                          📝 {order.notes}
+                        </p>
+                      )}
                   </div>
 
                   {/* Bottom Actions */}

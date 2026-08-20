@@ -95,8 +95,8 @@ export async function POST(req: Request) {
           price: i.unitPrice,
         })),
         totalAmount: newBill.grandTotal,
-        status: 'preparing',
-        notes: `Paid via ${newBill.paymentMode.toUpperCase()} (Token #${newBill.tokenNumber})`,
+        status: newBill.status === 'open' ? 'pending' : 'ready',
+        notes: body.notes || '',
       });
     } catch (orderSyncError) {
       console.warn('[Bill API] Optional order sync warning:', orderSyncError);
