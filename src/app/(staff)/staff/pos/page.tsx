@@ -503,20 +503,20 @@ function StaffPOSContent() {
   return (
     <div className="flex flex-col h-screen w-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
       {/* 1. FULL-WIDTH TOP HEADER BAR */}
-      <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-3 shrink-0 select-none z-20">
-        {/* BRAND LOGO ON FAR LEFT - PROPERLY SIZED & CLEAR */}
-        <div className="flex items-center justify-start w-[210px] shrink-0">
+      <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-4 shrink-0 select-none z-20">
+        {/* BRAND LOGO ON FAR LEFT - ZOOMED IN 2X (BIG, CRISP & PROMINENT) */}
+        <div className="flex items-center justify-start shrink-0 overflow-visible py-1">
           <img
             src="/chatchaska-logo.png"
             alt="ChatChaska"
-            className="h-10 w-auto max-w-[200px] object-contain drop-shadow-2xs"
+            className="h-12 w-auto max-w-[260px] object-contain drop-shadow-xs"
           />
         </div>
 
-        {/* CENTER: SEARCH INPUT + DIETARY FILTERS + VIEW MODE + TABLE ORDERS (QR) */}
-        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+        {/* RIGHT-ALIGNED CONTROLS: SEARCH + DIETARY FILTERS + VIEW MODE + TABLE ORDERS + MENU */}
+        <div className="flex items-center gap-2.5 ml-auto">
           {/* Search Input Box */}
-          <div className="flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-xl px-3.5 py-1.5 text-xs w-[230px] xl:w-[260px] shadow-2xs focus-within:border-black transition-all">
+          <div className="flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-xl px-3.5 py-1.5 text-xs w-[210px] xl:w-[240px] shadow-2xs focus-within:border-black transition-all">
             <span className="material-symbols-outlined text-[17px] text-slate-400">
               search
             </span>
@@ -535,7 +535,7 @@ function StaffPOSContent() {
             <button
               type="button"
               onClick={() => setDietaryFilter('ALL')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 dietaryFilter === 'ALL'
                   ? 'bg-black text-white'
                   : 'bg-white text-slate-700 border border-[#E5E5E5] hover:bg-slate-50'
@@ -547,7 +547,7 @@ function StaffPOSContent() {
             <button
               type="button"
               onClick={() => setDietaryFilter('VEG')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                 dietaryFilter === 'VEG'
                   ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-bold'
                   : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-emerald-500'
@@ -560,7 +560,7 @@ function StaffPOSContent() {
             <button
               type="button"
               onClick={() => setDietaryFilter('NON_VEG')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                 dietaryFilter === 'NON_VEG'
                   ? 'border-rose-500 bg-rose-50 text-rose-700 font-bold'
                   : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-rose-500'
@@ -573,7 +573,7 @@ function StaffPOSContent() {
             <button
               type="button"
               onClick={() => setDietaryFilter('JAIN')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                 dietaryFilter === 'JAIN'
                   ? 'border-amber-500 bg-amber-50 text-amber-700 font-bold'
                   : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-amber-500'
@@ -641,11 +641,9 @@ function StaffPOSContent() {
               </span>
             )}
           </Link>
-        </div>
 
-        {/* FAR RIGHT: HAMBURGER MENU ☰ */}
-        <div className="flex items-center shrink-0 pl-2">
-          <div className="relative">
+          {/* FAR RIGHT: HAMBURGER MENU ☰ */}
+          <div className="relative pl-1">
             <button
               type="button"
               onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
