@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/Button';
 import { formatBillCurrency } from '@/lib/billing';
 
 export interface BillItem {
@@ -56,84 +55,18 @@ export function ReceiptPreviewModal({
 
   if (!isOpen) return null;
 
-  const handlePrint = () => {
-    if ((window as any).electronAPI?.printThermalBill) {
-      (window as any).electronAPI.printThermalBill(billData);
-    } else {
-      window.print();
-    }
-  };
-
   const cgstRate = billData.cgstRate ?? 2.5;
   const sgstRate = billData.sgstRate ?? 2.5;
 
-  const [downloadingPdf, setDownloadingPdf] = useState<boolean>(false);
-
-  const handleDownloadPdf = async () => {
-    setDownloadingPdf(true);
-    try {
-      const res = await fetch('/api/receipts/pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ billData }),
-      });
-
-      if (res.ok) {
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Receipt_${billData.billId}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      } else {
-        alert('Failed to download PDF');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error generating PDF receipt');
-    } finally {
-      setDownloadingPdf(false);
-    }
-  };
-
-  const [isBluetoothPrinting, setIsBluetoothPrinting] = useState<boolean>(false);
-
-  const handleBluetoothPrint = async () => {
-    setIsBluetoothPrinting(true);
-    try {
-      const { bluetoothPrinter } = await import('@/lib/bluetooth-printer');
-      await bluetoothPrinter.printReceipt({
-        restaurantName: billData.restaurantName,
-        billNumber: billData.tokenNumber || billData.billId.slice(-4),
-        dateStr: billData.date,
-        tableNumber: billData.tableNumber || 'Takeaway',
-        items: billData.items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.unitPrice })),
-        subtotal: billData.subtotal,
-        cgst: billData.cgstAmount || 0,
-        sgst: billData.sgstAmount || 0,
-        grandTotal: billData.grandTotal,
-        paymentMode: billData.paymentMode,
-      });
-      alert('Receipt printed successfully via Bluetooth!');
-    } catch (err: any) {
-      console.error('[Bluetooth Print Error]:', err);
-      alert(err.message || 'Failed to connect to Bluetooth printer');
-    } finally {
-      setIsBluetoothPrinting(false);
-    }
-  };
-
   const handleSendWhatsApp = async () => {
-    let cleanPhone = phoneInput.replace(/\D/g, '');
+    let rawPhone = phoneInput || billData.customerPhone || '';
+    let cleanPhone = rawPhone.replace(/\D/g, '');
     if (cleanPhone.length === 10) {
       cleanPhone = `91${cleanPhone}`;
     }
 
-    if (!cleanPhone) {
-      alert('Please enter mobile number');
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setShowPhoneModal(true);
       return;
     }
 
@@ -179,45 +112,45 @@ export function ReceiptPreviewModal({
   return (
     <>
       {/* Dark Backdrop Overlay */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs select-none">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs select-none font-sans">
         
         {/* Outer Popup Card */}
-        <div className="relative bg-slate-200 border border-slate-300 rounded-lg shadow-2xl flex flex-col items-center max-h-[92vh] overflow-hidden max-w-sm w-full">
+        <div className="relative bg-[#FAF9F7] border border-[#E8DFC9] rounded-lg shadow-2xl flex flex-col items-center max-h-[92vh] overflow-hidden max-w-sm w-full">
           
-          {/* WHITE TOP HEADER BAR: GO BACK BUTTON ON LEFT | CROSS BUTTON ON RIGHT */}
-          <div className="w-full bg-white border-b border-slate-300 px-4 py-2.5 flex items-center justify-between z-10 shrink-0 select-none">
+          {/* TOP HEADER BAR: GO BACK BUTTON ON LEFT | CROSS BUTTON ON RIGHT */}
+          <div className="w-full bg-[#FAF9F7] border-b border-[#E8DFC9] px-4 py-2.5 flex items-center justify-between z-10 shrink-0 select-none">
             {!hideGoBack && (
               <button
                 type="button"
                 onClick={onClose}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-xs transition-all cursor-pointer border border-slate-300 shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white hover:bg-[#F2E5D9] text-slate-900 font-bold text-xs transition-all cursor-pointer border border-[#D9C4B0] shadow-2xs"
               >
                 <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-                Go Back
+                <span>Go Back</span>
               </button>
             )}
 
             <button
               type="button"
               onClick={onClose}
-              className="w-7 h-7 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors border border-slate-300 cursor-pointer shadow-2xs ml-auto"
-              title="Close Preview"
+              className="w-7 h-7 rounded-md bg-white hover:bg-[#F2E5D9] text-slate-600 hover:text-black flex items-center justify-center transition-colors border border-[#D9C4B0] cursor-pointer shadow-2xs ml-auto"
+              title="Close"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
           </div>
 
           {/* Scrollable Receipt Area */}
-          <div className="p-5 pt-6 flex flex-col items-center overflow-y-auto no-scrollbar flex-1 w-full bg-slate-200">
+          <div className="p-4 flex flex-col items-center overflow-y-auto no-scrollbar flex-1 w-full bg-[#FAF9F7]">
             {/* Thermal Receipt Paper */}
             <div
-              className="bg-white p-5 text-black font-mono text-xs w-full max-w-[300px] shadow-md rounded-none border border-slate-300 select-none my-auto"
+              className="bg-white p-5 text-black font-mono text-xs w-full max-w-[300px] shadow-sm rounded-md border border-[#E8DFC9] select-none my-auto"
               id="receipt-print-area"
             >
               {/* Header */}
               <div className="text-center mb-3">
                 {/* Token Display (1 to 100) */}
-                <div className="inline-block bg-slate-100 border border-slate-400 py-1 px-3 rounded mb-2 font-black text-sm tracking-wider">
+                <div className="inline-block bg-[#FAF9F7] border border-[#D9C4B0] py-1 px-3 rounded-md mb-2 font-black text-sm tracking-wider text-black">
                   TOKEN #{billData.tokenNumber || '01'}
                 </div>
                 <h2 className="font-bold text-base mb-1">{billData.restaurantName}</h2>
@@ -321,84 +254,33 @@ export function ReceiptPreviewModal({
             </div>
           </div>
 
-          {/* Full-Width Solid White Bottom Section */}
-          <div className="bg-white border-t border-slate-300 p-3 w-full flex items-center justify-between gap-1.5 shadow-xs">
-            <Button
-              variant="primary"
-              onClick={handlePrint}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xs border-none rounded-xl text-xs py-2.5 flex-1"
+          {/* EXACTLY ONE LONG SEND ON WHATSAPP BUTTON */}
+          <div className="bg-[#FAF9F7] border-t border-[#E8DFC9] p-3 w-full shrink-0">
+            <button
+              type="button"
+              onClick={handleSendWhatsApp}
+              className="w-full py-3 px-4 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98 shadow-xs"
             >
-              Print
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={handleBluetoothPrint}
-              disabled={isBluetoothPrinting}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-xs border-none rounded-xl text-xs py-2.5 flex-1"
-              title="Print via Bluetooth Thermal Printer"
-            >
-              {isBluetoothPrinting ? '...' : 'BT Print'}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={handleDownloadPdf}
-              disabled={downloadingPdf}
-              className="bg-slate-700 hover:bg-slate-800 text-white font-bold shadow-xs border-none rounded-xl text-xs py-2.5 flex-1"
-            >
-              {downloadingPdf ? 'Saving...' : 'PDF'}
-            </Button>
-            {!hideWhatsApp && (
-              <Button
-                variant="secondary"
-                onClick={() => setShowPhoneModal(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs border-none rounded-xl text-xs py-2.5 flex-1"
-              >
-                WhatsApp
-              </Button>
-            )}
+              <span className="material-symbols-outlined text-[18px]">chat</span>
+              <span>Send on WhatsApp</span>
+            </button>
           </div>
         </div>
-
-        {/* Print Styles */}
-        <style dangerouslySetInnerHTML={{__html: `
-          @media print {
-            body * {
-              visibility: hidden;
-            }
-            #receipt-print-area, #receipt-print-area * {
-              visibility: visible;
-            }
-            #receipt-print-area {
-              position: absolute;
-              left: 50%;
-              top: 0;
-              transform: translateX(-50%);
-              width: 80mm;
-              padding: 10px;
-              margin: 0;
-            }
-            @page {
-              margin: 0;
-              size: auto;
-            }
-          }
-        `}} />
       </div>
 
-
-      {/* Ultra-Minimal WhatsApp Phone Input Modal */}
+      {/* WhatsApp Number Prompt Modal (If no number was initially provided) */}
       {showPhoneModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 select-none">
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 select-none">
+          <div className="bg-white border border-[#E8DFC9] rounded-lg p-5 max-w-xs w-full shadow-2xl space-y-4 font-sans">
             <div className="flex justify-between items-center pb-2 border-b border-slate-100">
               <h3 className="font-extrabold text-slate-900 text-sm">WhatsApp Number</h3>
-              <button onClick={() => setShowPhoneModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setShowPhoneModal(false)} className="text-slate-400 hover:text-slate-700 text-xs">
                 ✕
               </button>
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-xl p-2.5">
+              <div className="flex items-center gap-2 bg-[#FAF9F7] border border-[#D9C4B0] rounded-md p-2.5">
                 <span className="text-xs font-bold text-slate-500">+91</span>
                 <input
                   type="tel"
@@ -412,14 +294,13 @@ export function ReceiptPreviewModal({
                 />
               </div>
 
-              <Button
-                variant="primary"
-                fullWidth
+              <button
+                type="button"
                 onClick={handleSendWhatsApp}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow-xs"
+                className="w-full py-2.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
               >
-                Send
-              </Button>
+                <span>Send Bill</span>
+              </button>
             </div>
           </div>
         </div>
