@@ -209,20 +209,34 @@ function OrdersContent() {
     }
   };
 
-  // Filter orders based on active filter
+  // Filter orders based on active filter:
+  // - Live Active Queues (ALL / TABLE_QR / PENDING / KITCHEN): Only show live active orders!
+  // - Completed Tab (DONE): Shows completed/settled orders.
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
+      const isDone = order.status === 'completed';
+      const isCancelled = order.status === 'cancelled';
+
+      if (activeFilter === 'COMPLETED') {
+        return isDone;
+      }
+
+      // Hide completed/cancelled orders from the live active queues
+      if (isDone || isCancelled) {
+        return false;
+      }
+
       if (activeFilter === 'TABLE_QR') {
         return Boolean(order.tableNumber);
       }
       if (activeFilter === 'PENDING') return order.status === 'pending';
       if (activeFilter === 'KITCHEN') return order.status === 'preparing' || order.status === 'ready';
-      if (activeFilter === 'COMPLETED') return order.status === 'completed';
       return true;
     });
   }, [orders, activeFilter]);
 
-  const tableQrCount = useMemo(() => orders.filter((o) => Boolean(o.tableNumber)).length, [orders]);
+  const activeOrdersCount = useMemo(() => orders.filter((o) => o.status !== 'completed' && o.status !== 'cancelled').length, [orders]);
+  const tableQrCount = useMemo(() => orders.filter((o) => Boolean(o.tableNumber) && o.status !== 'completed' && o.status !== 'cancelled').length, [orders]);
   const pendingCount = useMemo(() => orders.filter((o) => o.status === 'pending').length, [orders]);
   const kitchenCount = useMemo(() => orders.filter((o) => o.status === 'preparing' || o.status === 'ready').length, [orders]);
   const completedCount = useMemo(() => orders.filter((o) => o.status === 'completed').length, [orders]);
@@ -244,7 +258,7 @@ function OrdersContent() {
 
         {/* Center: The 5 Filter Buttons (Placed right in the header bar!) */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-          {/* All Filter */}
+          {/* All Active Orders Filter */}
           <button
             type="button"
             onClick={() => setActiveFilter('ALL')}
@@ -256,7 +270,7 @@ function OrdersContent() {
           >
             <span>All</span>
             <span className={`px-2 py-0.5 rounded-sm text-xs font-black ${activeFilter === 'ALL' ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'}`}>
-              {orders.length}
+              {activeOrdersCount}
             </span>
           </button>
 
