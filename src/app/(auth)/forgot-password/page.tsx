@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen w-full bg-slate-950 text-white flex items-center justify-center p-4 font-sans select-none">
       <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
         <div className="text-center space-y-2">
-          <img src="/chaska-c-logo.png" alt="ChatChaska" className="w-12 h-12 rounded-2xl mx-auto shadow-md object-contain" />
+          <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-10 w-auto mx-auto object-contain" />
           <h1 className="text-xl font-black text-slate-100">Reset Password</h1>
           <p className="text-xs text-slate-400">
             {step === 'email' ? 'Enter your registered email to receive a reset code.' : 'Enter the 6-digit code and your new password.'}

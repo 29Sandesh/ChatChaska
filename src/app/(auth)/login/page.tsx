@@ -87,13 +87,12 @@ export default function UnifiedLoginPage() {
         <div className="w-full max-w-[390px] bg-[#FAF7F2]/95 backdrop-blur-md border border-[#E8DFC9] rounded-3xl p-6 sm:p-7 shadow-2xl shadow-[#D4C8AF]/40 space-y-5 animate-in fade-in duration-200">
           {/* Header */}
           <div className="text-center space-y-1">
-            <div className="lg:hidden flex items-center justify-center gap-2 mb-2">
+            <div className="lg:hidden flex items-center justify-center mb-2">
               <img
-                src="/chaska-c-logo.png"
+                src="/chatchaska-logo.png"
                 alt="ChatChaska"
-                className="w-10 h-10 rounded-2xl object-contain shadow-xs"
+                className="h-8 w-auto object-contain"
               />
-              <span className="font-black text-xl tracking-tight text-[#2D241E]">ChatChaska</span>
             </div>
             <h3 className="text-xl font-black text-[#2D241E] tracking-tight">Sign In to Terminal</h3>
             <p className="text-xs text-[#7C6E65] font-medium">

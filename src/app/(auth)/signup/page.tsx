@@ -68,11 +68,11 @@ export default function SignupPage() {
 
       <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative z-10">
         {/* Branding Header */}
-        <div className="text-center space-y-1.5">
+        <div className="text-center space-y-2">
           <img
-            src="/chaska-c-logo.png"
+            src="/chatchaska-logo.png"
             alt="ChatChaska"
-            className="w-12 h-12 rounded-2xl mx-auto shadow-md shadow-orange-500/10 object-contain"
+            className="h-10 w-auto mx-auto object-contain"
           />
           <h1 className="text-2xl font-black text-slate-100 tracking-tight">Create Cafe Workspace</h1>
           <p className="text-xs text-slate-400 font-medium">

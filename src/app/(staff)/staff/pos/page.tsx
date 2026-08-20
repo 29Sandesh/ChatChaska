@@ -575,10 +575,9 @@ function StaffPOSContent() {
         
         {/* FULL-WIDTH TOP HEADER BAR */}
         <div className="h-14 bg-white border-b border-slate-200 px-4 flex items-center justify-between gap-3 shrink-0 select-none shadow-2xs">
-          {/* BRAND NAME ON FAR LEFT */}
-          <div className="flex items-center justify-start w-[210px] shrink-0 border-r border-slate-200 pr-3 gap-2">
-            <img src="/chaska-c-logo.png" alt="Chaska" className="w-7 h-7 rounded-lg object-contain shadow-2xs" />
-            <span className="font-black text-slate-900 text-base tracking-tight">ChatChaska</span>
+          {/* BRAND LOGO ON FAR LEFT */}
+          <div className="flex items-center justify-start w-[210px] shrink-0 border-r border-slate-200 pr-3">
+            <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-8 w-auto max-w-[180px] object-contain" />
           </div>
 
           {/* CENTER: SEARCH INPUT + CRISP RECTANGULAR BLOCK DIETARY FILTERS */}

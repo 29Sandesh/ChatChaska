@@ -51,22 +51,12 @@ export function AdminSidebar({
     >
       {/* Brand Header */}
       <div className={cn('flex items-center justify-between mb-4 pb-2 border-b border-slate-100', isCollapsed ? 'px-0 justify-center' : 'px-1')}>
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           <img
-            src="/chaska-c-logo.png"
-            alt="Chaska"
-            className="w-9 h-9 rounded-xl object-contain flex-shrink-0 shadow-2xs"
+            src="/chatchaska-logo.png"
+            alt="ChatChaska"
+            className={cn('object-contain transition-all', isCollapsed ? 'w-8 h-8' : 'h-8 w-auto max-w-[140px]')}
           />
-          {!isCollapsed && (
-            <div className="min-w-0">
-              <div className="font-display font-black text-slate-900 text-base leading-tight tracking-tight truncate">
-                ChatChaska
-              </div>
-              <div className="font-body-sm text-[11px] text-slate-500 font-semibold truncate">
-                Cafe Admin
-              </div>
-            </div>
-          )}
         </div>
 
         {onToggleCollapse && (
