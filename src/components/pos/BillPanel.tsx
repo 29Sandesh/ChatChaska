@@ -33,7 +33,9 @@ export function BillPanel({
   onRemoveItem,
   discountAmount,
   onDiscountChange,
+  heldCount = 0,
   onHold,
+  onOpenHeld,
   onNext,
 }: BillPanelProps) {
   const [isEditingDiscount, setIsEditingDiscount] = useState<boolean>(false);
@@ -46,6 +48,19 @@ export function BillPanel({
 
   const totalItemsCount = cart.reduce((acc, c) => acc + c.quantity, 0);
 
+  const isCartEmpty = cart.length === 0;
+  const hasHeldOrders = heldCount > 0;
+
+  const handleHoldClick = () => {
+    if (isCartEmpty) {
+      if (hasHeldOrders && onOpenHeld) {
+        onOpenHeld();
+      }
+    } else {
+      onHold();
+    }
+  };
+
   return (
     <aside className="w-[340px] xl:w-[370px] bg-white border-l border-[#EBEBEB] flex flex-col justify-between shrink-0 select-none h-full overflow-hidden">
       {/* 1. Scrollable Cart Items List */}
@@ -57,6 +72,18 @@ export function BillPanel({
             </span>
             <p className="text-xs font-bold text-slate-500">Order is empty</p>
             <span className="text-[11px] text-slate-400 mt-0.5">Click any dish from the menu to add</span>
+            
+            {/* Quick Helper Button to Open Held Orders if any exist */}
+            {hasHeldOrders && onOpenHeld && (
+              <button
+                type="button"
+                onClick={onOpenHeld}
+                className="mt-4 px-3 py-1.5 rounded-md bg-[#FAF7F2] border border-[#C3A27C] text-slate-950 font-bold text-xs flex items-center gap-1.5 hover:bg-[#F3EADB] transition-all cursor-pointer shadow-2xs"
+              >
+                <span className="material-symbols-outlined text-[16px] text-slate-900">pause_circle</span>
+                <span>View {heldCount} Parked {heldCount === 1 ? 'Bill' : 'Bills'}</span>
+              </button>
+            )}
           </div>
         ) : (
           cart.map((item) => (
@@ -169,25 +196,35 @@ export function BillPanel({
         </div>
       </div>
 
-      {/* 3. Bottom Action Buttons: EXACTLY 2 BOX-SHAPED BUTTONS (1/3 Hold, 2/3 Next) IN #C3A27C BEIGE */}
+      {/* 3. Bottom Action Buttons: EXACTLY 2 BOX-SHAPED BUTTONS (1/3 Hold / Parked, 2/3 Next) IN #C3A27C BEIGE */}
       <div className="p-3 bg-white border-t border-[#EBEBEB] flex items-center gap-2 shrink-0">
-        {/* Hold Order Button (1/3 width, Box-Shaped rounded-md) */}
+        {/* Hold / Recall Parked Orders Button */}
         <button
           type="button"
-          onClick={onHold}
-          disabled={cart.length === 0}
-          className="w-1/3 h-11 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B3926C] disabled:opacity-40 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
-          title="Hold / Park Order"
+          onClick={handleHoldClick}
+          disabled={isCartEmpty && !hasHeldOrders}
+          className={`w-1/3 h-11 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0 ${
+            !isCartEmpty
+              ? 'bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B3926C] font-bold'
+              : hasHeldOrders
+              ? 'bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B3926C] font-bold animate-pulse'
+              : 'bg-[#C3A27C]/30 text-slate-400 border border-slate-200 cursor-not-allowed opacity-40'
+          }`}
+          title={isCartEmpty && hasHeldOrders ? 'View Parked Bills' : 'Hold / Park Order'}
         >
-          <span className="material-symbols-outlined text-[18px] text-slate-950">pause_circle</span>
-          <span className="text-xs font-bold">Hold</span>
+          <span className="material-symbols-outlined text-[18px]">
+            {isCartEmpty && hasHeldOrders ? 'inventory_2' : 'pause_circle'}
+          </span>
+          <span className="text-xs font-bold">
+            {isCartEmpty && hasHeldOrders ? `Held (${heldCount})` : hasHeldOrders ? `Hold (${heldCount})` : 'Hold'}
+          </span>
         </button>
 
         {/* Next Button (2/3 width, Box-Shaped rounded-md) */}
         <button
           type="button"
           onClick={onNext}
-          disabled={cart.length === 0}
+          disabled={isCartEmpty}
           className="w-2/3 h-11 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B3926C] disabled:opacity-40 font-bold text-xs rounded-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-2xs"
         >
           <span>Next</span>
