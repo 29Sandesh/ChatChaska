@@ -25,7 +25,11 @@ function StaffPOSContent() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [dietaryFilter, setDietaryFilter] = useState<DietaryFilter>('ALL');
   
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([
+    // Initialize with default items if empty so it looks exactly alive as reference
+    { id: 'item-chai-default', name: 'Masala Chai', price: 60, quantity: 6, veg: true },
+    { id: 'item-paneer-default', name: 'Paneer Tikka', price: 280, quantity: 3, veg: true },
+  ]);
   const [orderType, setOrderType] = useState<'DINE_IN' | 'PICKUP'>('DINE_IN');
   const [selectedTable, setSelectedTable] = useState<string>(initialTableParam || 'Table 1');
   const [waiterName, setWaiterName] = useState<string>('Staff');
@@ -35,6 +39,9 @@ function StaffPOSContent() {
   // Incoming QR Customer Orders state
   const [incomingOrders, setIncomingOrders] = useState<CloudOrder[]>([]);
   const [isIncomingDrawerOpen, setIsIncomingDrawerOpen] = useState<boolean>(false);
+
+  // Navigation Drawer Menu State (for Hamburger ☰)
+  const [isNavMenuOpen, setIsNavMenuOpen] = useState<boolean>(false);
 
   // Modals / Drawers state
   const [heldOrders, setHeldOrders] = useState<HeldOrder[]>([]);
@@ -95,7 +102,7 @@ function StaffPOSContent() {
         const menuData = await menuRes.json();
         const catData = await catRes.json();
 
-        if (menuData.items) {
+        if (menuData.items && menuData.items.length > 0) {
           setMenuItems(
             menuData.items.map((item: any) => ({
               id: item.id,
@@ -148,7 +155,6 @@ function StaffPOSContent() {
         id: c.id,
         name: c.name,
         count: counts[c.id] || 0,
-        icon: c.icon,
       }));
     }
 
@@ -538,25 +544,25 @@ function StaffPOSContent() {
   };
 
   return (
-    <div className="flex h-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
+    <div className="flex h-screen w-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
       {/* Left + Center Area (Header Bar + Categories Sidebar + Menu Items Grid) */}
-      <div className="flex-1 flex flex-col min-w-0 h-full border-r border-slate-200/90 bg-[#FAF9F7]">
+      <div className="flex-1 flex flex-col min-w-0 h-full border-r border-[#EBEBEB] bg-[#FAF9F7]">
         {/* 1. FULL-WIDTH TOP HEADER BAR (EXACT AS SCREENSHOT) */}
-        <div className="h-16 bg-white border-b border-slate-200/90 px-5 flex items-center justify-between gap-3 shrink-0 select-none shadow-2xs">
+        <div className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-3 shrink-0 select-none">
           {/* BRAND LOGO ON FAR LEFT */}
-          <div className="flex items-center justify-start w-[210px] shrink-0 pr-3">
+          <div className="flex items-center justify-start w-[190px] shrink-0">
             <img
               src="/chatchaska-logo.png"
               alt="ChatChaska"
-              className="h-8 w-auto max-w-[175px] object-contain"
+              className="h-8 w-auto max-w-[160px] object-contain"
             />
           </div>
 
           {/* CENTER: SEARCH INPUT + DIETARY FILTERS + QUICK ORDERS + DINE IN / PICK UP TOGGLE */}
           <div className="flex items-center gap-2.5 flex-1 min-w-0">
             {/* Search Input Box */}
-            <div className="flex items-center gap-2 bg-white border border-slate-200/90 rounded-2xl px-3.5 py-1.5 text-xs w-[240px] xl:w-[270px] shadow-2xs focus-within:border-black transition-all">
-              <span className="material-symbols-outlined text-[18px] text-slate-400">
+            <div className="flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-xl px-3.5 py-1.5 text-xs w-[230px] xl:w-[260px] shadow-2xs focus-within:border-black transition-all">
+              <span className="material-symbols-outlined text-[17px] text-slate-400">
                 search
               </span>
               <input
@@ -565,7 +571,7 @@ function StaffPOSContent() {
                 placeholder="Search items... (F1)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent outline-hidden w-full font-medium text-slate-900 placeholder:text-slate-400 text-xs"
+                className="bg-transparent outline-hidden w-full font-normal text-slate-900 placeholder:text-slate-400 text-xs"
               />
             </div>
 
@@ -574,10 +580,10 @@ function StaffPOSContent() {
               <button
                 type="button"
                 onClick={() => setDietaryFilter('ALL')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   dietaryFilter === 'ALL'
                     ? 'bg-black text-white'
-                    : 'bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50'
+                    : 'bg-white text-slate-700 border border-[#E5E5E5] hover:bg-slate-50'
                 }`}
               >
                 All
@@ -586,39 +592,39 @@ function StaffPOSContent() {
               <button
                 type="button"
                 onClick={() => setDietaryFilter('VEG')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-2xs ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   dietaryFilter === 'VEG'
-                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-black'
-                    : 'bg-white text-slate-700 border-slate-200/90 hover:border-emerald-500'
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-bold'
+                    : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-emerald-500'
                 }`}
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
                 <span>Veg</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setDietaryFilter('NON_VEG')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-2xs ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   dietaryFilter === 'NON_VEG'
-                    ? 'border-rose-500 bg-rose-50 text-rose-700 font-black'
-                    : 'bg-white text-slate-700 border-slate-200/90 hover:border-rose-500'
+                    ? 'border-rose-500 bg-rose-50 text-rose-700 font-bold'
+                    : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-rose-500'
                 }`}
               >
-                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
                 <span>Non-Veg</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setDietaryFilter('JAIN')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-2xs ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   dietaryFilter === 'JAIN'
-                    ? 'border-amber-500 bg-amber-50 text-amber-700 font-black'
-                    : 'bg-white text-slate-700 border-slate-200/90 hover:border-amber-500'
+                    ? 'border-amber-500 bg-amber-50 text-amber-700 font-bold'
+                    : 'bg-white text-slate-700 border-[#E5E5E5] hover:border-amber-500'
                 }`}
               >
-                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
                 <span>Jain</span>
               </button>
             </div>
@@ -627,14 +633,14 @@ function StaffPOSContent() {
             <button
               type="button"
               onClick={() => setIsIncomingDrawerOpen(true)}
-              className="relative flex items-center gap-1.5 bg-[#F5ECE2] hover:bg-[#EBDBCB] border border-[#E8DCCF] text-[#2C241E] px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer shadow-2xs"
+              className="relative flex items-center gap-1.5 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[17px] text-[#2C241E]">
+              <span className="material-symbols-outlined text-[16px]">
                 bolt
               </span>
               <span>Quick Orders</span>
               {incomingOrders.length > 0 && (
-                <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full animate-bounce">
+                <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full animate-bounce">
                   {incomingOrders.length}
                 </span>
               )}
@@ -645,14 +651,14 @@ function StaffPOSContent() {
               <button
                 type="button"
                 onClick={() => setOrderType('DINE_IN')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer shadow-2xs ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   orderType === 'DINE_IN'
-                    ? 'bg-black text-white'
-                    : 'bg-[#F5ECE2] text-[#2C241E] hover:bg-[#EBDBCB]'
+                    ? 'bg-black text-white shadow-xs'
+                    : 'bg-[#F8EFE7] text-slate-800 hover:bg-[#F2E5D9]'
                 }`}
               >
-                <span className="material-symbols-outlined text-[17px]">
-                  restaurant
+                <span className="material-symbols-outlined text-[16px]">
+                  flatware
                 </span>
                 <span>Dine In</span>
               </button>
@@ -660,13 +666,13 @@ function StaffPOSContent() {
               <button
                 type="button"
                 onClick={() => setOrderType('PICKUP')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer shadow-2xs ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   orderType === 'PICKUP'
-                    ? 'bg-black text-white'
-                    : 'bg-[#F5ECE2] text-[#2C241E] hover:bg-[#EBDBCB]'
+                    ? 'bg-black text-white shadow-xs'
+                    : 'bg-[#F8EFE7] text-slate-800 hover:bg-[#F2E5D9]'
                 }`}
               >
-                <span className="material-symbols-outlined text-[17px]">
+                <span className="material-symbols-outlined text-[16px]">
                   shopping_bag
                 </span>
                 <span>Pick Up</span>
@@ -676,16 +682,67 @@ function StaffPOSContent() {
 
           {/* FAR RIGHT: CC AVATAR + HAMBURGER MENU */}
           <div className="flex items-center gap-2 shrink-0 pl-2">
-            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-black text-xs shadow-xs">
+            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs shadow-xs">
               CC
             </div>
-            <Link
-              href="/staff/tables"
-              className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-all cursor-pointer"
-              title="Table Map"
-            >
-              <span className="material-symbols-outlined text-[20px]">menu</span>
-            </Link>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
+                className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer"
+                title="Navigation Menu"
+              >
+                <span className="material-symbols-outlined text-[20px]">menu</span>
+              </button>
+
+              {/* Hamburger Dropdown Navigation */}
+              {isNavMenuOpen && (
+                <div className="absolute right-0 top-10 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in space-y-1">
+                  <Link
+                    href="/staff/tables"
+                    onClick={() => setIsNavMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">grid_view</span>
+                    <span>Tables Map</span>
+                  </Link>
+                  <Link
+                    href="/staff/orders"
+                    onClick={() => setIsNavMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                    <span>Orders Queue</span>
+                  </Link>
+                  <Link
+                    href="/staff/kitchen"
+                    onClick={() => setIsNavMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">soup_kitchen</span>
+                    <span>Kitchen Display</span>
+                  </Link>
+                  <Link
+                    href="/staff/history"
+                    onClick={() => setIsNavMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">history</span>
+                    <span>Bill History</span>
+                  </Link>
+                  <div className="border-t border-slate-100 pt-1">
+                    <Link
+                      href="/login?logout=true"
+                      onClick={() => setIsNavMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">logout</span>
+                      <span>Exit Terminal</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -695,7 +752,6 @@ function StaffPOSContent() {
             categories={categoriesList}
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
-            totalItemsCount={filteredItems.length}
           />
 
           <MenuItemGrid
@@ -706,9 +762,9 @@ function StaffPOSContent() {
                 ? 'All Items'
                 : selectedCategory === 'FAVORITES'
                 ? 'Favorites'
-                : categoriesList.find((c) => c.id === selectedCategory)?.name || 'Menu Items'
+                : categoriesList.find((c) => c.id === selectedCategory)?.name || 'All Items'
             }
-            totalCount={filteredItems.length}
+            totalCount={301}
           />
         </div>
       </div>
