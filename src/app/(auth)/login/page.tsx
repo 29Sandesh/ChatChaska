@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import loginShowcase from '@/../public/login-showcase.png';
 
 type PortalType = 'staff' | 'owner' | 'superadmin';
 type StaffRole = 'cashier' | 'waiter' | 'kitchen';
@@ -71,9 +73,10 @@ export default function UnifiedLoginPage() {
     <div className="min-h-screen w-full flex flex-col lg:flex-row items-center justify-between bg-[#faf9f6] text-slate-900 select-none font-sans overflow-hidden">
       {/* LEFT COLUMN: Official Product Showcase Graphic */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-7/12 items-center justify-center p-6 xl:p-12 h-screen">
-        <img
-          src="/login-showcase.png"
+        <Image
+          src={loginShowcase}
           alt="ChatChaska — System Made to be Affordable, Reliable and Accessible"
+          priority
           className="w-full max-w-2xl max-h-[92vh] object-contain drop-shadow-sm"
         />
       </div>
