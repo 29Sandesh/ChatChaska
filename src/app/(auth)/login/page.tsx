@@ -70,19 +70,18 @@ export default function UnifiedLoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row items-center justify-between bg-[#faf9f6] text-slate-900 select-none font-sans overflow-hidden">
-      {/* LEFT COLUMN: Official Product Showcase Graphic */}
-      <div className="hidden lg:flex lg:w-1/2 xl:w-7/12 items-center justify-center p-6 xl:p-12 h-screen">
-        <Image
-          src={loginShowcase}
-          alt="ChatChaska — System Made to be Affordable, Reliable and Accessible"
-          priority
-          className="w-full max-w-2xl max-h-[92vh] object-contain drop-shadow-sm"
-        />
-      </div>
+    <div className="relative min-h-screen w-full flex items-center justify-center lg:justify-end select-none font-sans overflow-hidden bg-[#faf9f6] text-slate-900">
+      {/* Full-Screen High-Resolution Product Artwork Background */}
+      <Image
+        src={loginShowcase}
+        alt="ChatChaska — System Made to be Affordable, Reliable and Accessible"
+        fill
+        priority
+        className="object-cover object-center hidden lg:block pointer-events-none"
+      />
 
-      {/* RIGHT COLUMN: Floating Minimal Sign In / Sign Up Panel */}
-      <div className="w-full lg:w-1/2 xl:w-5/12 flex items-center justify-center p-6 sm:p-10 lg:pr-12 xl:pr-16">
+      {/* RIGHT SIDE: Floating Minimal Sign In / Sign Up Panel */}
+      <div className="w-full lg:w-[48%] xl:w-[42%] flex items-center justify-center p-6 sm:p-10 relative z-10 lg:mr-6 xl:mr-16">
         <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-6 animate-in fade-in duration-200">
           {/* Header */}
           <div className="text-center space-y-1.5">
