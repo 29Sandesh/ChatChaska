@@ -10,6 +10,12 @@ export interface OrderTypeModalProps {
   onProceed: (orderType: 'DINE_IN' | 'PICKUP', tableNumber: string) => void;
 }
 
+interface TableMapItem {
+  id: string;
+  name: string;
+  isOccupied: boolean;
+}
+
 export function OrderTypeModal({
   isOpen,
   onClose,
@@ -19,7 +25,7 @@ export function OrderTypeModal({
 }: OrderTypeModalProps) {
   const [orderType, setOrderType] = useState<'DINE_IN' | 'PICKUP'>(initialOrderType || 'DINE_IN');
   const [selectedTable, setSelectedTable] = useState<string>(initialTable || 'Table 1');
-  const [unoccupiedTables, setUnoccupiedTables] = useState<string[]>([]);
+  const [allTables, setAllTables] = useState<TableMapItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -31,26 +37,37 @@ export function OrderTypeModal({
       fetch('/api/tables')
         .then((res) => res.json())
         .then((data) => {
-          if (data.tables && Array.isArray(data.tables)) {
-            // Filter only unoccupied (free) tables
-            const free = data.tables
-              .filter((t: any) => t.status === 'free')
-              .map((t: any) => t.name || t.id);
+          if (data.tables && Array.isArray(data.tables) && data.tables.length > 0) {
+            const mapped: TableMapItem[] = data.tables.map((t: any) => ({
+              id: t.id || t.name,
+              name: t.name || t.id,
+              isOccupied: t.status === 'occupied' || t.status === 'running',
+            }));
+            setAllTables(mapped);
 
-            if (free.length > 0) {
-              setUnoccupiedTables(free);
-              if (!free.includes(selectedTable)) {
-                setSelectedTable(free[0]);
-              }
-            } else {
-              setUnoccupiedTables(data.tables.map((t: any) => t.name || t.id));
+            // Auto-select first free table if current table is occupied
+            const isCurrentFree = mapped.some((t) => (t.name === selectedTable || t.id === selectedTable) && !t.isOccupied);
+            if (!isCurrentFree) {
+              const firstFree = mapped.find((t) => !t.isOccupied);
+              if (firstFree) setSelectedTable(firstFree.name);
             }
           } else {
-            setUnoccupiedTables(['Table 1', 'Table 2', 'Table 3', 'Table 4', 'Table 5', 'Table 6']);
+            // Default 12-table floor map fallback
+            const fallback: TableMapItem[] = Array.from({ length: 12 }, (_, i) => ({
+              id: `T${i + 1}`,
+              name: `Table ${i + 1}`,
+              isOccupied: false,
+            }));
+            setAllTables(fallback);
           }
         })
         .catch(() => {
-          setUnoccupiedTables(['Table 1', 'Table 2', 'Table 3', 'Table 4', 'Table 5', 'Table 6']);
+          const fallback: TableMapItem[] = Array.from({ length: 12 }, (_, i) => ({
+            id: `T${i + 1}`,
+            name: `Table ${i + 1}`,
+            isOccupied: false,
+          }));
+          setAllTables(fallback);
         })
         .finally(() => {
           setLoading(false);
@@ -63,6 +80,8 @@ export function OrderTypeModal({
   const handleContinue = () => {
     onProceed(orderType, orderType === 'DINE_IN' ? selectedTable : 'Pick Up');
   };
+
+  const freeCount = allTables.filter((t) => !t.isOccupied).length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200 select-none font-sans">
@@ -110,38 +129,56 @@ export function OrderTypeModal({
             </button>
           </div>
 
-          {/* Unoccupied Table Selector (Only when Dine In is active) */}
+          {/* Table Map (Only when Dine In is active) */}
           {orderType === 'DINE_IN' && (
             <div className="space-y-2 pt-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-700">Available Tables</span>
-                <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-sm font-semibold border border-emerald-200">
-                  {unoccupiedTables.length} Free
-                </span>
+                <span className="font-bold text-slate-700">Table Map</span>
+                <div className="flex items-center gap-2 text-[10px] font-semibold">
+                  <span className="flex items-center gap-1 text-slate-700">
+                    <span className="w-2 h-2 rounded-2xs bg-white border border-slate-400 inline-block" />
+                    <span>{freeCount} Free</span>
+                  </span>
+                  <span className="flex items-center gap-1 text-slate-400">
+                    <span className="w-2 h-2 rounded-2xs bg-slate-300 inline-block opacity-40" />
+                    <span>{allTables.length - freeCount} Busy</span>
+                  </span>
+                </div>
               </div>
 
               {loading ? (
                 <div className="text-center py-4 text-xs text-slate-400">Loading tables...</div>
-              ) : unoccupiedTables.length === 0 ? (
-                <div className="text-center py-4 text-xs text-amber-800 font-semibold bg-amber-50 rounded-md border border-amber-200">
-                  All tables currently occupied
-                </div>
               ) : (
-                <div className="grid grid-cols-4 gap-1.5 max-h-36 overflow-y-auto no-scrollbar">
-                  {unoccupiedTables.map((tbl) => {
-                    const isSelected = selectedTable === tbl;
+                /* Table Grid: Free tables are clean WHITE boxes, Taken tables are DULL, FADED, and NON-CLICKABLE */
+                <div className="grid grid-cols-4 gap-1.5 max-h-44 overflow-y-auto no-scrollbar pt-1">
+                  {allTables.map((tbl) => {
+                    const isSelected = selectedTable === tbl.name || selectedTable === tbl.id;
+                    const shortName = tbl.name.replace('Table ', 'T');
+
+                    if (tbl.isOccupied) {
+                      return (
+                        <div
+                          key={tbl.id}
+                          className="py-2.5 px-1 text-xs font-bold rounded-sm border border-slate-200 bg-slate-100 text-slate-400 opacity-30 flex flex-col items-center justify-center cursor-not-allowed select-none"
+                          title={`${tbl.name} is currently occupied`}
+                        >
+                          <span>{shortName}</span>
+                        </div>
+                      );
+                    }
+
                     return (
                       <button
-                        key={tbl}
+                        key={tbl.id}
                         type="button"
-                        onClick={() => setSelectedTable(tbl)}
-                        className={`py-2 px-1 text-xs font-bold rounded-sm transition-all cursor-pointer ${
+                        onClick={() => setSelectedTable(tbl.name)}
+                        className={`py-2.5 px-1 text-xs font-bold rounded-sm border transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center active:scale-95 ${
                           isSelected
-                            ? 'bg-black text-white shadow-xs'
-                            : 'bg-[#FAF9F7] border border-[#E8DFC9] text-slate-800 hover:bg-[#F2E5D9]'
+                            ? 'bg-black text-white border-black shadow-xs'
+                            : 'bg-white border-[#D9C4B0] text-slate-900 hover:border-black hover:bg-[#FAF9F7]'
                         }`}
                       >
-                        {tbl.replace('Table ', 'T')}
+                        <span>{shortName}</span>
                       </button>
                     );
                   })}

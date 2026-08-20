@@ -272,6 +272,14 @@ function initDbSchema(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_held_orders_table ON held_orders(table_number);
   `);
 
+  // Ensure customer_name and customer_phone columns exist in bills table
+  try {
+    db.exec('ALTER TABLE bills ADD COLUMN customer_name TEXT');
+  } catch {}
+  try {
+    db.exec('ALTER TABLE bills ADD COLUMN customer_phone TEXT');
+  } catch {}
+
   // Seed default categories if empty
   const categoriesCount = (db.prepare('SELECT COUNT(*) as count FROM categories').get() as { count: number }).count;
   if (categoriesCount === 0) {
@@ -797,6 +805,8 @@ export function getAllBills(statusFilter?: string | null): Bill[] {
     restaurantName: r.restaurant_name,
     tableNumber: r.table_number,
     waiterName: r.waiter_name,
+    customerName: r.customer_name || undefined,
+    customerPhone: r.customer_phone || undefined,
     items: JSON.parse(r.items_json),
     subtotal: r.subtotal,
     gstPercent: r.gst_percent,
@@ -831,9 +841,10 @@ export function saveBill(bill: Bill): Bill {
       const stmt = db.prepare(`
         INSERT INTO bills (
           id, token_number, order_id, restaurant_id, restaurant_name, table_number, waiter_name,
+          customer_name, customer_phone,
           items_json, subtotal, gst_percent, cgst_amount, sgst_amount, gst_amount,
           discount_amount, grand_total, payment_mode, split_details_json, status, created_at, closed_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
 
       stmt.run(
@@ -844,6 +855,8 @@ export function saveBill(bill: Bill): Bill {
         bill.restaurantName,
         bill.tableNumber,
         bill.waiterName,
+        bill.customerName || null,
+        bill.customerPhone || null,
         JSON.stringify(bill.items),
         bill.subtotal,
         bill.gstPercent,
@@ -865,7 +878,41 @@ export function saveBill(bill: Bill): Bill {
         maxRetries--;
         if (maxRetries === 0) throw err;
       } else {
-        throw err;
+        // Fallback for older table schema without customer columns
+        try {
+          const fallbackStmt = db.prepare(`
+            INSERT INTO bills (
+              id, token_number, order_id, restaurant_id, restaurant_name, table_number, waiter_name,
+              items_json, subtotal, gst_percent, cgst_amount, sgst_amount, gst_amount,
+              discount_amount, grand_total, payment_mode, split_details_json, status, created_at, closed_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `);
+          fallbackStmt.run(
+            finalId,
+            finalToken || '01',
+            bill.orderId || null,
+            bill.restaurantId,
+            bill.restaurantName,
+            bill.tableNumber,
+            bill.waiterName,
+            JSON.stringify(bill.items),
+            bill.subtotal,
+            bill.gstPercent,
+            bill.cgstAmount,
+            bill.sgstAmount,
+            bill.gstAmount,
+            bill.discountAmount,
+            bill.grandTotal,
+            bill.paymentMode,
+            bill.splitDetails ? JSON.stringify(bill.splitDetails) : null,
+            bill.status,
+            bill.createdAt || new Date().toISOString(),
+            bill.closedAt || new Date().toISOString()
+          );
+          return { ...bill, id: finalId, tokenNumber: finalToken || '01' };
+        } catch {
+          throw err;
+        }
       }
     }
   }
