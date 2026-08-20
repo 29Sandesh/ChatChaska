@@ -10,7 +10,6 @@ import { HeldOrdersDrawer, HeldOrder } from '@/components/pos/HeldOrdersDrawer';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
 import { PaymentSettlementModal } from '@/components/pos/PaymentSettlementModal';
 import { calculateBillTotals } from '@/lib/billing';
-import { IncomingOrdersDrawer } from '@/components/staff/IncomingOrdersDrawer';
 import { playOrderChime } from '@/lib/sound-fx';
 import { cloudClient } from '@/lib/cloud-db';
 import { CloudOrder } from '@/types';
@@ -36,9 +35,8 @@ function StaffPOSContent() {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'card'>('cash');
   const [discountAmount, setDiscountAmount] = useState<number>(0);
 
-  // Incoming QR Customer Orders state
-  const [incomingOrders, setIncomingOrders] = useState<CloudOrder[]>([]);
-  const [isIncomingDrawerOpen, setIsIncomingDrawerOpen] = useState<boolean>(false);
+  // Incoming QR Customer Orders state (badge counter)
+  const [incomingOrdersCount, setIncomingOrdersCount] = useState<number>(0);
 
   // Navigation Drawer Menu State (for Hamburger ☰)
   const [isNavMenuOpen, setIsNavMenuOpen] = useState<boolean>(false);
@@ -73,7 +71,7 @@ function StaffPOSContent() {
             const newOrd = payload.new;
             if (newOrd && newOrd.status === 'pending') {
               playOrderChime();
-              setIncomingOrders((prev) => [newOrd, ...prev]);
+              setIncomingOrdersCount((prev) => prev + 1);
               showToast(`🔔 New order received from ${newOrd.table_number || 'Table'}!`);
             }
           }
@@ -502,52 +500,11 @@ function StaffPOSContent() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [cart, discountAmount, selectedTable]);
 
-  // Accept / Reject incoming QR customer order
-  const handleAcceptIncomingOrder = async (order: CloudOrder) => {
-    try {
-      await fetch(`/api/admin/orders/${order.order_number || order.id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'confirmed' }),
-      });
-
-      await fetch('/api/tables', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: order.table_number || 'Table 1', status: 'running' }),
-      }).catch(() => {});
-
-      setIncomingOrders((prev) =>
-        prev.filter((o) => (o.order_number || o.id) !== (order.order_number || order.id))
-      );
-      showToast(`✅ Order ${order.order_number} Accepted for ${order.table_number}!`);
-    } catch (e) {
-      console.error('Failed to accept order:', e);
-    }
-  };
-
-  const handleRejectIncomingOrder = async (order: CloudOrder) => {
-    try {
-      await fetch(`/api/admin/orders/${order.order_number || order.id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'rejected' }),
-      });
-
-      setIncomingOrders((prev) =>
-        prev.filter((o) => (o.order_number || o.id) !== (order.order_number || order.id))
-      );
-      showToast(`Order ${order.order_number} rejected.`);
-    } catch (e) {
-      console.error('Failed to reject order:', e);
-    }
-  };
-
   return (
     <div className="flex flex-col h-screen w-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
       {/* 1. FULL-WIDTH TOP HEADER BAR */}
       <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-3 shrink-0 select-none z-20">
-        {/* BRAND LOGO ON FAR LEFT - PROPERLY SIZED & PROMINENT */}
+        {/* BRAND LOGO ON FAR LEFT - PROPERLY SIZED & CLEAR */}
         <div className="flex items-center justify-start w-[210px] shrink-0">
           <img
             src="/chatchaska-logo.png"
@@ -669,22 +626,21 @@ function StaffPOSContent() {
             </button>
           </div>
 
-          {/* Table Orders Button (with QR Code logo) */}
-          <button
-            type="button"
-            onClick={() => setIsIncomingDrawerOpen(true)}
-            className="relative flex items-center gap-1.5 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          {/* Table Orders Button (Direct Link to /staff/orders?filter=table - No popup!) */}
+          <Link
+            href="/staff/orders?filter=table"
+            className="relative flex items-center gap-1.5 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
           >
             <span className="material-symbols-outlined text-[17px]">
               qr_code_2
             </span>
             <span>Table Orders</span>
-            {incomingOrders.length > 0 && (
+            {incomingOrdersCount > 0 && (
               <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full animate-bounce">
-                {incomingOrders.length}
+                {incomingOrdersCount}
               </span>
             )}
-          </button>
+          </Link>
         </div>
 
         {/* FAR RIGHT: HAMBURGER MENU ☰ */}
@@ -823,14 +779,6 @@ function StaffPOSContent() {
           billData={generatedBill}
         />
       )}
-
-      <IncomingOrdersDrawer
-        isOpen={isIncomingDrawerOpen}
-        onClose={() => setIsIncomingDrawerOpen(false)}
-        orders={incomingOrders}
-        onAccept={handleAcceptIncomingOrder}
-        onReject={handleRejectIncomingOrder}
-      />
     </div>
   );
 }

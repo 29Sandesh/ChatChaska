@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { formatBillCurrency } from '@/lib/billing';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
 import { PaymentSettlementModal } from '@/components/pos/PaymentSettlementModal';
@@ -25,10 +26,15 @@ interface QROrder {
   notes?: string;
 }
 
-export default function TableQROrdersPage() {
+function OrdersContent() {
+  const searchParams = useSearchParams();
+  const initialFilterParam = searchParams.get('filter');
+
   const { config } = useCafeConfig();
   const [orders, setOrders] = useState<QROrder[]>([]);
-  const [activeFilter, setActiveFilter] = useState<'ALL' | 'PENDING' | 'KITCHEN' | 'COMPLETED'>('ALL');
+  const [activeFilter, setActiveFilter] = useState<'ALL' | 'TABLE_QR' | 'PENDING' | 'KITCHEN' | 'COMPLETED'>(
+    initialFilterParam === 'table' ? 'TABLE_QR' : 'ALL'
+  );
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -101,34 +107,34 @@ export default function TableQROrdersPage() {
     setRejectingOrderId(null);
   };
 
-  const handleGenerateBillClick = (order: QROrder) => {
+  // Open Payment Modal from Order card
+  const handleInitiateBill = (order: QROrder) => {
     setSettlingOrder(order);
   };
 
-  const handleConfirmPayment = async (details: {
+  // Confirm payment settlement from Modal
+  const handleConfirmSettlement = async (details: {
     paymentMethod: 'cash' | 'upi' | 'card';
     customerName: string;
     customerPhone: string;
-    txnReference?: string;
   }) => {
     if (!settlingOrder) return;
-    
     const order = settlingOrder;
-    const subtotal = (order.items || []).reduce((sum, item) => sum + item.price * item.quantity, 0);
+    setSettlingOrder(null);
+
+    const subtotal = order.totalAmount || 0;
     const gstPercent = 5;
-    const taxable = subtotal;
-    const gstAmount = Math.round((taxable * gstPercent) / 100);
-    const cgstAmount = Number((gstAmount / 2).toFixed(2));
-    const sgstAmount = Number((gstAmount / 2).toFixed(2));
-    const grandTotal = Math.round(taxable + gstAmount);
+    const gstAmount = Math.round(subtotal * 0.05 * 100) / 100;
+    const cgstAmount = Math.round((gstAmount / 2) * 100) / 100;
+    const sgstAmount = Math.round((gstAmount / 2) * 100) / 100;
+    const grandTotal = Math.round(subtotal + gstAmount);
 
     const billPayload = {
-      orderId: order.id,
-      restaurantId: 'demo',
-      restaurantName: config?.cafeName || 'ChatChaska Cafe',
-      tableNumber: order.tableNumber,
+      restaurantId: config.cafeSlug || 'chatchaska-cafe',
+      restaurantName: config.cafeName || 'ChatChaska Cafe',
+      tableNumber: order.tableNumber || 'Table 1',
       waiterName: 'Staff',
-      items: (order.items || []).map((i) => ({
+      items: order.items.map((i) => ({
         name: i.name,
         quantity: i.quantity,
         unitPrice: i.price,
@@ -155,84 +161,116 @@ export default function TableQROrdersPage() {
       });
 
       const data = await res.json();
-      const createdBill = data.bill || data;
-      setSettlingOrder(null);
 
-      setPreviewBillData({
-        billId: createdBill.id || `MHMMC0000${Math.floor(Math.random() * 90) + 10}`,
-        tokenNumber: createdBill.tokenNumber || '01',
-        restaurantName: config?.cafeName || 'ChatChaska Cafe',
-        gstin: config?.gstin || '27AABCM1234A1Z5',
-        fssai: config?.fssai,
-        address: config?.address,
-        date: new Date().toLocaleString(),
-        tableNumber: order.tableNumber,
-        waiterName: 'Staff',
-        items: billPayload.items,
-        subtotal,
-        cgstRate: 2.5,
-        sgstRate: 2.5,
-        cgstAmount,
-        sgstAmount,
-        grandTotal,
-        paymentMode: details.paymentMethod.toUpperCase(),
-      });
+      if (res.ok && data.bill) {
+        // Mark order completed & free table
+        await handleUpdateStatus(order.id, 'completed');
+        await fetch('/api/tables', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: order.tableNumber, status: 'free' }),
+        }).catch(() => {});
+
+        const newBillData: BillData = {
+          billId: data.bill.id,
+          tokenNumber: data.bill.tokenNumber || '01',
+          restaurantName: config.cafeName || 'ChatChaska Cafe',
+          address: config.address || 'Shop #4, Main Street, Mumbai',
+          fssai: config.fssai || '10019022009876',
+          gstin: config.gstin || '27AABCM1234A1Z5',
+          date: new Date().toLocaleString('en-IN'),
+          tableNumber: order.tableNumber,
+          waiterName: 'Staff',
+          items: billPayload.items,
+          subtotal,
+          discountAmount: 0,
+          cgstRate: 2.5,
+          sgstRate: 2.5,
+          cgstAmount,
+          sgstAmount,
+          roundOff: 0,
+          grandTotal,
+          paymentMode: details.paymentMethod.toUpperCase(),
+          customerName: details.customerName,
+          customerPhone: details.customerPhone,
+        };
+
+        setPreviewBillData(newBillData);
+        showToast('🎉 Bill settled & saved successfully!');
+      } else {
+        showToast('Failed to save bill. Please retry.');
+      }
     } catch (err) {
-      console.error('Failed to generate bill:', err);
+      console.error('Error saving bill:', err);
+      showToast('Network error while saving bill.');
     }
   };
 
-  const formatTableLabel = (num: string) => {
-    if (!num) return 'T1';
-    if (num.toUpperCase() === 'PICKUP' || num.toUpperCase() === 'PICK UP') return '🛍️ Pick Up';
-    if (num.toUpperCase() === 'POS' || num.toUpperCase() === 'DIRECT') return '⚡ POS Direct';
-    const clean = num.replace(/^table\s*/i, '').trim();
-    return clean.startsWith('T') ? clean : `Table ${clean}`;
-  };
-
+  // Filter orders based on active filter
   const filteredOrders = useMemo(() => {
-    return orders.filter((o) => {
-      if (activeFilter === 'PENDING') return o.status === 'pending';
-      if (activeFilter === 'KITCHEN') return o.status === 'preparing' || o.status === 'ready';
-      if (activeFilter === 'COMPLETED') return o.status === 'completed';
+    return orders.filter((order) => {
+      if (activeFilter === 'TABLE_QR') {
+        // Orders with table assignment or QR source
+        return Boolean(order.tableNumber);
+      }
+      if (activeFilter === 'PENDING') return order.status === 'pending';
+      if (activeFilter === 'KITCHEN') return order.status === 'preparing' || order.status === 'ready';
+      if (activeFilter === 'COMPLETED') return order.status === 'completed';
       return true;
     });
   }, [orders, activeFilter]);
 
+  const tableQrCount = useMemo(() => orders.filter((o) => Boolean(o.tableNumber)).length, [orders]);
   const pendingCount = useMemo(() => orders.filter((o) => o.status === 'pending').length, [orders]);
   const kitchenCount = useMemo(() => orders.filter((o) => o.status === 'preparing' || o.status === 'ready').length, [orders]);
   const completedCount = useMemo(() => orders.filter((o) => o.status === 'completed').length, [orders]);
 
   return (
     <div className="p-4 max-w-7xl mx-auto space-y-4 select-none font-sans">
-      {/* TOP HEADER: TITLE ON LEFT | 4 FILTER BUTTONS ON RIGHT */}
+      {/* TOP HEADER: TITLE ON LEFT | FILTER BUTTONS ON RIGHT */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-slate-200">
         <h1 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
           <span className="material-symbols-outlined text-blue-600 text-[20px]">receipt_long</span>
-          Orders
+          Orders Queue
         </h1>
 
-        {/* 4 STATUS FILTERS: ALL | PENDING | KITCHEN | DONE (DARK BADGES WITH WHITE TEXT) */}
+        {/* 5 STATUS FILTERS: ALL | TABLE QR | PENDING | KITCHEN | DONE */}
         <div className="flex items-center gap-2 overflow-x-auto">
           {/* All Filter */}
           <button
             onClick={() => setActiveFilter('ALL')}
-            className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+            className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'ALL'
-                ? 'bg-blue-600 text-white border-blue-600'
+                ? 'bg-black text-white border-black'
                 : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-50'
             }`}
           >
             <span>All</span>
-            <span className={`px-2 py-0.5 rounded-md text-xs font-black ${activeFilter === 'ALL' ? 'bg-white text-blue-700' : 'bg-slate-900 text-white'}`}>
+            <span className={`px-2 py-0.5 rounded-md text-xs font-black ${activeFilter === 'ALL' ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'}`}>
               {orders.length}
+            </span>
+          </button>
+
+          {/* Table QR Orders Filter */}
+          <button
+            onClick={() => setActiveFilter(activeFilter === 'TABLE_QR' ? 'ALL' : 'TABLE_QR')}
+            className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+              activeFilter === 'TABLE_QR'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-slate-800 border-slate-300 hover:bg-blue-50'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[15px]">qr_code_2</span>
+            <span>Table QR</span>
+            <span className={`px-2 py-0.5 rounded-md text-xs font-black ${activeFilter === 'TABLE_QR' ? 'bg-white text-blue-700' : 'bg-blue-600 text-white'}`}>
+              {tableQrCount}
             </span>
           </button>
 
           {/* Pending Filter */}
           <button
             onClick={() => setActiveFilter(activeFilter === 'PENDING' ? 'ALL' : 'PENDING')}
-            className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+            className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'PENDING'
                 ? 'bg-amber-500 text-white border-amber-500'
                 : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-50'
@@ -247,7 +285,7 @@ export default function TableQROrdersPage() {
           {/* Kitchen Filter */}
           <button
             onClick={() => setActiveFilter(activeFilter === 'KITCHEN' ? 'ALL' : 'KITCHEN')}
-            className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+            className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'KITCHEN'
                 ? 'bg-blue-600 text-white border-blue-600'
                 : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-50'
@@ -262,7 +300,7 @@ export default function TableQROrdersPage() {
           {/* Done Filter */}
           <button
             onClick={() => setActiveFilter(activeFilter === 'COMPLETED' ? 'ALL' : 'COMPLETED')}
-            className={`px-3 py-1.5 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
+            className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 shadow-2xs ${
               activeFilter === 'COMPLETED'
                 ? 'bg-emerald-600 text-white border-emerald-600'
                 : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-50'
@@ -312,7 +350,7 @@ export default function TableQROrdersPage() {
                     : 'border border-blue-200 bg-white shadow-2xs'
                 }`}
               >
-                {/* Card Top Row - Uniform Badge Sizing & Aligned Layout */}
+                {/* Card Top Row */}
                 <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
                   <div className="flex items-center gap-2">
                     <span
@@ -322,110 +360,94 @@ export default function TableQROrdersPage() {
                           : isCompleted
                           ? 'bg-emerald-600 text-white'
                           : isCancelled
-                          ? 'bg-rose-600 text-white'
+                          ? 'bg-rose-500 text-white'
                           : 'bg-blue-600 text-white'
                       }`}
                     >
-                      {formatTableLabel(order.tableNumber)}
+                      {order.tableNumber ? order.tableNumber.replace('Table ', 'T') : 'T1'}
                     </span>
-                    <span className="text-xs font-mono text-slate-400 font-bold">#{order.id.slice(-5)}</span>
+                    <span className="text-slate-400 font-mono text-[11px] font-bold">
+                      #{order.id.slice(-5)}
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {/* Pre-Paid vs Pay at Counter Indicator */}
-                    {order.tableNumber.toUpperCase().includes('POS') || order.tableNumber.toUpperCase().includes('PICK') ? (
-                      <span className="px-2.5 py-1 h-7 bg-emerald-100 text-emerald-900 text-xs font-black rounded-md border border-emerald-300 inline-flex items-center justify-center">
-                        ✓ Paid
-                      </span>
-                    ) : (
-                      <span className="px-2.5 py-1 h-7 bg-amber-100 text-amber-900 text-xs font-black rounded-md border border-amber-300 inline-flex items-center justify-center">
-                        ⏳ Post-Pay
-                      </span>
-                    )}
-
-                    {/* Status Tag (Matching Top Bar Labels) */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-black text-amber-700 bg-amber-100/90 border border-amber-300 px-2 py-0.5 rounded-md inline-flex items-center gap-1 h-6">
+                      ⏳ Post-Pay
+                    </span>
                     <span
-                      className={`px-2.5 py-1 h-7 rounded-md text-xs font-black tracking-tight inline-flex items-center justify-center ${
+                      className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md h-6 inline-flex items-center justify-center ${
                         isPending
-                          ? 'bg-amber-500 text-white shadow-2xs'
-                          : isKitchen
-                          ? 'bg-blue-600 text-white shadow-2xs'
+                          ? 'bg-amber-500 text-white'
+                          : isCompleted
+                          ? 'bg-emerald-600 text-white'
                           : isCancelled
-                          ? 'bg-rose-600 text-white shadow-2xs'
-                          : 'bg-emerald-600 text-white shadow-2xs'
+                          ? 'bg-rose-500 text-white'
+                          : 'bg-blue-600 text-white'
                       }`}
                     >
-                      {isPending ? 'Pending' : isKitchen ? 'Kitchen' : isCancelled ? 'Rejected' : 'Done'}
+                      {order.status === 'preparing' ? 'Kitchen' : order.status}
                     </span>
                   </div>
                 </div>
 
                 {/* Items List */}
-                <div className="space-y-1 flex-1 py-1 max-h-[170px] overflow-y-auto no-scrollbar border border-slate-100 bg-slate-50/60 p-2.5 rounded-md">
-                  <div className="text-[11px] font-extrabold text-slate-400 mb-1">
-                    ITEMS ({(order.items || []).length})
+                <div className="space-y-1.5 text-xs flex-1">
+                  <div className="flex justify-between items-center text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                    <span>ITEMS ({order.items.reduce((s, i) => s + i.quantity, 0)})</span>
                   </div>
-                  {(order.items || []).map((item, idx) => (
-                    <div key={idx} className="text-xs font-bold text-slate-800 border-b border-slate-200/40 pb-1 last:border-none">
-                      • {item.name} <span className="text-blue-600 font-extrabold ml-1">x{item.quantity}</span>
-                    </div>
-                  ))}
+                  <ul className="space-y-1 font-medium text-slate-800">
+                    {order.items.map((item, idx) => (
+                      <li key={idx} className="flex justify-between items-center">
+                        <span className="truncate pr-2">
+                          • {item.name} <strong className="text-blue-600">x{item.quantity}</strong>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  {order.notes && (
+                    <p className="text-[11px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200 mt-2 font-semibold">
+                      📝 Note: {order.notes}
+                    </p>
+                  )}
                 </div>
 
-                {/* Rejection Reason Display if Cancelled */}
-                {isCancelled && order.notes && (
-                  <div className="bg-rose-100/70 border border-rose-200 text-rose-800 p-2 rounded-md text-xs font-bold">
-                    Reason: {order.notes}
-                  </div>
-                )}
+                {/* Bottom Actions */}
+                <div className="pt-2 border-t border-slate-200 flex items-center gap-2">
+                  <button
+                    onClick={() => handleInitiateBill(order)}
+                    className="flex-1 py-2 bg-white hover:bg-slate-50 text-slate-800 font-black text-xs rounded-xl border border-slate-300 flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-95"
+                  >
+                    <span className="material-symbols-outlined text-[16px] text-blue-600">
+                      receipt_long
+                    </span>
+                    <span>Bill</span>
+                  </button>
 
-                {/* Card Bottom Actions - Clean Bill Button */}
-                <div className="pt-2 border-t border-slate-200">
                   {isPending && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleGenerateBillClick(order)}
-                        className="py-2 px-3 bg-white hover:bg-slate-50 text-slate-800 font-black text-xs rounded-md border border-slate-300 transition-colors shadow-2xs cursor-pointer flex items-center gap-1"
-                        title="View Bill Details & Reject Option"
-                      >
-                        <span className="material-symbols-outlined text-[16px] text-blue-600">receipt_long</span>
-                        Bill
-                      </button>
+                    <>
                       <button
                         onClick={() => handleUpdateStatus(order.id, 'preparing')}
-                        className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-md shadow-xs transition-colors cursor-pointer"
+                        className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl transition-all shadow-xs cursor-pointer active:scale-95"
                       >
-                        Approve & Send KOT
+                        Accept & Cook
                       </button>
-                    </div>
+                      <button
+                        onClick={() => handleInitiateReject(order.id)}
+                        className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-xl border border-rose-200 transition-all cursor-pointer"
+                        title="Reject Order"
+                      >
+                        ✕
+                      </button>
+                    </>
                   )}
 
                   {isKitchen && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleGenerateBillClick(order)}
-                        className="py-2 px-3 bg-white hover:bg-slate-50 text-slate-800 font-black text-xs rounded-md border border-slate-300 transition-colors shadow-2xs cursor-pointer flex items-center gap-1"
-                      >
-                        <span className="material-symbols-outlined text-[16px] text-blue-600">receipt_long</span>
-                        Bill
-                      </button>
-                      <button
-                        onClick={() => handleUpdateStatus(order.id, 'completed')}
-                        className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-md shadow-xs transition-colors cursor-pointer"
-                      >
-                        Mark as Completed
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Completed Order Action: Bill Button */}
-                  {isCompleted && (
                     <button
-                      onClick={() => handleGenerateBillClick(order)}
-                      className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-md shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                      onClick={() => handleUpdateStatus(order.id, 'completed')}
+                      className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl transition-all shadow-xs cursor-pointer active:scale-95"
                     >
-                      <span className="material-symbols-outlined text-[16px]">receipt_long</span>
-                      Generate Bill
+                      Mark as Completed
                     </button>
                   )}
                 </div>
@@ -435,120 +457,93 @@ export default function TableQROrdersPage() {
         </div>
       )}
 
-      {/* Order Rejection Reason Modal */}
-      {rejectingOrderId && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 select-none">
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 max-w-sm w-full shadow-2xl space-y-4 animate-in fade-in">
-            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-              <h3 className="font-extrabold text-slate-900 text-sm">Reason for Rejection</h3>
-              <button
-                onClick={() => setRejectingOrderId(null)}
-                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors text-xs font-bold cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
+      {/* Payment Settlement Modal */}
+      {settlingOrder && (
+        <PaymentSettlementModal
+          isOpen={Boolean(settlingOrder)}
+          onClose={() => setSettlingOrder(null)}
+          grandTotal={Math.round(settlingOrder.totalAmount * 1.05)}
+          tableNumber={settlingOrder.tableNumber}
+          itemCount={settlingOrder.items.reduce((s, i) => s + i.quantity, 0)}
+          onConfirm={handleConfirmSettlement}
+        />
+      )}
 
+      {/* Receipt Modal */}
+      {previewBillData && (
+        <ReceiptPreviewModal
+          isOpen={Boolean(previewBillData)}
+          onClose={() => setPreviewBillData(null)}
+          billData={previewBillData}
+        />
+      )}
+
+      {/* Reject Reason Modal */}
+      {rejectingOrderId && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in">
+          <div className="bg-white rounded-2xl p-5 max-w-sm w-full space-y-4 shadow-xl border border-slate-200">
+            <h3 className="text-sm font-black text-slate-900">Select Rejection Reason</h3>
             <div className="space-y-2">
-              <p className="text-xs text-slate-500 font-bold">Select or type rejection reason:</p>
-              
               {[
                 'Item Out of Stock',
-                'Kitchen Too Busy / Delay',
-                'Customer Cancelled Request',
-                'Invalid Table Number',
+                'Kitchen Overloaded',
+                'Duplicate Order',
+                'Kitchen Closed',
               ].map((reason) => (
-                <button
+                <label
                   key={reason}
                   onClick={() => setRejectionReason(reason)}
-                  className={`w-full text-left p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
                     rejectionReason === reason
-                      ? 'bg-rose-50 border-rose-400 text-rose-700 font-extrabold'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                      ? 'border-rose-500 bg-rose-50 text-rose-700'
+                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  {reason}
-                </button>
+                  <input
+                    type="radio"
+                    name="rejectReason"
+                    checked={rejectionReason === reason}
+                    onChange={() => setRejectionReason(reason)}
+                    className="accent-rose-600"
+                  />
+                  <span>{reason}</span>
+                </label>
               ))}
-
-              <input
-                type="text"
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Or type custom reason..."
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-bold text-slate-900 outline-none focus:border-rose-500 focus:bg-white"
-              />
             </div>
-
-            <div className="flex gap-2 pt-2 border-t border-slate-100">
+            <div className="flex gap-2 pt-2">
               <button
+                type="button"
                 onClick={() => setRejectingOrderId(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                className="flex-1 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleConfirmReject}
-                disabled={!rejectionReason.trim()}
-                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold"
               >
-                Reject Order
+                Confirm Reject
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Receipt Preview Modal for Generated Bill */}
-      {previewBillData && (
-        <div className="relative z-50">
-          <ReceiptPreviewModal
-            isOpen={Boolean(previewBillData)}
-            onClose={() => setPreviewBillData(null)}
-            billData={previewBillData}
-          />
-          {/* Floating Reject Order Button inside Bill View */}
-          <div className="fixed bottom-6 right-6 z-[60]">
-            <button
-              onClick={() => {
-                const matchedOrder = orders.find(o => o.tableNumber === previewBillData.tableNumber || o.id === previewBillData.orderId);
-                if (matchedOrder) {
-                  handleInitiateReject(matchedOrder.id);
-                  setPreviewBillData(null);
-                } else {
-                  setPreviewBillData(null);
-                }
-              }}
-              className="py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-md shadow-xl transition-all cursor-pointer flex items-center gap-1.5 border border-rose-500"
-            >
-              <span className="material-symbols-outlined text-[18px]">cancel</span>
-              Reject Order
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Payment Settlement Modal */}
-      {settlingOrder && (
-        <PaymentSettlementModal
-          isOpen={true}
-          onClose={() => setSettlingOrder(null)}
-          grandTotal={Math.round(
-            (settlingOrder.items || []).reduce((sum, item) => sum + item.price * item.quantity, 0) * 1.05
-          )}
-          tableNumber={settlingOrder.tableNumber}
-          itemCount={(settlingOrder.items || []).reduce((sum, item) => sum + item.quantity, 0)}
-          merchantUpiId={config?.upiId}
-          onConfirm={handleConfirmPayment}
-        />
-      )}
-
       {/* Toast Notification */}
       {toastMsg && (
-        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-bold shadow-xl z-50 animate-in fade-in">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold z-50 animate-in fade-in border border-slate-700">
           {toastMsg}
         </div>
       )}
     </div>
+  );
+}
+
+export default function TableQROrdersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-slate-700 font-bold text-sm">Loading Orders Queue...</div>}>
+      <OrdersContent />
+    </Suspense>
   );
 }
