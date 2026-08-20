@@ -670,7 +670,7 @@ function StaffPOSContent() {
         onProceed={handleProceedFromOrderType}
       />
 
-      {/* Step 2: Clean Classic Payment Settlement Modal */}
+      {/* Step 2: Clean Brand Payment Settlement Modal */}
       <PaymentSettlementModal
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
@@ -681,6 +681,7 @@ function StaffPOSContent() {
             gstRate: 5,
           }).grandTotal
         }
+        orderType={orderType}
         tableNumber={orderType === 'DINE_IN' ? selectedTable : 'Pick Up'}
         itemCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
         onConfirm={handleConfirmPayment}

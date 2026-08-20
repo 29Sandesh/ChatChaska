@@ -158,12 +158,12 @@ export function BillPanel({
           <span className="font-semibold text-slate-900">₹{formatBillCurrency(totalTax, true)}</span>
         </div>
 
-        {/* TOTAL (Large Blue Font text-[#2563EB]) */}
+        {/* TOTAL (Deep Black Bold Font) */}
         <div className="flex justify-between items-center pt-2 border-t border-slate-100">
           <span className="text-xs font-black text-slate-900 uppercase tracking-tight">
             TOTAL
           </span>
-          <span className="text-xl font-black text-[#2563EB] tracking-tight">
+          <span className="text-xl font-black text-black tracking-tight">
             ₹{grandTotal}
           </span>
         </div>

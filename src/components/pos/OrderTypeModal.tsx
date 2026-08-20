@@ -43,7 +43,6 @@ export function OrderTypeModal({
                 setSelectedTable(free[0]);
               }
             } else {
-              // Fallback to all tables if all are marked occupied
               setUnoccupiedTables(data.tables.map((t: any) => t.name || t.id));
             }
           } else {
@@ -66,22 +65,22 @@ export function OrderTypeModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-200 select-none font-sans">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200 select-none font-sans">
+      <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-[#E8DFC9] overflow-hidden flex flex-col">
         
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-slate-200">
-          <h3 className="text-sm font-bold text-slate-900">Select Order Type</h3>
+        {/* Brand Themed Header */}
+        <div className="flex items-center justify-between px-5 py-3.5 bg-[#FAF9F7] border-b border-[#E8DFC9]">
+          <h3 className="text-sm font-bold text-black">Select Order Type</h3>
           <button
             type="button"
             onClick={onClose}
-            className="w-7 h-7 rounded-lg hover:bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold"
+            className="w-7 h-7 rounded-lg hover:bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold cursor-pointer"
           >
             ✕
           </button>
         </div>
 
-        <div className="p-5 space-y-4">
+        <div className="p-5 space-y-4 bg-white">
           {/* Order Type Toggle: Dine In vs Pick Up */}
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -89,8 +88,8 @@ export function OrderTypeModal({
               onClick={() => setOrderType('DINE_IN')}
               className={`py-3 px-3 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 orderType === 'DINE_IN'
-                  ? 'bg-[#F8EFE7] border-[#D9C4B0] text-slate-900 shadow-2xs'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  ? 'bg-[#F8EFE7] border-[#D9C4B0] text-black shadow-2xs'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-[#FAF9F7]'
               }`}
             >
               <span className="material-symbols-outlined text-[22px]">table_restaurant</span>
@@ -102,8 +101,8 @@ export function OrderTypeModal({
               onClick={() => setOrderType('PICKUP')}
               className={`py-3 px-3 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 orderType === 'PICKUP'
-                  ? 'bg-[#F8EFE7] border-[#D9C4B0] text-slate-900 shadow-2xs'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  ? 'bg-[#F8EFE7] border-[#D9C4B0] text-black shadow-2xs'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-[#FAF9F7]'
               }`}
             >
               <span className="material-symbols-outlined text-[22px]">shopping_bag</span>
@@ -115,8 +114,8 @@ export function OrderTypeModal({
           {orderType === 'DINE_IN' && (
             <div className="space-y-2 pt-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-600">Available Tables</span>
-                <span className="text-[11px] text-emerald-600 font-semibold">
+                <span className="font-bold text-slate-700">Available Tables</span>
+                <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-semibold border border-emerald-200">
                   {unoccupiedTables.length} Free
                 </span>
               </div>
@@ -124,8 +123,8 @@ export function OrderTypeModal({
               {loading ? (
                 <div className="text-center py-4 text-xs text-slate-400">Loading tables...</div>
               ) : unoccupiedTables.length === 0 ? (
-                <div className="text-center py-4 text-xs text-amber-600 font-semibold bg-amber-50 rounded-xl border border-amber-200">
-                  No free tables available right now
+                <div className="text-center py-4 text-xs text-amber-800 font-semibold bg-amber-50 rounded-xl border border-amber-200">
+                  All tables currently occupied
                 </div>
               ) : (
                 <div className="grid grid-cols-4 gap-1.5 max-h-36 overflow-y-auto no-scrollbar">
@@ -138,8 +137,8 @@ export function OrderTypeModal({
                         onClick={() => setSelectedTable(tbl)}
                         className={`py-2 px-1 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                           isSelected
-                            ? 'bg-blue-600 text-white shadow-xs'
-                            : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'
+                            ? 'bg-black text-white shadow-xs'
+                            : 'bg-[#FAF9F7] border border-[#E8DFC9] text-slate-800 hover:bg-[#F2E5D9]'
                         }`}
                       >
                         {tbl.replace('Table ', 'T')}
@@ -152,19 +151,19 @@ export function OrderTypeModal({
           )}
         </div>
 
-        {/* Footer Actions */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center gap-2">
+        {/* Brand Themed Footer Actions: Beige/White/Black */}
+        <div className="p-4 bg-[#FAF9F7] border-t border-[#E8DFC9] flex items-center gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl border border-[#D9C4B0] bg-white hover:bg-[#F2E5D9] text-slate-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleContinue}
-            className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-xs"
+            className="flex-1 py-2.5 rounded-xl bg-black hover:bg-slate-800 text-white text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-xs"
           >
             Continue
           </button>
