@@ -10,7 +10,10 @@ export function StaffNavbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
   // Pages with their own customized full-width top headers
-  const isCustomHeader = pathname === '/staff/pos' || pathname === '/staff/orders';
+  const isCustomHeader =
+    pathname === '/staff/pos' ||
+    pathname === '/staff/orders' ||
+    pathname === '/staff/kitchen';
 
   return (
     <>
@@ -31,7 +34,7 @@ export function StaffNavbar() {
           <div className="flex items-center gap-2.5">
             <Link
               href="/staff/pos"
-              className="px-3.5 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs border border-[#B3926C]"
+              className="px-3.5 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs border border-[#B2906A]"
             >
               <span className="material-symbols-outlined text-[16px]">
                 point_of_sale
