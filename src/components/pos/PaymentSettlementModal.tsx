@@ -75,7 +75,7 @@ export function PaymentSettlementModal({
   const currentVpa = merchantUpiId || config?.upiId || 'chatchaska@upi';
   const cafeName = config?.cafeName || 'ChatChaska Cafe';
   const upiString = `upi://pay?pa=${encodeURIComponent(currentVpa)}&pn=${encodeURIComponent(cafeName)}&am=${grandTotal}&tn=${encodeURIComponent(isPickUp ? `Takeaway Token ${tokenNumber}` : `Bill ${tableNumber}`)}`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiString)}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiString)}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200 select-none font-sans">
@@ -155,19 +155,15 @@ export function PaymentSettlementModal({
             </button>
           </div>
 
-          {/* DYNAMIC UPI QR DISPLAY */}
+          {/* DYNAMIC UPI QR DISPLAY - CLEAN (NO EXTRA TEXT) */}
           {paymentMethod === 'upi' && (
-            <div className="flex flex-col items-center justify-center p-3.5 bg-[#FAF9F7] border border-[#E8DFC9] rounded-md space-y-2 animate-in fade-in">
-              <div className="bg-white p-2 rounded-md border border-[#E8DFC9] shadow-xs">
+            <div className="flex flex-col items-center justify-center p-3 bg-[#FAF9F7] border border-[#E8DFC9] rounded-md animate-in fade-in">
+              <div className="bg-white p-2.5 rounded-md border border-[#E8DFC9] shadow-2xs">
                 <img
                   src={qrCodeUrl}
                   alt="UPI QR Code"
-                  className="w-32 h-32 object-contain"
+                  className="w-36 h-36 object-contain"
                 />
-              </div>
-              <div className="text-center">
-                <p className="text-xs font-bold text-black">Scan & Pay ₹{grandTotal}</p>
-                <p className="text-[10px] text-slate-500 font-mono">{currentVpa}</p>
               </div>
             </div>
           )}
@@ -229,14 +225,13 @@ export function PaymentSettlementModal({
             </button>
           )}
 
-          {/* Confirm & Print (Solid Black Brand Button) */}
+          {/* Confirm (Solid Black Brand Button) */}
           <button
             type="button"
             onClick={() => handleAction(false)}
             className="flex-1 py-2.5 px-3 rounded-md bg-black hover:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
           >
-            <span className="material-symbols-outlined text-[16px]">receipt_long</span>
-            <span>{isPickUp ? 'Settle & Print' : 'Confirm & Print'}</span>
+            <span>Confirm</span>
           </button>
         </div>
       </div>
