@@ -8,6 +8,7 @@ import { MenuItemGrid, MenuItemData, DietaryFilter } from '@/components/pos/Menu
 import { BillPanel, CartItem } from '@/components/pos/BillPanel';
 import { HeldOrdersDrawer, HeldOrder } from '@/components/pos/HeldOrdersDrawer';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
+import { OrderTypeModal } from '@/components/pos/OrderTypeModal';
 import { PaymentSettlementModal } from '@/components/pos/PaymentSettlementModal';
 import { StaffNavigationDrawer } from '@/components/layout/StaffNavigationDrawer';
 import { calculateBillTotals } from '@/lib/billing';
@@ -40,10 +41,11 @@ function StaffPOSContent() {
   // Left Navigation Drawer State (for Hamburger ☰)
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState<boolean>(false);
 
-  // Modals / Drawers state
+  // Modals state
+  const [isOrderTypeModalOpen, setIsOrderTypeModalOpen] = useState<boolean>(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [heldOrders, setHeldOrders] = useState<HeldOrder[]>([]);
   const [isHeldDrawerOpen, setIsHeldDrawerOpen] = useState<boolean>(false);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [initialTabCart, setInitialTabCart] = useState<CartItem[]>([]);
   const [generatedBill, setGeneratedBill] = useState<BillData | null>(null);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState<boolean>(false);
@@ -172,14 +174,12 @@ function StaffPOSContent() {
   // Filtered menu items
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
-      // Category filter
       if (selectedCategory === 'FAVORITES') {
         if (!item.popular && !item.bestseller) return false;
       } else if (selectedCategory !== 'ALL' && item.category !== selectedCategory) {
         return false;
       }
 
-      // Search query
       if (searchQuery.trim() !== '') {
         const q = searchQuery.toLowerCase();
         const matchesName = item.name.toLowerCase().includes(q);
@@ -187,7 +187,6 @@ function StaffPOSContent() {
         if (!matchesName && !matchesCat) return false;
       }
 
-      // Dietary filter
       if (dietaryFilter === 'VEG' && !item.veg) return false;
       if (dietaryFilter === 'NON_VEG' && item.veg) return false;
       if (dietaryFilter === 'JAIN' && !item.jain) return false;
@@ -321,10 +320,16 @@ function StaffPOSContent() {
     }
   };
 
-  // Confirm payment settlement or pay later from Modal
+  // Step 1 Finish -> Open Step 2 Payment Modal
+  const handleProceedFromOrderType = (type: 'DINE_IN' | 'PICKUP', table: string) => {
+    setOrderType(type);
+    setSelectedTable(table);
+    setIsOrderTypeModalOpen(false);
+    setIsPaymentModalOpen(true);
+  };
+
+  // Step 2 Payment Settlement or Pay Later
   const handleConfirmPayment = async (details: {
-    orderType: 'DINE_IN' | 'PICKUP';
-    tableNumber: string;
     paymentMethod: 'cash' | 'upi' | 'card';
     customerName: string;
     customerPhone: string;
@@ -333,7 +338,7 @@ function StaffPOSContent() {
   }) => {
     setIsPaymentModalOpen(false);
 
-    const chosenTable = details.orderType === 'DINE_IN' ? details.tableNumber : 'Pick Up';
+    const chosenTable = orderType === 'DINE_IN' ? selectedTable : 'Pick Up';
 
     const calc = calculateBillTotals({
       items: cart.map((c) => ({ price: c.price, quantity: c.quantity })),
@@ -366,7 +371,7 @@ function StaffPOSContent() {
         });
 
         if (res.ok) {
-          if (details.orderType === 'DINE_IN') {
+          if (orderType === 'DINE_IN') {
             await fetch('/api/tables', {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
@@ -418,7 +423,7 @@ function StaffPOSContent() {
       const data = await res.json();
 
       if (res.ok && data.bill) {
-        if (details.orderType === 'DINE_IN') {
+        if (orderType === 'DINE_IN') {
           await fetch('/api/tables', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -473,7 +478,7 @@ function StaffPOSContent() {
         searchInputRef.current?.focus();
       } else if (e.key === 'F5') {
         e.preventDefault();
-        if (cart.length > 0) setIsPaymentModalOpen(true);
+        if (cart.length > 0) setIsOrderTypeModalOpen(true);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -631,12 +636,12 @@ function StaffPOSContent() {
               showToast('Order is empty! Add items first.');
               return;
             }
-            setIsPaymentModalOpen(true);
+            setIsOrderTypeModalOpen(true);
           }}
         />
       </div>
 
-      {/* Global Staff Left Navigation Drawer (Slides from left with dimmed backdrop) */}
+      {/* Global Staff Left Navigation Drawer */}
       <StaffNavigationDrawer
         isOpen={isNavDrawerOpen}
         onClose={() => setIsNavDrawerOpen(false)}
@@ -656,7 +661,16 @@ function StaffPOSContent() {
         onDeleteHeld={handleDeleteHeldOrder}
       />
 
-      {/* Checkout & Payment Settlement Modal */}
+      {/* Step 1: Order Type (Dine In / Pick Up) & Unoccupied Table Picker */}
+      <OrderTypeModal
+        isOpen={isOrderTypeModalOpen}
+        onClose={() => setIsOrderTypeModalOpen(false)}
+        selectedTable={selectedTable}
+        orderType={orderType}
+        onProceed={handleProceedFromOrderType}
+      />
+
+      {/* Step 2: Clean Classic Payment Settlement Modal */}
       <PaymentSettlementModal
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
@@ -667,8 +681,7 @@ function StaffPOSContent() {
             gstRate: 5,
           }).grandTotal
         }
-        tableNumber={selectedTable}
-        orderType={orderType}
+        tableNumber={orderType === 'DINE_IN' ? selectedTable : 'Pick Up'}
         itemCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
         onConfirm={handleConfirmPayment}
       />
