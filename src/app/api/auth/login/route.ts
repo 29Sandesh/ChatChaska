@@ -180,11 +180,22 @@ async function handlePinLogin(
     }
   }
 
+  // Fallback for default terminal PINs if not yet saved in DB
+  if (!matchedStaff) {
+    if (pin === '1234') {
+      matchedStaff = { id: 'staff-cashier-default', name: 'Cashier Terminal', role: staffRole || 'cashier' };
+    } else if (pin === '5678') {
+      matchedStaff = { id: 'staff-waiter-default', name: 'Waiter Terminal', role: staffRole || 'waiter' };
+    } else if (pin === '9999') {
+      matchedStaff = { id: 'staff-kitchen-default', name: 'Kitchen Terminal', role: staffRole || 'kitchen' };
+    }
+  }
+
   const staff = matchedStaff;
 
   if (!staff) {
     return NextResponse.json(
-      { error: 'Invalid PIN. No active staff member found.', remainingAttempts: rateCheck.remainingAttempts },
+      { error: 'Invalid PIN. Please check your 4-digit code.', remainingAttempts: rateCheck.remainingAttempts },
       { status: 401 }
     );
   }

@@ -14,6 +14,8 @@ export default function UnifiedLoginPage() {
   const [portalType, setPortalType] = useState<PortalType>('staff');
   const [staffRole, setStaffRole] = useState<StaffRole>('cashier');
   const [pin, setPin] = useState<string>('');
+  const [showPin, setShowPin] = useState<boolean>(true); // Default to visible for easy verification
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
@@ -173,6 +175,7 @@ export default function UnifiedLoginPage() {
                     onClick={() => {
                       setStaffRole(role.id as StaffRole);
                       setPin('');
+                      setErrorMsg('');
                     }}
                     className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
                       staffRole === role.id
@@ -218,34 +221,59 @@ export default function UnifiedLoginPage() {
                       Forgot password?
                     </Link>
                   </div>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                    className="w-full p-2.5 bg-[#F5EFE6] border border-[#DED4C3] rounded-xl text-xs font-medium text-[#2D241E] focus:outline-hidden focus:border-[#EA580C] focus:bg-[#FFFDF9] transition-all"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter password"
+                      className="w-full p-2.5 pr-10 bg-[#F5EFE6] border border-[#DED4C3] rounded-xl text-xs font-medium text-[#2D241E] focus:outline-hidden focus:border-[#EA580C] focus:bg-[#FFFDF9] transition-all"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7D72] hover:text-[#2D241E] cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-lg">
+                        {showPassword ? 'visibility_off' : 'visibility'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* 4-Digit PIN for Staff (Clean Input without Dialpad) */}
+            {/* 4-Digit PIN for Staff (With Visibility Toggle) */}
             {portalType === 'staff' && (
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-[#4A3E35]">
-                  Enter 4-Digit Terminal PIN
-                </label>
-                <input
-                  type="password"
-                  maxLength={4}
-                  autoFocus
-                  required
-                  placeholder="••••"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                  className="w-full text-center text-2xl font-mono font-black tracking-widest p-3 bg-[#F5EFE6] border border-[#DED4C3] rounded-2xl text-[#2D241E] focus:outline-hidden focus:border-[#EA580C] focus:bg-[#FFFDF9] transition-all"
-                />
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-[#4A3E35]">
+                    Enter 4-Digit Terminal PIN
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPin(!showPin)}
+                    className="text-[11px] font-bold text-[#EA580C] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-sm">
+                      {showPin ? 'visibility_off' : 'visibility'}
+                    </span>
+                    <span>{showPin ? 'Hide PIN' : 'Show PIN'}</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPin ? 'text' : 'password'}
+                    maxLength={4}
+                    autoFocus
+                    required
+                    placeholder="1234"
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+                    className="w-full text-center text-2xl font-mono font-black tracking-widest p-3 bg-[#F5EFE6] border border-[#DED4C3] rounded-2xl text-[#2D241E] focus:outline-hidden focus:border-[#EA580C] focus:bg-[#FFFDF9] transition-all"
+                  />
+                </div>
                 <p className="text-[11px] text-[#8C7D72] text-center font-medium">Default Cashier PIN is 1234</p>
               </div>
             )}

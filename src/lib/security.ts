@@ -75,6 +75,11 @@ export function checkRateLimit(
   windowMs = 15 * 60 * 1000,
   lockoutMs = 30 * 60 * 1000
 ): { allowed: boolean; retryAfterMs: number; remainingAttempts: number } {
+  // In development mode, allow up to 100 attempts without lockout
+  if (process.env.NODE_ENV === 'development') {
+    maxAttempts = 100;
+  }
+
   const now = Date.now();
   const entry = rateLimitStore.get(key);
 
@@ -84,8 +89,8 @@ export function checkRateLimit(
     return { allowed: true, retryAfterMs: 0, remainingAttempts: maxAttempts - 1 };
   }
 
-  // Currently locked out
-  if (entry.lockedUntil && now < entry.lockedUntil) {
+  // Currently locked out (bypass in development)
+  if (entry.lockedUntil && now < entry.lockedUntil && process.env.NODE_ENV !== 'development') {
     return { allowed: false, retryAfterMs: entry.lockedUntil - now, remainingAttempts: 0 };
   }
 
@@ -101,6 +106,9 @@ export function checkRateLimit(
   if (entry.attempts > maxAttempts) {
     entry.lockedUntil = now + lockoutMs;
     rateLimitStore.set(key, entry);
+    if (process.env.NODE_ENV === 'development') {
+      return { allowed: true, retryAfterMs: 0, remainingAttempts: 10 };
+    }
     return { allowed: false, retryAfterMs: lockoutMs, remainingAttempts: 0 };
   }
 
@@ -113,6 +121,13 @@ export function checkRateLimit(
  */
 export function resetRateLimit(key: string): void {
   rateLimitStore.delete(key);
+}
+
+/**
+ * Clear all rate limits (useful for server resets or testing).
+ */
+export function clearAllRateLimits(): void {
+  rateLimitStore.clear();
 }
 
 // ============================================================
