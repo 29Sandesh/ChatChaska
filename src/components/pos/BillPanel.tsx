@@ -19,8 +19,6 @@ interface BillPanelProps {
   onTableSelect?: (table: string) => void;
   onUpdateQuantity: (itemId: string, delta: number) => void;
   onRemoveItem?: (itemId: string) => void;
-  paymentMethod?: 'cash' | 'upi' | 'card';
-  onPaymentMethodChange?: (method: 'cash' | 'upi' | 'card') => void;
   discountAmount: number;
   onDiscountChange: (amount: number) => void;
   heldCount?: number;
@@ -171,26 +169,26 @@ export function BillPanel({
         </div>
       </div>
 
-      {/* 3. Bottom Action Buttons: EXACTLY 2 BUTTONS [ ⏸ Hold ] and [ ➔ Next ] */}
+      {/* 3. Bottom Action Buttons: EXACTLY 2 BUTTONS (1/3 Hold, 2/3 Next) */}
       <div className="p-3 bg-white border-t border-[#EBEBEB] flex items-center gap-2 shrink-0">
-        {/* Hold Order Button (Beige square button with pause icon) */}
+        {/* Hold Order Button (1/3 width) */}
         <button
           type="button"
           onClick={onHold}
           disabled={cart.length === 0}
-          className="w-14 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-800 border border-[#E8DFC9] disabled:opacity-40 rounded-xl flex items-center justify-center gap-1 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
+          className="w-1/3 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-800 border border-[#E8DFC9] disabled:opacity-40 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
           title="Hold / Park Order"
         >
           <span className="material-symbols-outlined text-[18px] text-slate-800">pause_circle</span>
           <span className="text-xs font-bold">Hold</span>
         </button>
 
-        {/* Next Button (Primary Action) */}
+        {/* Next Button (2/3 width) */}
         <button
           type="button"
           onClick={onNext}
           disabled={cart.length === 0}
-          className="flex-1 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-2xs"
+          className="w-2/3 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-2xs"
         >
           <span>Next</span>
           <span className="material-symbols-outlined text-[18px] text-slate-800">arrow_forward</span>
