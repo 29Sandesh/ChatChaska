@@ -26,8 +26,7 @@ interface BillPanelProps {
   heldCount?: number;
   onHold: () => void;
   onOpenHeld?: () => void;
-  onSaveBill: () => void;
-  onSendKOT?: () => void;
+  onNext: () => void;
 }
 
 export function BillPanel({
@@ -37,8 +36,7 @@ export function BillPanel({
   discountAmount,
   onDiscountChange,
   onHold,
-  onSaveBill,
-  onSendKOT,
+  onNext,
 }: BillPanelProps) {
   const [isEditingDiscount, setIsEditingDiscount] = useState<boolean>(false);
 
@@ -173,39 +171,29 @@ export function BillPanel({
         </div>
       </div>
 
-      {/* 3. Bottom Action Buttons: [ ⏸ ] [ 🍲 Send KOT ] [ 🖨️ Save & Print ] - Matching Warm Beige Styling */}
+      {/* 3. Bottom Action Buttons: EXACTLY 2 BUTTONS [ ⏸ Hold ] and [ ➔ Next ] */}
       <div className="p-3 bg-white border-t border-[#EBEBEB] flex items-center gap-2 shrink-0">
-        {/* Hold Order Button (Yellow/Amber square button with pause icon) */}
+        {/* Hold Order Button (Beige square button with pause icon) */}
         <button
           type="button"
           onClick={onHold}
           disabled={cart.length === 0}
-          className="w-12 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-800 border border-[#E8DFC9] disabled:opacity-40 rounded-xl flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
+          className="w-14 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-800 border border-[#E8DFC9] disabled:opacity-40 rounded-xl flex items-center justify-center gap-1 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
           title="Hold / Park Order"
         >
-          <span className="material-symbols-outlined text-[20px] text-slate-800">pause_circle</span>
+          <span className="material-symbols-outlined text-[18px] text-slate-800">pause_circle</span>
+          <span className="text-xs font-bold">Hold</span>
         </button>
 
-        {/* Send KOT Button (Beige Button) */}
+        {/* Next Button (Primary Action) */}
         <button
           type="button"
-          onClick={onSendKOT}
+          onClick={onNext}
           disabled={cart.length === 0}
-          className="flex-1 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
+          className="flex-1 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-2xs"
         >
-          <span className="material-symbols-outlined text-[17px] text-slate-800">soup_kitchen</span>
-          <span>Send KOT</span>
-        </button>
-
-        {/* Save & Print Button (Beige Button) */}
-        <button
-          type="button"
-          onClick={onSaveBill}
-          disabled={cart.length === 0}
-          className="flex-1 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
-        >
-          <span className="material-symbols-outlined text-[17px] text-slate-800">print</span>
-          <span>Save & Print</span>
+          <span>Next</span>
+          <span className="material-symbols-outlined text-[18px] text-slate-800">arrow_forward</span>
         </button>
       </div>
     </aside>

@@ -9,10 +9,10 @@ import { BillPanel, CartItem } from '@/components/pos/BillPanel';
 import { HeldOrdersDrawer, HeldOrder } from '@/components/pos/HeldOrdersDrawer';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
 import { PaymentSettlementModal } from '@/components/pos/PaymentSettlementModal';
+import { StaffNavigationDrawer } from '@/components/layout/StaffNavigationDrawer';
 import { calculateBillTotals } from '@/lib/billing';
 import { playOrderChime } from '@/lib/sound-fx';
 import { cloudClient } from '@/lib/cloud-db';
-import { CloudOrder } from '@/types';
 
 function StaffPOSContent() {
   const router = useRouter();
@@ -32,14 +32,13 @@ function StaffPOSContent() {
   const [orderType, setOrderType] = useState<'DINE_IN' | 'PICKUP'>('DINE_IN');
   const [selectedTable, setSelectedTable] = useState<string>(initialTableParam || 'Table 1');
   const [waiterName, setWaiterName] = useState<string>('Staff');
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'card'>('cash');
   const [discountAmount, setDiscountAmount] = useState<number>(0);
 
   // Incoming QR Customer Orders state (badge counter)
   const [incomingOrdersCount, setIncomingOrdersCount] = useState<number>(0);
 
-  // Navigation Drawer Menu State (for Hamburger ☰)
-  const [isNavMenuOpen, setIsNavMenuOpen] = useState<boolean>(false);
+  // Left Navigation Drawer State (for Hamburger ☰)
+  const [isNavDrawerOpen, setIsNavDrawerOpen] = useState<boolean>(false);
 
   // Modals / Drawers state
   const [heldOrders, setHeldOrders] = useState<HeldOrder[]>([]);
@@ -322,77 +321,19 @@ function StaffPOSContent() {
     }
   };
 
-  // Send KOT to Kitchen
-  const handleSendKOT = async () => {
-    if (cart.length === 0) return;
-
-    const newKOTItems: { id: string; name: string; quantity: number; price: number }[] = [];
-
-    cart.forEach((cartItem) => {
-      const existingInPrevRound = initialTabCart.find((p: CartItem) => p.name === cartItem.name);
-      const prevQty = existingInPrevRound ? existingInPrevRound.quantity : 0;
-      const deltaQty = cartItem.quantity - prevQty;
-
-      if (deltaQty > 0) {
-        newKOTItems.push({
-          id: cartItem.id,
-          name: cartItem.name,
-          quantity: deltaQty,
-          price: cartItem.price,
-        });
-      }
-    });
-
-    if (newKOTItems.length === 0) {
-      showToast('No new items to send to kitchen!');
-      return;
-    }
-
-    const deltaTotal = newKOTItems.reduce((acc, i) => acc + i.price * i.quantity, 0);
-
-    try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tableNumber: selectedTable,
-          items: newKOTItems,
-          totalAmount: deltaTotal,
-          status: 'pending',
-        }),
-      });
-
-      if (res.ok) {
-        await fetch('/api/tables', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: selectedTable, status: 'running' }),
-        }).catch(() => {});
-
-        setInitialTabCart(JSON.parse(JSON.stringify(cart)));
-        showToast(`🍳 KOT sent for ${selectedTable}!`);
-      }
-    } catch (err) {
-      console.error('KOT send failed:', err);
-    }
-  };
-
-  // Handle Save & Print button click -> Open Payment Settlement Modal
-  const handleSaveBill = () => {
-    if (cart.length === 0) {
-      showToast('Bill is empty! Add items first.');
-      return;
-    }
-    setIsPaymentModalOpen(true);
-  };
-
-  // Confirm payment settlement from Modal
+  // Confirm payment settlement or pay later from Modal
   const handleConfirmPayment = async (details: {
+    orderType: 'DINE_IN' | 'PICKUP';
+    tableNumber: string;
     paymentMethod: 'cash' | 'upi' | 'card';
     customerName: string;
     customerPhone: string;
+    txnReference?: string;
+    isPayLater?: boolean;
   }) => {
     setIsPaymentModalOpen(false);
+
+    const chosenTable = details.orderType === 'DINE_IN' ? details.tableNumber : 'Pick Up';
 
     const calc = calculateBillTotals({
       items: cart.map((c) => ({ price: c.price, quantity: c.quantity })),
@@ -401,16 +342,57 @@ function StaffPOSContent() {
     });
 
     const billItems = cart.map((item) => ({
+      id: item.id,
       name: item.name,
       quantity: item.quantity,
       unitPrice: item.price,
+      price: item.price,
       lineTotal: item.price * item.quantity,
     }));
 
+    if (details.isPayLater) {
+      // Pay Later Flow: Save running order on table and notify kitchen
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tableNumber: chosenTable,
+            items: billItems,
+            totalAmount: calc.grandTotal,
+            status: 'pending',
+            notes: `Pay Later (${details.customerName || 'Guest'})`,
+          }),
+        });
+
+        if (res.ok) {
+          if (details.orderType === 'DINE_IN') {
+            await fetch('/api/tables', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: chosenTable, status: 'running' }),
+            }).catch(() => {});
+          }
+
+          setCart([]);
+          setInitialTabCart([]);
+          setDiscountAmount(0);
+          showToast(`⏳ Order saved for ${chosenTable} (Pay Later)`);
+        } else {
+          showToast('Failed to save order. Please retry.');
+        }
+      } catch (err) {
+        console.error('Error in Pay Later flow:', err);
+        showToast('Network error while placing order.');
+      }
+      return;
+    }
+
+    // Immediate Settle & Print Flow:
     const billPayload = {
       restaurantId: 'demo',
       restaurantName: 'ChatChaska Cafe',
-      tableNumber: selectedTable,
+      tableNumber: chosenTable,
       waiterName: waiterName,
       items: billItems,
       subtotal: calc.subtotal,
@@ -436,19 +418,20 @@ function StaffPOSContent() {
       const data = await res.json();
 
       if (res.ok && data.bill) {
-        // Free the table
-        await fetch('/api/tables', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: selectedTable, status: 'free' }),
-        }).catch(() => {});
+        if (details.orderType === 'DINE_IN') {
+          await fetch('/api/tables', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: chosenTable, status: 'free' }),
+          }).catch(() => {});
+        }
 
         const newBillData: BillData = {
           billId: data.bill.id,
           tokenNumber: data.bill.tokenNumber || '01',
           restaurantName: 'ChatChaska Cafe',
           date: new Date().toLocaleString('en-IN'),
-          tableNumber: selectedTable,
+          tableNumber: chosenTable,
           waiterName: waiterName,
           items: billItems,
           subtotal: calc.subtotal,
@@ -470,7 +453,7 @@ function StaffPOSContent() {
         setCart([]);
         setInitialTabCart([]);
         setDiscountAmount(0);
-        showToast('🎉 Bill settled & saved successfully!');
+        showToast('🎉 Bill settled & printed successfully!');
       } else {
         showToast('Failed to save bill. Please retry.');
       }
@@ -480,7 +463,7 @@ function StaffPOSContent() {
     }
   };
 
-  // Keyboard Shortcuts (F1: Search, F5: Pay, F6: Save & Print)
+  // Keyboard Shortcuts (F1: Search, F5: Next)
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -490,15 +473,12 @@ function StaffPOSContent() {
         searchInputRef.current?.focus();
       } else if (e.key === 'F5') {
         e.preventDefault();
-        handleSaveBill();
-      } else if (e.key === 'F6') {
-        e.preventDefault();
-        handleSaveBill();
+        if (cart.length > 0) setIsPaymentModalOpen(true);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cart, discountAmount, selectedTable]);
+  }, [cart]);
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#FAF9F7] overflow-hidden select-none font-sans">
@@ -600,64 +580,16 @@ function StaffPOSContent() {
             )}
           </Link>
 
-          {/* FAR RIGHT: HAMBURGER MENU ☰ */}
+          {/* FAR RIGHT: HAMBURGER MENU ☰ -> OPENS LEFT SLIDE DRAWER */}
           <div className="relative pl-1">
             <button
               type="button"
-              onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
+              onClick={() => setIsNavDrawerOpen(true)}
               className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer"
               title="Navigation Menu"
             >
               <span className="material-symbols-outlined text-[22px]">menu</span>
             </button>
-
-            {/* Hamburger Dropdown Navigation */}
-            {isNavMenuOpen && (
-              <div className="absolute right-0 top-10 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in space-y-1">
-                <Link
-                  href="/staff/tables"
-                  onClick={() => setIsNavMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">grid_view</span>
-                  <span>Tables Map</span>
-                </Link>
-                <Link
-                  href="/staff/orders"
-                  onClick={() => setIsNavMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">receipt_long</span>
-                  <span>Orders Queue</span>
-                </Link>
-                <Link
-                  href="/staff/kitchen"
-                  onClick={() => setIsNavMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">soup_kitchen</span>
-                  <span>Kitchen Display</span>
-                </Link>
-                <Link
-                  href="/staff/history"
-                  onClick={() => setIsNavMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">history</span>
-                  <span>Bill History</span>
-                </Link>
-                <div className="border-t border-slate-100 pt-1">
-                  <Link
-                    href="/login?logout=true"
-                    onClick={() => setIsNavMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">logout</span>
-                    <span>Exit Terminal</span>
-                  </Link>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </header>
@@ -680,7 +612,7 @@ function StaffPOSContent() {
           viewMode={viewMode}
         />
 
-        {/* Right Billing Panel */}
+        {/* Right Billing Panel (With 2 Buttons: Hold and Next) */}
         <BillPanel
           cart={cart}
           orderType={orderType}
@@ -689,17 +621,26 @@ function StaffPOSContent() {
           onTableSelect={setSelectedTable}
           onUpdateQuantity={handleUpdateQuantity}
           onRemoveItem={handleRemoveItem}
-          paymentMethod={paymentMethod}
-          onPaymentMethodChange={setPaymentMethod}
           discountAmount={discountAmount}
           onDiscountChange={setDiscountAmount}
           heldCount={heldOrders.length}
           onHold={handleHoldBill}
           onOpenHeld={() => setIsHeldDrawerOpen(true)}
-          onSaveBill={handleSaveBill}
-          onSendKOT={handleSendKOT}
+          onNext={() => {
+            if (cart.length === 0) {
+              showToast('Order is empty! Add items first.');
+              return;
+            }
+            setIsPaymentModalOpen(true);
+          }}
         />
       </div>
+
+      {/* Global Staff Left Navigation Drawer (Slides from left with dimmed backdrop) */}
+      <StaffNavigationDrawer
+        isOpen={isNavDrawerOpen}
+        onClose={() => setIsNavDrawerOpen(false)}
+      />
 
       {toastMessage && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 text-xs font-semibold z-50 animate-in fade-in">
@@ -715,6 +656,7 @@ function StaffPOSContent() {
         onDeleteHeld={handleDeleteHeldOrder}
       />
 
+      {/* Checkout & Payment Settlement Modal */}
       <PaymentSettlementModal
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
@@ -726,6 +668,7 @@ function StaffPOSContent() {
           }).grandTotal
         }
         tableNumber={selectedTable}
+        orderType={orderType}
         itemCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
         onConfirm={handleConfirmPayment}
       />
