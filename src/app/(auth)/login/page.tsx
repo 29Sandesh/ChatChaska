@@ -73,13 +73,13 @@ export default function UnifiedLoginPage() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center lg:justify-end select-none font-sans overflow-hidden bg-[#FAF7F2] text-[#2D241E]">
-      {/* Full-Screen High-Resolution Product Artwork Background */}
+      {/* Full-Screen High-Resolution Product Artwork - Preserves 100% exact original proportions */}
       <Image
         src={loginShowcase}
         alt="ChatChaska — System Made to be Affordable, Reliable and Accessible"
         fill
         priority
-        className="object-fill hidden lg:block pointer-events-none"
+        className="object-contain object-left hidden lg:block pointer-events-none"
       />
 
       {/* RIGHT SIDE: Floating Beige Minimal Sign In / Sign Up Panel (Shifted further right) */}
