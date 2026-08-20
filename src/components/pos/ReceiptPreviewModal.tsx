@@ -115,15 +115,15 @@ export function ReceiptPreviewModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs select-none font-sans">
         
         {/* Outer Popup Card */}
-        <div className="relative bg-[#FAF9F7] border border-[#E8DFC9] rounded-lg shadow-2xl flex flex-col items-center max-h-[92vh] overflow-hidden max-w-sm w-full">
+        <div className="relative bg-[#FAF7F2] border border-[#C3A27C]/40 rounded-lg shadow-2xl flex flex-col items-center max-h-[92vh] overflow-hidden max-w-sm w-full">
           
           {/* TOP HEADER BAR: GO BACK BUTTON ON LEFT | CROSS BUTTON ON RIGHT */}
-          <div className="w-full bg-[#FAF9F7] border-b border-[#E8DFC9] px-4 py-2.5 flex items-center justify-between z-10 shrink-0 select-none">
+          <div className="w-full bg-[#FAF7F2] border-b border-[#C3A27C]/30 px-4 py-2.5 flex items-center justify-between z-10 shrink-0 select-none">
             {!hideGoBack && (
               <button
                 type="button"
                 onClick={onClose}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white hover:bg-[#F2E5D9] text-slate-900 font-bold text-xs transition-all cursor-pointer border border-[#D9C4B0] shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white hover:bg-[#FAF7F2] text-slate-900 font-bold text-xs transition-all cursor-pointer border border-[#C3A27C]/40 shadow-2xs"
               >
                 <span className="material-symbols-outlined text-[16px]">arrow_back</span>
                 <span>Go Back</span>
@@ -133,7 +133,7 @@ export function ReceiptPreviewModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-7 h-7 rounded-md bg-white hover:bg-[#F2E5D9] text-slate-600 hover:text-black flex items-center justify-center transition-colors border border-[#D9C4B0] cursor-pointer shadow-2xs ml-auto"
+              className="w-7 h-7 rounded-md bg-white hover:bg-[#FAF7F2] text-slate-600 hover:text-black flex items-center justify-center transition-colors border border-[#C3A27C]/40 cursor-pointer shadow-2xs ml-auto"
               title="Close"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
@@ -141,16 +141,16 @@ export function ReceiptPreviewModal({
           </div>
 
           {/* Scrollable Receipt Area */}
-          <div className="p-4 flex flex-col items-center overflow-y-auto no-scrollbar flex-1 w-full bg-[#FAF9F7]">
+          <div className="p-4 flex flex-col items-center overflow-y-auto no-scrollbar flex-1 w-full bg-[#FAF7F2]">
             {/* Thermal Receipt Paper */}
             <div
-              className="bg-white p-5 text-black font-mono text-xs w-full max-w-[300px] shadow-sm rounded-md border border-[#E8DFC9] select-none my-auto"
+              className="bg-white p-5 text-black font-mono text-xs w-full max-w-[300px] shadow-sm rounded-md border border-[#C3A27C]/30 select-none my-auto"
               id="receipt-print-area"
             >
               {/* Header */}
               <div className="text-center mb-3">
                 {/* Token Display (1 to 100) */}
-                <div className="inline-block bg-[#FAF9F7] border border-[#D9C4B0] py-1 px-3 rounded-md mb-2 font-black text-sm tracking-wider text-black">
+                <div className="inline-block bg-[#FAF7F2] border border-[#C3A27C]/40 py-1 px-3 rounded-md mb-2 font-black text-sm tracking-wider text-black">
                   TOKEN #{billData.tokenNumber || '01'}
                 </div>
                 <h2 className="font-bold text-base mb-1">{billData.restaurantName}</h2>
@@ -255,7 +255,7 @@ export function ReceiptPreviewModal({
           </div>
 
           {/* EXACTLY ONE LONG SEND ON WHATSAPP BUTTON */}
-          <div className="bg-[#FAF9F7] border-t border-[#E8DFC9] p-3 w-full shrink-0">
+          <div className="bg-[#FAF7F2] border-t border-[#C3A27C]/30 p-3 w-full shrink-0">
             <button
               type="button"
               onClick={handleSendWhatsApp}
@@ -268,10 +268,10 @@ export function ReceiptPreviewModal({
         </div>
       </div>
 
-      {/* WhatsApp Number Prompt Modal (If no number was initially provided) */}
+      {/* WhatsApp Number Prompt Modal */}
       {showPhoneModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 select-none">
-          <div className="bg-white border border-[#E8DFC9] rounded-lg p-5 max-w-xs w-full shadow-2xl space-y-4 font-sans">
+          <div className="bg-white border border-[#C3A27C]/40 rounded-lg p-5 max-w-xs w-full shadow-2xl space-y-4 font-sans">
             <div className="flex justify-between items-center pb-2 border-b border-slate-100">
               <h3 className="font-extrabold text-slate-900 text-sm">WhatsApp Number</h3>
               <button onClick={() => setShowPhoneModal(false)} className="text-slate-400 hover:text-slate-700 text-xs">
@@ -280,7 +280,7 @@ export function ReceiptPreviewModal({
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center gap-2 bg-[#FAF9F7] border border-[#D9C4B0] rounded-md p-2.5">
+              <div className="flex items-center gap-2 bg-[#FAF7F2] border border-[#C3A27C]/40 rounded-md p-2.5">
                 <span className="text-xs font-bold text-slate-500">+91</span>
                 <input
                   type="tel"

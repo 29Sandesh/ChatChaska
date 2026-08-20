@@ -85,10 +85,10 @@ export function OrderTypeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200 select-none font-sans">
-      <div className="w-full max-w-sm bg-white rounded-lg shadow-2xl border border-[#E8DFC9] overflow-hidden flex flex-col">
+      <div className="w-full max-w-sm bg-white rounded-lg shadow-2xl border border-[#C3A27C]/40 overflow-hidden flex flex-col">
         
-        {/* Brand Themed Header (Box Shaped) */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#FAF9F7] border-b border-[#E8DFC9]">
+        {/* Brand Themed Header (#C3A27C Beige) */}
+        <div className="flex items-center justify-between px-5 py-3.5 bg-[#FAF7F2] border-b border-[#C3A27C]/30">
           <h3 className="text-sm font-bold text-black">Select Order Type</h3>
           <button
             type="button"
@@ -100,15 +100,15 @@ export function OrderTypeModal({
         </div>
 
         <div className="p-5 space-y-4 bg-white">
-          {/* Order Type Toggle: Dine In vs Pick Up (Box-Shaped) */}
+          {/* Order Type Toggle: Dine In vs Pick Up */}
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setOrderType('DINE_IN')}
               className={`py-3 px-3 rounded-md border text-xs font-bold flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 orderType === 'DINE_IN'
-                  ? 'bg-[#F8EFE7] border-[#D9C4B0] text-black shadow-2xs'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-[#FAF9F7]'
+                  ? 'bg-[#C3A27C] border-[#B2906A] text-slate-950 shadow-2xs'
+                  : 'bg-white border-slate-200 text-slate-700 hover:bg-[#FAF7F2]'
               }`}
             >
               <span className="material-symbols-outlined text-[22px]">table_restaurant</span>
@@ -120,8 +120,8 @@ export function OrderTypeModal({
               onClick={() => setOrderType('PICKUP')}
               className={`py-3 px-3 rounded-md border text-xs font-bold flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 orderType === 'PICKUP'
-                  ? 'bg-[#F8EFE7] border-[#D9C4B0] text-black shadow-2xs'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-[#FAF9F7]'
+                  ? 'bg-[#C3A27C] border-[#B2906A] text-slate-950 shadow-2xs'
+                  : 'bg-white border-slate-200 text-slate-700 hover:bg-[#FAF7F2]'
               }`}
             >
               <span className="material-symbols-outlined text-[22px]">shopping_bag</span>
@@ -136,7 +136,7 @@ export function OrderTypeModal({
                 <span className="font-bold text-slate-700">Table Map</span>
                 <div className="flex items-center gap-2 text-[10px] font-semibold">
                   <span className="flex items-center gap-1 text-slate-700">
-                    <span className="w-2 h-2 rounded-2xs bg-white border border-slate-400 inline-block" />
+                    <span className="w-2 h-2 rounded-2xs bg-white border border-[#C3A27C] inline-block" />
                     <span>{freeCount} Free</span>
                   </span>
                   <span className="flex items-center gap-1 text-slate-400">
@@ -174,8 +174,8 @@ export function OrderTypeModal({
                         onClick={() => setSelectedTable(tbl.name)}
                         className={`py-2.5 px-1 text-xs font-bold rounded-sm border transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center active:scale-95 ${
                           isSelected
-                            ? 'bg-black text-white border-black shadow-xs'
-                            : 'bg-white border-[#D9C4B0] text-slate-900 hover:border-black hover:bg-[#FAF9F7]'
+                            ? 'bg-[#C3A27C] text-slate-950 border-[#B2906A] shadow-xs'
+                            : 'bg-white border-[#C3A27C]/50 text-slate-900 hover:border-[#C3A27C] hover:bg-[#FAF7F2]'
                         }`}
                       >
                         <span>{shortName}</span>
@@ -188,12 +188,12 @@ export function OrderTypeModal({
           )}
         </div>
 
-        {/* Brand Themed Footer Actions: Box-Shaped */}
-        <div className="p-4 bg-[#FAF9F7] border-t border-[#E8DFC9] flex items-center gap-2">
+        {/* Brand Themed Footer Actions */}
+        <div className="p-4 bg-[#FAF7F2] border-t border-[#C3A27C]/30 flex items-center gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-md border border-[#D9C4B0] bg-white hover:bg-[#F2E5D9] text-slate-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+            className="flex-1 py-2.5 rounded-md border border-[#C3A27C]/50 bg-white hover:bg-[#FAF7F2] text-slate-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
           >
             Cancel
           </button>

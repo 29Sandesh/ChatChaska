@@ -86,13 +86,13 @@ export function CategoryPanel({
           )}
         </div>
 
-        {/* All Items Button (Box Shaped) */}
+        {/* All Items Button (Box Shaped with #C3A27C Beige) */}
         <button
           type="button"
           onClick={() => onSelectCategory('ALL')}
           className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2.5 transition-all cursor-pointer ${
             selectedCategory === 'ALL'
-              ? 'bg-[#F8EFE7] text-slate-900 font-bold border border-[#E8DFC9]'
+              ? 'bg-[#C3A27C]/20 text-slate-950 font-bold border border-[#C3A27C]'
               : 'text-slate-700 hover:bg-slate-100 font-medium'
           }`}
         >
@@ -102,13 +102,13 @@ export function CategoryPanel({
           <span className="text-xs font-bold">All Items</span>
         </button>
 
-        {/* Favorites (Box Shaped) */}
+        {/* Favorites (Box Shaped with #C3A27C Beige) */}
         <button
           type="button"
           onClick={() => onSelectCategory('FAVORITES')}
           className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2.5 transition-all cursor-pointer ${
             selectedCategory === 'FAVORITES'
-              ? 'bg-[#F8EFE7] text-slate-900 font-bold border border-[#E8DFC9]'
+              ? 'bg-[#C3A27C]/20 text-slate-950 font-bold border border-[#C3A27C]'
               : 'text-slate-700 hover:bg-slate-100 font-medium'
           }`}
         >
@@ -118,7 +118,7 @@ export function CategoryPanel({
           <span className="text-xs">Favorites</span>
         </button>
 
-        {/* Category List Items (Box Shaped) */}
+        {/* Category List Items (Box Shaped with #C3A27C Beige) */}
         {CATEGORY_ITEMS.map((cat) => {
           const isSelected = selectedCategory === cat.id;
           const count = countMap[cat.id] || cat.defaultCount;
@@ -130,7 +130,7 @@ export function CategoryPanel({
               onClick={() => onSelectCategory(cat.id)}
               className={`w-full text-left px-2.5 py-2 rounded-md flex items-center justify-between transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-[#F8EFE7] text-slate-900 font-bold border border-[#E8DFC9]'
+                  ? 'bg-[#C3A27C]/20 text-slate-950 font-bold border border-[#C3A27C]'
                   : 'text-slate-700 hover:bg-slate-100 font-medium'
               }`}
             >

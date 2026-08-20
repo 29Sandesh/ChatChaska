@@ -79,16 +79,16 @@ export function PaymentSettlementModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200 select-none font-sans">
-      <div className="w-full max-w-sm bg-white rounded-lg shadow-2xl border border-[#E8DFC9] overflow-hidden flex flex-col">
+      <div className="w-full max-w-sm bg-white rounded-lg shadow-2xl border border-[#C3A27C]/40 overflow-hidden flex flex-col">
         
-        {/* BRAND THEMED HEADER: BOX SHAPED */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#FAF9F7] border-b border-[#E8DFC9]">
+        {/* BRAND THEMED HEADER (#C3A27C Beige) */}
+        <div className="flex items-center justify-between px-5 py-3.5 bg-[#FAF7F2] border-b border-[#C3A27C]/30">
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-md bg-black text-white font-bold text-xs shadow-2xs">
               {isPickUp ? 'Takeaway Counter' : tableNumber}
             </span>
             {isPickUp && (
-              <span className="px-2.5 py-1 rounded-md bg-[#F8EFE7] text-slate-900 border border-[#E8DFC9] font-bold text-xs">
+              <span className="px-2.5 py-1 rounded-md bg-[#C3A27C] text-slate-950 border border-[#B2906A] font-bold text-xs">
                 Token #{tokenNumber}
               </span>
             )}
@@ -107,7 +107,7 @@ export function PaymentSettlementModal({
             <span className="font-semibold">{itemCount} {itemCount === 1 ? 'Item' : 'Items'}</span>
           </div>
 
-          {/* PAYMENT MODE SELECTION (Box-Shaped rounded-md) */}
+          {/* PAYMENT MODE SELECTION */}
           <div className="grid grid-cols-3 gap-2">
             {/* CASH */}
             <button
@@ -117,7 +117,7 @@ export function PaymentSettlementModal({
                 'flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-md border text-xs font-bold transition-all cursor-pointer shadow-2xs',
                 paymentMethod === 'cash'
                   ? 'bg-black text-white border-black'
-                  : 'bg-white text-slate-800 border-slate-200 hover:bg-[#FAF9F7]'
+                  : 'bg-white text-slate-800 border-slate-200 hover:bg-[#FAF7F2]'
               )}
             >
               <span className="material-symbols-outlined text-[20px]">payments</span>
@@ -132,7 +132,7 @@ export function PaymentSettlementModal({
                 'flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-md border text-xs font-bold transition-all cursor-pointer shadow-2xs',
                 paymentMethod === 'upi'
                   ? 'bg-black text-white border-black'
-                  : 'bg-white text-slate-800 border-slate-200 hover:bg-[#FAF9F7]'
+                  : 'bg-white text-slate-800 border-slate-200 hover:bg-[#FAF7F2]'
               )}
             >
               <span className="material-symbols-outlined text-[20px]">qr_code_2</span>
@@ -147,7 +147,7 @@ export function PaymentSettlementModal({
                 'flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-md border text-xs font-bold transition-all cursor-pointer shadow-2xs',
                 paymentMethod === 'card'
                   ? 'bg-black text-white border-black'
-                  : 'bg-white text-slate-800 border-slate-200 hover:bg-[#FAF9F7]'
+                  : 'bg-white text-slate-800 border-slate-200 hover:bg-[#FAF7F2]'
               )}
             >
               <span className="material-symbols-outlined text-[20px]">credit_card</span>
@@ -155,10 +155,10 @@ export function PaymentSettlementModal({
             </button>
           </div>
 
-          {/* DYNAMIC UPI QR DISPLAY - CLEAN (NO EXTRA TEXT) */}
+          {/* DYNAMIC UPI QR DISPLAY - CLEAN */}
           {paymentMethod === 'upi' && (
-            <div className="flex flex-col items-center justify-center p-3 bg-[#FAF9F7] border border-[#E8DFC9] rounded-md animate-in fade-in">
-              <div className="bg-white p-2.5 rounded-md border border-[#E8DFC9] shadow-2xs">
+            <div className="flex flex-col items-center justify-center p-3 bg-[#FAF7F2] border border-[#C3A27C]/30 rounded-md animate-in fade-in">
+              <div className="bg-white p-2.5 rounded-md border border-[#C3A27C]/40 shadow-2xs">
                 <img
                   src={qrCodeUrl}
                   alt="UPI QR Code"
@@ -180,7 +180,7 @@ export function PaymentSettlementModal({
                 placeholder="Customer Name (Optional)"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                className="w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF9F7] border border-[#E8DFC9] rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-black transition-all"
+                className="w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF7F2] border border-[#C3A27C]/40 rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-black transition-all"
               />
             </div>
 
@@ -199,8 +199,8 @@ export function PaymentSettlementModal({
                 }}
                 maxLength={10}
                 className={cn(
-                  "w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF9F7] border rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-hidden transition-all",
-                  phoneError ? "border-rose-500 focus:border-rose-600 bg-rose-50/40" : "border-[#E8DFC9] focus:border-black"
+                  "w-full pl-9 pr-3.5 py-2 text-xs bg-[#FAF7F2] border rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-hidden transition-all",
+                  phoneError ? "border-rose-500 focus:border-rose-600 bg-rose-50/40" : "border-[#C3A27C]/40 focus:border-black"
                 )}
               />
             </div>
@@ -213,13 +213,13 @@ export function PaymentSettlementModal({
           </div>
         </div>
 
-        {/* BOTTOM ACTION BUTTONS: BOX-SHAPED (rounded-md) */}
-        <div className="p-4 bg-[#FAF9F7] border-t border-[#E8DFC9] flex items-center gap-2">
+        {/* BOTTOM ACTION BUTTONS */}
+        <div className="p-4 bg-[#FAF7F2] border-t border-[#C3A27C]/30 flex items-center gap-2">
           {/* Cancel */}
           <button
             type="button"
             onClick={onClose}
-            className="py-2.5 px-3.5 rounded-md border border-[#D9C4B0] bg-white hover:bg-[#F2E5D9] text-slate-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+            className="py-2.5 px-3.5 rounded-md border border-[#C3A27C]/50 bg-white hover:bg-[#FAF7F2] text-slate-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
           >
             Cancel
           </button>
@@ -229,7 +229,7 @@ export function PaymentSettlementModal({
             <button
               type="button"
               onClick={() => handleAction(true)}
-              className="flex-1 py-2.5 px-3 rounded-md border border-[#D9C4B0] bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              className="flex-1 py-2.5 px-3 rounded-md border border-[#B2906A] bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
               title="Keep table open and pay later"
             >
               Pay Later

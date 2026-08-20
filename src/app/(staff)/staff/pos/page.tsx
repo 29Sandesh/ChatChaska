@@ -569,10 +569,10 @@ function StaffPOSContent() {
             </button>
           </div>
 
-          {/* Table Orders Button (Direct Link to /staff/orders?filter=table) */}
+          {/* Table Orders Button (Direct Link to /staff/orders?filter=table in #C3A27C Beige) */}
           <Link
             href="/staff/orders?filter=table"
-            className="relative flex items-center gap-1.5 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer shadow-2xs border border-[#E8DFC9]"
+            className="relative flex items-center gap-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer shadow-2xs border border-[#B3926C]"
           >
             <span className="material-symbols-outlined text-[17px]">
               qr_code_2

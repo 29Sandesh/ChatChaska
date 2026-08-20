@@ -169,17 +169,17 @@ export function BillPanel({
         </div>
       </div>
 
-      {/* 3. Bottom Action Buttons: EXACTLY 2 BOX-SHAPED BUTTONS (1/3 Hold, 2/3 Next) */}
+      {/* 3. Bottom Action Buttons: EXACTLY 2 BOX-SHAPED BUTTONS (1/3 Hold, 2/3 Next) IN #C3A27C BEIGE */}
       <div className="p-3 bg-white border-t border-[#EBEBEB] flex items-center gap-2 shrink-0">
         {/* Hold Order Button (1/3 width, Box-Shaped rounded-md) */}
         <button
           type="button"
           onClick={onHold}
           disabled={cart.length === 0}
-          className="w-1/3 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
+          className="w-1/3 h-11 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B3926C] disabled:opacity-40 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
           title="Hold / Park Order"
         >
-          <span className="material-symbols-outlined text-[18px] text-slate-800">pause_circle</span>
+          <span className="material-symbols-outlined text-[18px] text-slate-950">pause_circle</span>
           <span className="text-xs font-bold">Hold</span>
         </button>
 
@@ -188,10 +188,10 @@ export function BillPanel({
           type="button"
           onClick={onNext}
           disabled={cart.length === 0}
-          className="w-2/3 h-11 bg-[#F8EFE7] hover:bg-[#F2E5D9] text-slate-900 border border-[#E8DFC9] disabled:opacity-40 font-bold text-xs rounded-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-2xs"
+          className="w-2/3 h-11 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B3926C] disabled:opacity-40 font-bold text-xs rounded-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-2xs"
         >
           <span>Next</span>
-          <span className="material-symbols-outlined text-[18px] text-slate-800">arrow_forward</span>
+          <span className="material-symbols-outlined text-[18px] text-slate-950">arrow_forward</span>
         </button>
       </div>
     </aside>
