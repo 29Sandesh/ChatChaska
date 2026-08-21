@@ -214,17 +214,19 @@ export default function StaffTablesPage() {
   const freeCount = tables.filter((t) => t.status === 'free').length;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6 select-none font-sans">
+    <div className="p-4 w-full space-y-6 select-none font-sans">
       {/* Clean Minimal Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Tables</h1>
-          <div className="flex items-center gap-2 text-xs font-bold">
-            <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
-              🔴 {occupiedCount} Occupied
+          <h1 className="text-lg font-black text-slate-900 tracking-tight">Tables</h1>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-sm bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px] text-rose-500">circle</span>
+              {occupiedCount} Occupied
             </span>
-            <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-              🟢 {freeCount} Free
+            <span className="px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px] text-emerald-500">circle</span>
+              {freeCount} Free
             </span>
           </div>
         </div>
@@ -239,33 +241,26 @@ export default function StaffTablesPage() {
               setNewTableNumber(`${nextNum}`);
               setIsAddModalOpen(true);
             }}
-            className="flex-1 sm:flex-none px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+            className="flex-1 sm:flex-none bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] rounded-md font-bold text-xs px-3.5 py-1.5 shadow-2xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
           >
             <span className="material-symbols-outlined text-base">add</span>
             <span>Add Table</span>
           </button>
-
-          <Link
-            href="/staff/pos"
-            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1 transition-all"
-          >
-            <span>Quick POS</span>
-            <span className="material-symbols-outlined text-base">arrow_forward</span>
-          </Link>
         </div>
       </div>
 
       {/* Table Grid (Only 2 High-Contrast States: Free vs Occupied) */}
       {loading && tables.length === 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-            <div key={n} className="h-44 bg-slate-100 rounded-3xl animate-pulse" />
+            <div key={n} className="h-40 bg-slate-100 rounded-md animate-pulse" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {tables.map((table) => {
             const isOccupied = table.status === 'occupied';
+            const pureNumber = table.name.replace(/\D/g, '') || table.name;
 
             return (
               <div
@@ -277,35 +272,35 @@ export default function StaffTablesPage() {
                     router.push(`/staff/pos?table=${encodeURIComponent(table.name)}`);
                   }
                 }}
-                className={`rounded-3xl p-5 h-44 flex flex-col justify-between transition-all duration-200 cursor-pointer ${
+                className={
                   isOccupied
-                    ? 'bg-amber-50/80 border-2 border-amber-500 shadow-md hover:shadow-lg hover:border-amber-600'
-                    : 'bg-white border-2 border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md'
-                }`}
+                    ? 'bg-[#FAF7F2] border-2 border-[#C3A27C] rounded-md p-4 h-40 flex flex-col justify-between shadow-xs cursor-pointer transition-all'
+                    : 'bg-white border border-slate-200 rounded-md p-4 h-40 flex flex-col justify-between shadow-2xs hover:border-[#C3A27C] transition-all cursor-pointer'
+                }
               >
                 {/* Top Row: Table Name + Status Badge */}
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-black text-xl text-slate-900 tracking-tight">
-                      {table.name}
+                    <h3 className="font-black text-lg text-slate-900 tracking-tight">
+                      {pureNumber}
                     </h3>
-                    <span className="text-[11px] font-bold text-slate-400">
+                    <span className="text-[11px] font-medium text-slate-400">
                       {table.seats} Seats
                     </span>
                   </div>
 
                   <span
-                    className={`px-2.5 py-1 rounded-full text-[11px] font-black tracking-wide flex items-center gap-1.5 ${
+                    className={
                       isOccupied
-                        ? 'bg-amber-500 text-white shadow-xs'
-                        : 'bg-emerald-50 text-emerald-700 border border-emerald-300'
-                    }`}
+                        ? 'px-2 py-0.5 rounded-sm bg-[#C3A27C] text-slate-950 text-[10px] font-bold flex items-center gap-1.5 shadow-xs'
+                        : 'px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold flex items-center gap-1.5'
+                    }
                   >
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        isOccupied ? 'bg-white animate-pulse' : 'bg-emerald-500'
-                      }`}
-                    />
+                    {isOccupied ? (
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    ) : (
+                      <span className="material-symbols-outlined text-[10px] text-emerald-500">circle</span>
+                    )}
                     <span>{isOccupied ? 'OCCUPIED' : 'FREE'}</span>
                   </span>
                 </div>
@@ -314,10 +309,10 @@ export default function StaffTablesPage() {
                 <div>
                   {isOccupied ? (
                     <div className="space-y-0.5">
-                      <div className="text-2xl font-black text-amber-900 tracking-tight">
+                      <div className="text-xl font-black text-slate-950 tracking-tight">
                         ₹{(table.totalAmount || 0).toLocaleString('en-IN')}
                       </div>
-                      <div className="text-xs font-bold text-amber-700">
+                      <div className="text-xs font-bold text-slate-600">
                         {table.itemCount || 1} {table.itemCount === 1 ? 'item' : 'items'} ordered
                       </div>
                     </div>
@@ -334,7 +329,7 @@ export default function StaffTablesPage() {
                     <button
                       type="button"
                       onClick={(e) => handleStartGenerateBill(table, e)}
-                      className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 active:scale-98 text-white font-black text-xs rounded-2xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="w-full py-2 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                     >
                       <span className="material-symbols-outlined text-base">receipt_long</span>
                       <span>Generate Bill</span>
@@ -346,7 +341,7 @@ export default function StaffTablesPage() {
                         e.stopPropagation();
                         router.push(`/staff/pos?table=${encodeURIComponent(table.name)}`);
                       }}
-                      className="w-full py-2 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-slate-200 text-slate-600 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      className="w-full py-2 bg-white hover:bg-[#FAF7F2] border border-[#C3A27C]/50 text-slate-800 font-bold text-xs rounded-md transition-all flex items-center justify-center gap-1 cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-base">add</span>
                       <span>Take Order</span>
@@ -361,16 +356,16 @@ export default function StaffTablesPage() {
 
       {/* Add Table Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl space-y-5">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white border border-slate-200 rounded-md p-6 max-w-sm w-full shadow-2xl space-y-5">
             <div className="flex justify-between items-center">
               <h3 className="font-black text-lg text-slate-900">Add New Table</h3>
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition-colors"
               >
-                ✕
+                <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
 
@@ -380,7 +375,7 @@ export default function StaffTablesPage() {
                   Table Number or Name *
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-slate-400 bg-slate-100 px-3 py-2.5 rounded-xl border border-slate-200">
+                  <span className="text-sm font-bold text-slate-400 bg-slate-100 px-3 py-2.5 rounded-md border border-slate-200">
                     Table
                   </span>
                   <input
@@ -389,7 +384,7 @@ export default function StaffTablesPage() {
                     placeholder="e.g. 9"
                     value={newTableNumber}
                     onChange={(e) => setNewTableNumber(e.target.value)}
-                    className="flex-1 p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:outline-hidden focus:border-blue-600 focus:bg-white"
+                    className="flex-1 p-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm font-bold text-slate-900 focus:outline-hidden focus:border-[#C3A27C] focus:bg-white transition-colors"
                   />
                 </div>
               </div>
@@ -404,9 +399,9 @@ export default function StaffTablesPage() {
                       key={seats}
                       type="button"
                       onClick={() => setNewTableSeats(seats)}
-                      className={`py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                      className={`py-2 rounded-md text-xs font-bold border transition-all cursor-pointer ${
                         newTableSeats === seats
-                          ? 'border-blue-600 bg-blue-50 text-blue-700'
+                          ? 'border-[#C3A27C] bg-[#FAF7F2] text-slate-950'
                           : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
@@ -420,14 +415,14 @@ export default function StaffTablesPage() {
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer"
+                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-md cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingAdd || !newTableNumber}
-                  className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-3 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] rounded-md font-bold text-xs shadow-xs disabled:opacity-50 cursor-pointer transition-colors"
                 >
                   {submittingAdd ? 'Adding...' : 'Add Table'}
                 </button>

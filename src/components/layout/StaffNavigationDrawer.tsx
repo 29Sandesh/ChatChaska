@@ -41,6 +41,12 @@ const NAV_LINKS = [
     icon: 'history',
   },
   {
+    href: '/staff/shift',
+    label: 'Shift & Cash Drawer',
+    description: 'Opening float, Z-reading & reconciliation',
+    icon: 'point_of_sale',
+  },
+  {
     href: '/admin',
     label: 'Cafe Admin Console',
     description: 'Menu, UPI QR, Printer & Staff setup',

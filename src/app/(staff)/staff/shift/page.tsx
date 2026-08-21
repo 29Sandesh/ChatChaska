@@ -111,39 +111,32 @@ export default function ShiftManagementPage() {
   const cashDifference = Number(closingCash) - (metrics.expectedCash || 0);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 p-4 sm:p-8 font-sans">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-2xl text-blue-600">point_of_sale</span>
-              <h1 className="text-xl font-black text-slate-900">Shift &amp; Cash Drawer Reconciliation</h1>
-            </div>
-            <p className="text-xs text-slate-500 mt-1">
-              Track opening cash float, real-time drawer balance, and perform end-of-shift Z-readings.
-            </p>
+    <div className="p-4 w-full select-none font-sans">
+      <div className="max-w-3xl mx-auto space-y-5">
+        
+        {/* Simple Page Title */}
+        <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-2xl text-slate-900">point_of_sale</span>
+            <h1 className="text-lg font-black text-slate-900">Shift &amp; Cash Drawer</h1>
           </div>
-
-          <button
-            onClick={() => router.push('/staff/pos')}
-            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-base">arrow_back</span>
-            <span>Return to POS</span>
-          </button>
+          {activeShift && !showZReport && (
+            <span className="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1 rounded-sm border border-slate-200">
+              {activeShift.cashier_name}
+            </span>
+          )}
         </div>
 
         {loading ? (
-          <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-2">
-            <span className="material-symbols-outlined text-3xl text-blue-600 animate-spin">progress_activity</span>
+          <div className="bg-white p-12 rounded-md border border-slate-200 text-center space-y-2">
+            <span className="material-symbols-outlined text-3xl text-slate-400 animate-spin">progress_activity</span>
             <p className="text-xs text-slate-400 font-bold">Checking shift status...</p>
           </div>
         ) : !activeShift ? (
           /* NO ACTIVE SHIFT: OPEN SHIFT SCREEN */
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 animate-in fade-in">
+          <div className="bg-white rounded-md border border-slate-200 p-6 shadow-2xs space-y-6 animate-in fade-in">
             <div className="text-center space-y-2 max-w-md mx-auto">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-2xs">
+              <div className="w-12 h-12 rounded-md bg-[#FAF7F2] text-slate-900 flex items-center justify-center mx-auto shadow-2xs">
                 <span className="material-symbols-outlined text-3xl">lock_open</span>
               </div>
               <h2 className="text-lg font-black text-slate-900">Start Your Cashier Shift</h2>
@@ -161,7 +154,7 @@ export default function ShiftManagementPage() {
                   onChange={(e) => setCashierName(e.target.value)}
                   required
                   placeholder="e.g. Rahul Sharma"
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-blue-600"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-md px-4 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#C3A27C]"
                 />
               </div>
 
@@ -174,7 +167,7 @@ export default function ShiftManagementPage() {
                   value={openingCash}
                   onChange={(e) => setOpeningCash(parseFloat(e.target.value) || 0)}
                   required
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-lg font-black text-slate-900 text-center focus:outline-none focus:border-blue-600"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-md px-4 py-3 text-lg font-black text-slate-900 text-center focus:outline-none focus:border-[#C3A27C]"
                 />
                 <p className="text-[11px] text-slate-400 mt-1 text-center">Initial change in drawer (100s, 50s, coins)</p>
               </div>
@@ -185,7 +178,7 @@ export default function ShiftManagementPage() {
                     key={amt}
                     type="button"
                     onClick={() => setOpeningCash(amt)}
-                    className="flex-1 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-bold text-slate-600 cursor-pointer"
+                    className="flex-1 py-1.5 rounded-md border border-[#C3A27C]/50 bg-[#FAF7F2] hover:bg-[#C3A27C]/20 text-slate-800 text-[11px] font-bold cursor-pointer transition-colors"
                   >
                     ₹{amt}
                   </button>
@@ -195,7 +188,7 @@ export default function ShiftManagementPage() {
               <button
                 type="submit"
                 disabled={openingSubmitting}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-xl text-xs transition-all shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] font-black py-3 rounded-md shadow-2xs text-xs transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {openingSubmitting ? (
                   <span>Opening Drawer...</span>
@@ -210,8 +203,8 @@ export default function ShiftManagementPage() {
           </div>
         ) : showZReport ? (
           /* Z-REPORT SUMMARY SCREEN */
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 text-center animate-in zoom-in-95">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto shadow-2xs">
+          <div className="bg-white rounded-md border border-slate-200 p-6 shadow-2xs space-y-6 text-center animate-in zoom-in-95">
+            <div className="w-12 h-12 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto shadow-2xs">
               <span className="material-symbols-outlined text-3xl">receipt_long</span>
             </div>
             <div>
@@ -219,7 +212,7 @@ export default function ShiftManagementPage() {
               <p className="text-xs text-slate-500 mt-0.5">Shift successfully closed and reconciled.</p>
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 max-w-md mx-auto text-left space-y-2 text-xs">
+            <div className="bg-slate-50 p-4 rounded-md border border-slate-200 max-w-md mx-auto text-left space-y-2 text-xs">
               <div className="flex justify-between py-1 border-b border-slate-200">
                 <span className="text-slate-500">Cashier:</span>
                 <span className="font-bold text-slate-900">{activeShift.cashier_name}</span>
@@ -230,7 +223,7 @@ export default function ShiftManagementPage() {
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200">
                 <span className="text-slate-500">Total Shift Sales:</span>
-                <span className="font-bold text-blue-600">₹{metrics.totalSales}</span>
+                <span className="font-bold text-slate-900">₹{metrics.totalSales}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200">
                 <span className="text-slate-500">Cash Collected:</span>
@@ -238,7 +231,7 @@ export default function ShiftManagementPage() {
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200">
                 <span className="text-slate-500">UPI / QR Sales:</span>
-                <span className="font-bold text-purple-600">₹{metrics.upiSales}</span>
+                <span className="font-bold text-slate-700">₹{metrics.upiSales}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200">
                 <span className="text-slate-500">Actual Closing Cash:</span>
@@ -258,7 +251,7 @@ export default function ShiftManagementPage() {
                 setActiveShift(null);
                 loadShiftData();
               }}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+              className="px-6 py-2.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] rounded-md font-bold text-xs cursor-pointer"
             >
               Start New Shift
             </button>
@@ -268,29 +261,29 @@ export default function ShiftManagementPage() {
           <div className="space-y-6 animate-in fade-in">
             {/* Live Metrics Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] font-bold text-slate-400 uppercase">Opening Float</span>
+              <div className="bg-white p-4 rounded-md border border-slate-200 shadow-2xs">
+                <span className="text-[11px] font-bold text-slate-500 uppercase">Opening Float</span>
                 <div className="text-lg font-black text-slate-900 mt-1">₹{activeShift.opening_cash || 0}</div>
               </div>
 
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+              <div className="bg-white p-4 rounded-md border border-slate-200 shadow-2xs">
                 <span className="text-[11px] font-bold text-emerald-600 uppercase">Cash Sales</span>
                 <div className="text-lg font-black text-emerald-600 mt-1">₹{metrics.cashSales || 0}</div>
               </div>
 
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] font-bold text-purple-600 uppercase">UPI / QR Sales</span>
-                <div className="text-lg font-black text-purple-600 mt-1">₹{metrics.upiSales || 0}</div>
+              <div className="bg-white p-4 rounded-md border border-slate-200 shadow-2xs">
+                <span className="text-[11px] font-bold text-slate-700 uppercase">UPI / QR Sales</span>
+                <div className="text-lg font-black text-slate-900 mt-1">₹{metrics.upiSales || 0}</div>
               </div>
 
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] font-bold text-blue-600 uppercase">Expected in Drawer</span>
-                <div className="text-lg font-black text-blue-600 mt-1">₹{metrics.expectedCash || 0}</div>
+              <div className="bg-white p-4 rounded-md border border-slate-200 shadow-2xs">
+                <span className="text-[11px] font-bold text-slate-700 uppercase">Expected in Drawer</span>
+                <div className="text-lg font-black text-slate-900 mt-1">₹{metrics.expectedCash || 0}</div>
               </div>
             </div>
 
             {/* Shift Close Form */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="bg-white rounded-md border border-slate-200 p-6 shadow-2xs space-y-6">
               <div>
                 <h2 className="text-base font-black text-slate-900">Close Current Shift (Z-Reading)</h2>
                 <p className="text-xs text-slate-500">
@@ -308,18 +301,29 @@ export default function ShiftManagementPage() {
                       value={closingCash}
                       onChange={(e) => setClosingCash(parseFloat(e.target.value) || 0)}
                       required
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-base font-black text-slate-900 focus:outline-none focus:border-blue-600"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-md px-4 py-2.5 text-base font-black text-slate-900 focus:outline-none focus:border-[#C3A27C]"
                     />
                   </div>
 
-                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex flex-col justify-center">
+                  <div className="bg-slate-50 p-3 rounded-md border border-slate-200 flex flex-col justify-center">
                     <span className="text-[11px] font-bold text-slate-500">Drawer Reconciliation:</span>
-                    <div className={`text-base font-black mt-0.5 ${cashDifference >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {cashDifference === 0
-                        ? '✅ Perfect Match (₹0 Variance)'
-                        : cashDifference > 0
-                        ? `🟢 Surplus: +₹${cashDifference}`
-                        : `🔴 Shortage: -₹${Math.abs(cashDifference)}`}
+                    <div className={`text-base font-black mt-0.5 flex items-center gap-1.5 ${cashDifference >= 0 ? (cashDifference === 0 ? 'text-emerald-600' : 'text-emerald-600') : 'text-rose-600'}`}>
+                      {cashDifference === 0 ? (
+                        <>
+                          <span className="material-symbols-outlined text-lg">check_circle</span>
+                          <span>Perfect Match (₹0 Variance)</span>
+                        </>
+                      ) : cashDifference > 0 ? (
+                        <>
+                          <span className="material-symbols-outlined text-lg">trending_up</span>
+                          <span>Surplus: +₹{cashDifference}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-lg">trending_down</span>
+                          <span>Shortage: -₹{Math.abs(cashDifference)}</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -331,7 +335,7 @@ export default function ShiftManagementPage() {
                     value={closingNotes}
                     onChange={(e) => setClosingNotes(e.target.value)}
                     placeholder="e.g. ₹200 paid to supplier for ice, petty cash voucher #12"
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-md p-3 text-xs text-slate-900 focus:outline-none focus:border-[#C3A27C]"
                   />
                 </div>
 
@@ -339,7 +343,7 @@ export default function ShiftManagementPage() {
                   <button
                     type="button"
                     onClick={() => router.push('/staff/pos')}
-                    className="flex-1 py-3 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 cursor-pointer"
+                    className="flex-1 py-3 rounded-md border border-slate-300 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 cursor-pointer transition-colors"
                   >
                     Keep Shift Open &amp; Go to POS
                   </button>
@@ -347,7 +351,7 @@ export default function ShiftManagementPage() {
                   <button
                     type="submit"
                     disabled={closingSubmitting}
-                    className="flex-1 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                    className="flex-1 py-3 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-black shadow-sm cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 transition-colors"
                   >
                     {closingSubmitting ? (
                       <span>Reconciling...</span>

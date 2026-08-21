@@ -93,24 +93,24 @@ export default function StaffOrderHistoryPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6 select-none font-sans">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
         <div>
-          <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <span className="material-symbols-outlined text-blue-600 text-[22px]">history</span>
-            Completed Bills & Sales Ledger
+          <h1 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <span className="material-symbols-outlined text-slate-900 text-[22px]">history</span>
+            Bill History & Sales
           </h1>
-          <p className="text-xs text-slate-500 font-bold">
-            All bills stored locally on laptop with timestamp tracking & daily automated PDF report backup
+          <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+            Past receipts, EOD reports & daily automated PDF backup
           </p>
         </div>
 
         <button
           onClick={handleSendDailyPdfReport}
           disabled={emailSending}
-          className="py-2 px-4 bg-black hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs rounded-md shadow-xs transition-colors cursor-pointer flex items-center gap-2"
+          className="py-2 px-4 bg-[#C3A27C] hover:bg-[#B3926C] disabled:opacity-50 text-slate-950 font-bold text-xs rounded-md shadow-2xs transition-colors cursor-pointer flex items-center gap-2 border border-[#B2906A]"
         >
           <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-          {emailSending ? 'Generating Report...' : 'Email Daily PDF Report to Owner'}
+          {emailSending ? 'Generating...' : 'Email EOD Report'}
         </button>
       </div>
 
