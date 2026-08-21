@@ -35,7 +35,27 @@ export default function StaffKitchenPage() {
   const [orders, setOrders] = useState<KOTOrder[]>([]);
   const [now, setNow] = useState(new Date());
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState<boolean>(false);
+  const [activeStation, setActiveStation] = useState<string>('All Stations');
+  const [isSoundEnabled, setIsSoundEnabled] = useState<boolean>(true);
+  
   const prevCountRef = useRef<number>(0);
+  const isSoundEnabledRef = useRef<boolean>(true);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('chatchaska_kds_sound');
+    if (saved !== null) {
+      const val = saved === 'true';
+      setIsSoundEnabled(val);
+      isSoundEnabledRef.current = val;
+    }
+  }, []);
+
+  const toggleSound = () => {
+    const newVal = !isSoundEnabled;
+    setIsSoundEnabled(newVal);
+    isSoundEnabledRef.current = newVal;
+    localStorage.setItem('chatchaska_kds_sound', String(newVal));
+  };
 
   const fetchOrders = async () => {
     try {
@@ -48,7 +68,9 @@ export default function StaffKitchenPage() {
         );
 
         if (prevCountRef.current > 0 && activeOnly.length > prevCountRef.current) {
-          playChime();
+          if (isSoundEnabledRef.current) {
+            playChime();
+          }
         }
         prevCountRef.current = activeOnly.length;
         setOrders(activeOnly);
@@ -111,6 +133,10 @@ export default function StaffKitchenPage() {
     return digits ? digits : num;
   };
 
+  const isDrink = (name: string) => ['chai', 'coffee', 'shake', 'mojito', 'soda'].some(k => name.toLowerCase().includes(k));
+  const isDessert = (name: string) => ['ice cream', 'brownie', 'cake'].some(k => name.toLowerCase().includes(k));
+  const isFood = (name: string) => !isDrink(name) && !isDessert(name);
+
   // Flatten active orders into continuation tickets
   const displayTickets = useMemo(() => {
     const tickets: {
@@ -123,18 +149,28 @@ export default function StaffKitchenPage() {
     }[] = [];
 
     orders.forEach((ord) => {
-      if ((ord.items || []).length <= MAX_ITEMS_PER_CARD) {
+      const filteredItems = (ord.items || []).filter(item => {
+        if (activeStation === 'All Stations') return true;
+        if (activeStation === 'Drinks & Beverages') return isDrink(item.name);
+        if (activeStation === 'Desserts & Bakery') return isDessert(item.name);
+        if (activeStation === 'Food / Kitchen') return isFood(item.name);
+        return true;
+      });
+
+      if (filteredItems.length === 0) return;
+
+      if (filteredItems.length <= MAX_ITEMS_PER_CARD) {
         tickets.push({
           orderId: ord.id,
           tableNumber: ord.tableNumber,
           status: ord.status,
           createdAt: ord.createdAt,
-          items: ord.items || [],
+          items: filteredItems,
         });
       } else {
-        const totalParts = Math.ceil(ord.items.length / MAX_ITEMS_PER_CARD);
+        const totalParts = Math.ceil(filteredItems.length / MAX_ITEMS_PER_CARD);
         for (let p = 0; p < totalParts; p++) {
-          const chunk = ord.items.slice(p * MAX_ITEMS_PER_CARD, (p + 1) * MAX_ITEMS_PER_CARD);
+          const chunk = filteredItems.slice(p * MAX_ITEMS_PER_CARD, (p + 1) * MAX_ITEMS_PER_CARD);
           tickets.push({
             orderId: ord.id,
             tableNumber: ord.tableNumber,
@@ -148,7 +184,7 @@ export default function StaffKitchenPage() {
     });
 
     return tickets;
-  }, [orders]);
+  }, [orders, activeStation]);
 
   const visibleTickets = displayTickets;
 
@@ -172,12 +208,21 @@ export default function StaffKitchenPage() {
           </div>
         </div>
 
-        {/* Center: Active Tickets Counter Badge */}
+        {/* Center: Active Tickets Counter Badge & Sound Toggle */}
         <div className="flex items-center gap-2">
           <span className="bg-neutral-900 border border-neutral-700 text-amber-400 text-xs font-mono font-bold px-3.5 py-1.5 rounded-md tracking-wider flex items-center gap-2 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
             <span>{displayTickets.length} ACTIVE TICKETS</span>
           </span>
+          <button 
+            onClick={toggleSound}
+            className="w-8 h-8 rounded-md hover:bg-neutral-900 flex items-center justify-center text-neutral-400 hover:text-white transition-all cursor-pointer border border-neutral-800"
+            title={isSoundEnabled ? "Mute Sound" : "Enable Sound"}
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              {isSoundEnabled ? 'volume_up' : 'volume_off'}
+            </span>
+          </button>
         </div>
 
         {/* Right: POS Quick Button + Right Navigation Drawer Trigger */}
@@ -203,6 +248,23 @@ export default function StaffKitchenPage() {
           </button>
         </div>
       </header>
+
+      {/* Station Filtering Tabs */}
+      <div className="bg-[#1a1a1a] border-b border-neutral-800 px-5 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 h-12 font-sans">
+        {['All Stations', 'Food / Kitchen', 'Drinks & Beverages', 'Desserts & Bakery'].map(station => (
+          <button
+            key={station}
+            onClick={() => setActiveStation(station)}
+            className={`px-4 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-colors ${
+              activeStation === station
+                ? 'bg-[#C3A27C] text-slate-950'
+                : 'bg-transparent text-neutral-400 hover:text-white border border-neutral-700 hover:border-neutral-500'
+            }`}
+          >
+            {station}
+          </button>
+        ))}
+      </div>
 
       {/* 2. GRID OF KITCHEN TICKETS (Full Height, No Second Subheader Line!) */}
       <div className="p-3 flex-1 overflow-y-auto no-scrollbar">

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { AdminMobileNav } from '@/components/layout/AdminMobileNav';
+import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { cn } from '@/lib/utils';
 
 interface AccessInfo {
@@ -111,6 +112,7 @@ export default function AdminPortalLayout({ children }: { children: React.ReactN
         <main className="flex-1 w-full">{children}</main>
       </div>
     </div>
+    <OfflineBanner />
     </>
   );
 }
