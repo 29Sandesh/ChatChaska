@@ -78,7 +78,7 @@ export default function AdminGSTSettingsPage() {
         <p className="text-xs text-slate-500 font-medium">Configure your cafe's GST number, UPI QR payment ID, and owner contact details</p>
       </div>
 
-      <form onSubmit={handleSave} className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
+      <form onSubmit={handleSave} className="bg-white border border-slate-200 rounded-md p-6 space-y-4 shadow-sm">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-600 mb-1">GST Number (GSTIN)</label>
@@ -87,7 +87,7 @@ export default function AdminGSTSettingsPage() {
               value={gstin}
               placeholder="e.g. 27AABCM1234A1Z5"
               onChange={(e) => setGstin(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono font-bold text-slate-900"
+              className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs font-mono font-bold text-slate-900"
             />
           </div>
 
@@ -98,7 +98,7 @@ export default function AdminGSTSettingsPage() {
               value={fssai}
               placeholder="e.g. 11521001000123"
               onChange={(e) => setFssai(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono font-bold text-slate-900"
+              className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs font-mono font-bold text-slate-900"
             />
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function AdminGSTSettingsPage() {
             placeholder="e.g. paytmqr6z1f01@ptys or restaurant@okicici"
             value={upiId}
             onChange={(e) => setUpiId(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono font-bold text-blue-700"
+            className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs font-mono font-bold text-blue-700"
           />
           <p className="text-[11px] text-slate-400 mt-1">Customers will scan this UPI QR code on the POS screen to pay their bills.</p>
         </div>
@@ -123,7 +123,7 @@ export default function AdminGSTSettingsPage() {
               value={ownerPhone}
               placeholder="e.g. 9876543210"
               onChange={(e) => setOwnerPhone(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-bold text-slate-900"
+              className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs font-bold text-slate-900"
             />
           </div>
 
@@ -134,7 +134,7 @@ export default function AdminGSTSettingsPage() {
               value={ownerEmail}
               placeholder="e.g. owner@gmail.com"
               onChange={(e) => setOwnerEmail(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-medium text-slate-900"
+              className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs font-medium text-slate-900"
             />
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function AdminGSTSettingsPage() {
               step="0.1"
               value={cgstRate}
               onChange={(e) => setCgstRate(Number(e.target.value))}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-bold text-slate-900"
+              className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs font-bold text-slate-900"
             />
           </div>
 
@@ -158,7 +158,7 @@ export default function AdminGSTSettingsPage() {
               step="0.1"
               value={sgstRate}
               onChange={(e) => setSgstRate(Number(e.target.value))}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-bold text-slate-900"
+              className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs font-bold text-slate-900"
             />
           </div>
         </div>
@@ -166,13 +166,13 @@ export default function AdminGSTSettingsPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold py-3 rounded-xl text-xs shadow-sm mt-4 transition-all active:scale-95"
+          className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] disabled:opacity-50 text-white font-extrabold py-3 rounded-md text-xs shadow-sm mt-4 transition-all active:scale-95"
         >
           {loading ? 'Saving Settings...' : 'Save Settings'}
         </button>
 
         {saved && (
-          <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-xl text-center">
+          <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-md text-center">
             Settings Saved Successfully!
           </div>
         )}

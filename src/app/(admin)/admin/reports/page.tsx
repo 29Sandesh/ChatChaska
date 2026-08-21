@@ -163,7 +163,7 @@ export default function OwnerReportsPage() {
 
           <button
             onClick={handleExportCSV}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            className="bg-[#C3A27C] hover:bg-blue-700 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95"
           >
             <span className="material-symbols-outlined text-[16px]">download</span>
             Download CSV
@@ -173,25 +173,25 @@ export default function OwnerReportsPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
+        <div className="p-4 bg-white border border-slate-200 rounded-md shadow-sm">
           <span className="text-xs text-slate-500 font-bold uppercase block">Total Earnings</span>
-          <div className="text-2xl font-black text-blue-600 mt-1">₹{summary.netRevenue}</div>
+          <div className="text-2xl font-black text-slate-900 mt-1">₹{summary.netRevenue}</div>
           <span className="text-[11px] text-slate-400 mt-1 block font-medium">Gross: ₹{summary.grossSales}</span>
         </div>
 
-        <div className="p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
+        <div className="p-4 bg-white border border-slate-200 rounded-md shadow-sm">
           <span className="text-xs text-slate-500 font-bold uppercase block">Completed Bills</span>
           <div className="text-2xl font-black text-slate-900 mt-1">{summary.totalBills}</div>
           <span className="text-[11px] text-slate-400 mt-1 block font-medium">Average Bill: ₹{summary.avgTicket}</span>
         </div>
 
-        <div className="p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
+        <div className="p-4 bg-white border border-slate-200 rounded-md shadow-sm">
           <span className="text-xs text-slate-500 font-bold uppercase block">Tax Collected (GST)</span>
           <div className="text-2xl font-black text-amber-600 mt-1">₹{summary.totalTax}</div>
           <span className="text-[11px] text-slate-400 mt-1 block font-medium">5% total GST</span>
         </div>
 
-        <div className="p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
+        <div className="p-4 bg-white border border-slate-200 rounded-md shadow-sm">
           <span className="text-xs text-slate-500 font-bold uppercase block">Discounts Given</span>
           <div className="text-2xl font-black text-rose-600 mt-1">₹{summary.totalDiscounts}</div>
           <span className="text-[11px] text-slate-400 mt-1 block font-medium">Promotional savings</span>
@@ -199,7 +199,7 @@ export default function OwnerReportsPage() {
       </div>
 
       {/* Bills Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm">
         <div className="p-4 border-b border-slate-100 font-bold text-sm text-slate-900 flex justify-between items-center">
           <span>All Completed Receipts ({bills.length})</span>
           <span className="text-xs text-slate-400 font-normal">Click any row to view full receipt</span>
@@ -228,7 +228,7 @@ export default function OwnerReportsPage() {
                   <tr
                     key={b.id}
                     onClick={() => handleRowClick(b)}
-                    className="hover:bg-blue-50/50 cursor-pointer transition-colors"
+                    className="hover:bg-[#C3A27C]/20/50 cursor-pointer transition-colors"
                   >
                     <td className="p-3 font-mono font-bold text-slate-900">{b.id}</td>
                     <td className="p-3 font-semibold">{b.tableNumber}</td>
@@ -236,9 +236,9 @@ export default function OwnerReportsPage() {
                     <td className="p-3 uppercase font-bold text-amber-600">{b.paymentMode}</td>
                     <td className="p-3">₹{b.subtotal}</td>
                     <td className="p-3">₹{b.gstAmount || 0}</td>
-                    <td className="p-3 font-bold text-blue-600">₹{b.grandTotal}</td>
+                    <td className="p-3 font-bold text-slate-900">₹{b.grandTotal}</td>
                     <td className="p-3 text-right">
-                      <span className="text-slate-400 hover:text-blue-600">
+                      <span className="text-slate-400 hover:text-slate-900">
                         <span className="material-symbols-outlined text-[18px]">receipt_long</span>
                       </span>
                     </td>

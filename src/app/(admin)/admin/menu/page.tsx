@@ -272,7 +272,7 @@ export default function MenuManagerPage() {
     <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-5 select-none">
       {/* Toast Notification */}
       {toastMsg && (
-        <div className="fixed top-5 right-5 z-50 bg-slate-900 text-white font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 border border-slate-700 text-xs">
+        <div className="fixed top-5 right-5 z-50 bg-slate-900 font-bold px-4 py-3 rounded-md shadow-2xl flex items-center gap-2 border border-slate-700 text-xs">
           <span>✨</span> {toastMsg}
         </div>
       )}
@@ -289,7 +289,7 @@ export default function MenuManagerPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsCatModalOpen(true)}
-            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">folder</span>
             Manage Categories
@@ -297,7 +297,7 @@ export default function MenuManagerPage() {
 
           <button
             onClick={handleOpenAddModal}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer"
+            className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-white font-extrabold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">add</span>
             + Add Dish
@@ -306,9 +306,9 @@ export default function MenuManagerPage() {
       </div>
 
       {/* Minimal AI Menu Scanner Bar */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="bg-white border border-slate-200/80 rounded-md p-4 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
+          <div className="w-10 h-10 rounded-md bg-blue-50 text-slate-900 flex items-center justify-center text-xl shrink-0">
             📸
           </div>
           <div>
@@ -337,7 +337,7 @@ export default function MenuManagerPage() {
           />
           <label
             htmlFor="menu-photo-upload"
-            className={`cursor-pointer bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 ${
+            className={`cursor-pointer bg-slate-900 hover:bg-slate-800 font-bold px-4 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 ${
               isScanning ? 'opacity-50 pointer-events-none' : ''
             }`}
           >
@@ -357,7 +357,7 @@ export default function MenuManagerPage() {
       </div>
 
       {scanResult && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center justify-between animate-in fade-in">
+        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-md text-xs font-bold flex items-center justify-between animate-in fade-in">
           <div className="flex items-center gap-2">
             <span>✅</span>
             <span>{scanResult.message}</span>
@@ -372,8 +372,8 @@ export default function MenuManagerPage() {
       )}
 
       {/* Search & Category Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs">
-        <div className="w-full sm:w-64 flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-white p-3 rounded-md border border-slate-200/80 shadow-2xs">
+        <div className="w-full sm:w-64 flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
           <span className="material-symbols-outlined text-slate-400 text-[18px]">search</span>
           <input
             type="text"
@@ -388,9 +388,9 @@ export default function MenuManagerPage() {
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto py-0.5">
           <button
             onClick={() => setSelectedCategory('ALL')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all shrink-0 ${
               selectedCategory === 'ALL'
-                ? 'bg-blue-600 text-white shadow-2xs'
+                ? 'bg-[#C3A27C] text-white shadow-2xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -402,9 +402,9 @@ export default function MenuManagerPage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
                   selectedCategory === cat.id
-                    ? 'bg-blue-600 text-white shadow-2xs'
+                    ? 'bg-[#C3A27C] text-white shadow-2xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -424,7 +424,7 @@ export default function MenuManagerPage() {
       </div>
 
       {/* Menu Items Table */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-2xs">
+      <div className="bg-white border border-slate-200/80 rounded-md overflow-hidden shadow-2xs">
         <div className="p-3.5 border-b border-slate-100 font-bold text-xs text-slate-900 flex justify-between items-center">
           <span>Showing {filteredItems.length} dishes</span>
           <span className="text-[11px] text-slate-400 font-normal">Categories auto-managed by AI</span>
@@ -477,7 +477,7 @@ export default function MenuManagerPage() {
                         {categories.find((c) => c.id === item.category)?.name || item.category}
                       </span>
                     </td>
-                    <td className="p-3 font-black text-blue-600">₹{item.price}</td>
+                    <td className="p-3 font-black text-slate-900">₹{item.price}</td>
                     <td className="p-3">
                       <button
                         onClick={() => handleToggleItemAvailable(item)}
@@ -499,7 +499,7 @@ export default function MenuManagerPage() {
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => handleOpenEditModal(item)}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-[#C3A27C]/20 rounded-lg transition-colors"
                           title="Edit Dish"
                         >
                           <span className="material-symbols-outlined text-[16px]">edit</span>
@@ -524,7 +524,7 @@ export default function MenuManagerPage() {
       {/* ADD / EDIT DISH MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl space-y-4 border border-slate-200 animate-in fade-in zoom-in duration-150">
+          <div className="bg-white rounded-md p-6 w-full max-w-md shadow-2xl space-y-4 border border-slate-200 animate-in fade-in zoom-in duration-150">
             <div className="flex justify-between items-center pb-3 border-b border-slate-100">
               <h3 className="font-black text-slate-900 text-base">
                 {editingItem ? '✏️ Edit Menu Dish' : '➕ Add Menu Dish'}
@@ -546,7 +546,7 @@ export default function MenuManagerPage() {
                   placeholder="e.g. Paneer Butter Masala"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 focus:border-blue-600 outline-none font-medium text-slate-900 text-xs"
+                  className="w-full p-2.5 rounded-md border border-slate-300 focus:border-[#C3A27C] outline-none font-medium text-slate-900 text-xs"
                 />
               </div>
 
@@ -556,7 +556,7 @@ export default function MenuManagerPage() {
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-300 focus:border-blue-600 outline-none font-medium text-slate-900 text-xs"
+                    className="w-full p-2.5 rounded-md border border-slate-300 focus:border-[#C3A27C] outline-none font-medium text-slate-900 text-xs"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -574,14 +574,14 @@ export default function MenuManagerPage() {
                     min={0}
                     value={formPrice}
                     onChange={(e) => setFormPrice(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl border border-slate-300 focus:border-blue-600 outline-none font-black text-slate-900 text-xs"
+                    className="w-full p-2.5 rounded-md border border-slate-300 focus:border-[#C3A27C] outline-none font-black text-slate-900 text-xs"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block mb-1 text-slate-600">Dietary Type</label>
-                <div className="flex gap-4 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="flex gap-4 p-2.5 bg-slate-50 rounded-md border border-slate-200">
                   <label className="flex items-center gap-1.5 cursor-pointer">
                     <input
                       type="radio"
@@ -612,7 +612,7 @@ export default function MenuManagerPage() {
                   placeholder="Short description of the dish"
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 focus:border-blue-600 outline-none font-medium text-slate-900 text-xs"
+                  className="w-full p-2.5 rounded-md border border-slate-300 focus:border-[#C3A27C] outline-none font-medium text-slate-900 text-xs"
                 />
               </div>
 
@@ -620,13 +620,13 @@ export default function MenuManagerPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/2 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                  className="w-1/2 py-2.5 rounded-md border border-slate-300 font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="w-1/2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold shadow-sm active:scale-95 transition-all cursor-pointer"
+                  className="w-1/2 py-2.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-white font-extrabold shadow-sm active:scale-95 transition-all cursor-pointer"
                 >
                   {editingItem ? 'Update Dish' : 'Save Dish'}
                 </button>
@@ -639,7 +639,7 @@ export default function MenuManagerPage() {
       {/* CATEGORY MANAGER MODAL */}
       {isCatModalOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl space-y-4 border border-slate-200 animate-in fade-in zoom-in duration-150">
+          <div className="bg-white rounded-md p-6 w-full max-w-lg shadow-2xl space-y-4 border border-slate-200 animate-in fade-in zoom-in duration-150">
             <div className="flex justify-between items-center pb-3 border-b border-slate-100">
               <div>
                 <h3 className="font-black text-slate-900 text-base">📁 Manage Menu Categories</h3>
@@ -660,7 +660,7 @@ export default function MenuManagerPage() {
                 placeholder="Emoji (e.g. 🍕, ☕)"
                 value={newCatIcon}
                 onChange={(e) => setNewCatIcon(e.target.value)}
-                className="w-16 p-2 rounded-xl border border-slate-300 text-center text-sm outline-none focus:border-blue-600"
+                className="w-16 p-2 rounded-md border border-slate-300 text-center text-sm outline-none focus:border-[#C3A27C]"
               />
               <input
                 type="text"
@@ -668,11 +668,11 @@ export default function MenuManagerPage() {
                 placeholder="Category Name (e.g. Desserts)"
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
-                className="flex-1 p-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-900 outline-none focus:border-blue-600"
+                className="flex-1 p-2 rounded-md border border-slate-300 text-xs font-bold text-slate-900 outline-none focus:border-[#C3A27C]"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                className="px-4 py-2 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-white rounded-md text-xs font-bold shadow-xs cursor-pointer"
               >
                 + Add
               </button>
@@ -685,7 +685,7 @@ export default function MenuManagerPage() {
                 return (
                   <div
                     key={cat.id}
-                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-slate-50/50"
+                    className="flex items-center justify-between p-2.5 rounded-md border border-slate-200 bg-slate-50/50"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-base">{cat.icon || '🍽️'}</span>
@@ -712,7 +712,7 @@ export default function MenuManagerPage() {
               <button
                 type="button"
                 onClick={() => setIsCatModalOpen(false)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs cursor-pointer"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-md text-xs cursor-pointer"
               >
                 Done
               </button>

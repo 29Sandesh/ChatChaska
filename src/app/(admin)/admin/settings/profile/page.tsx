@@ -69,7 +69,7 @@ export default function AdminCafeProfilePage() {
 
   return (
     <div className="space-y-6 text-slate-900">
-      <div className="flex justify-between items-center bg-white border border-slate-200 p-6 rounded-3xl shadow-sm">
+      <div className="flex justify-between items-center bg-white border border-slate-200 p-6 rounded-md shadow-sm">
         <div>
           <h2 className="text-xl font-black">Public Discovery Profile</h2>
           <p className="text-xs text-slate-500 mt-1">
@@ -78,7 +78,7 @@ export default function AdminCafeProfilePage() {
         </div>
 
         {savedSuccess && (
-          <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold px-3 py-1.5 rounded-xl animate-in fade-in">
+          <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold px-3 py-1.5 rounded-md animate-in fade-in">
             ✅ Profile Updated Successfully!
           </span>
         )}
@@ -86,8 +86,8 @@ export default function AdminCafeProfilePage() {
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Basic Cafe Information */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-sm">
-          <h3 className="text-sm font-bold text-blue-600 flex items-center gap-2">
+        <div className="bg-white border border-slate-200 rounded-md p-6 space-y-4 shadow-sm">
+          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <span className="material-symbols-outlined text-base">storefront</span>
             <span>Cafe Branding & Details</span>
           </h3>
@@ -100,7 +100,7 @@ export default function AdminCafeProfilePage() {
                 value={profile.name}
                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                 required
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900"
+                className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-xs text-slate-900"
               />
             </div>
 
@@ -111,7 +111,7 @@ export default function AdminCafeProfilePage() {
                 value={profile.slug}
                 onChange={(e) => setProfile({ ...profile, slug: e.target.value })}
                 required
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900"
+                className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-xs text-slate-900"
               />
             </div>
           </div>
@@ -122,7 +122,7 @@ export default function AdminCafeProfilePage() {
               rows={2}
               value={profile.description}
               onChange={(e) => setProfile({ ...profile, description: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-500"
+              className="w-full bg-slate-50 border border-slate-200 rounded-md p-3 text-xs text-slate-900 placeholder-slate-500"
             />
           </div>
 
@@ -133,7 +133,7 @@ export default function AdminCafeProfilePage() {
               {(profile.cuisine_tags || []).map((tag: string) => (
                 <span
                   key={tag}
-                  className="bg-blue-600/10 text-blue-600 border border-blue-600/40 text-xs font-bold px-2.5 py-1 rounded-xl flex items-center gap-1.5"
+                  className="bg-[#C3A27C]/10 text-slate-900 border border-[#C3A27C]/40 text-xs font-bold px-2.5 py-1 rounded-md flex items-center gap-1.5"
                 >
                   <span>{tag}</span>
                   <button type="button" onClick={() => removeCuisineTag(tag)} className="hover:text-slate-900 cursor-pointer">
@@ -150,12 +150,12 @@ export default function AdminCafeProfilePage() {
                 onChange={(e) => setCuisineInput(e.target.value)}
                 placeholder="Add cuisine tag..."
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCuisineTag(); } }}
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900"
+                className="flex-1 bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs text-slate-900"
               />
               <button
                 type="button"
                 onClick={addCuisineTag}
-                className="bg-slate-50 hover:bg-slate-100 text-slate-800 px-3 py-2 rounded-xl text-xs font-bold cursor-pointer"
+                className="bg-slate-50 hover:bg-slate-100 text-slate-800 px-3 py-2 rounded-md text-xs font-bold cursor-pointer"
               >
                 Add
               </button>
@@ -170,7 +170,7 @@ export default function AdminCafeProfilePage() {
                 type="number"
                 value={profile.avg_cost_for_two}
                 onChange={(e) => setProfile({ ...profile, avg_cost_for_two: Number(e.target.value) })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900"
+                className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-xs text-slate-900"
               />
             </div>
 
@@ -190,8 +190,8 @@ export default function AdminCafeProfilePage() {
         </div>
 
         {/* Location & Contact */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-sm">
-          <h3 className="text-sm font-bold text-blue-600 flex items-center gap-2">
+        <div className="bg-white border border-slate-200 rounded-md p-6 space-y-4 shadow-sm">
+          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <span className="material-symbols-outlined text-base">location_on</span>
             <span>Location & Contact Details</span>
           </h3>
@@ -203,7 +203,7 @@ export default function AdminCafeProfilePage() {
                 type="text"
                 value={profile.address}
                 onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900"
+                className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-xs text-slate-900"
               />
             </div>
 
@@ -213,7 +213,7 @@ export default function AdminCafeProfilePage() {
                 type="text"
                 value={profile.city}
                 onChange={(e) => setProfile({ ...profile, city: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900"
+                className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-xs text-slate-900"
               />
             </div>
           </div>
@@ -225,7 +225,7 @@ export default function AdminCafeProfilePage() {
                 type="text"
                 value={profile.phone}
                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900"
+                className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-xs text-slate-900"
               />
             </div>
 
@@ -235,7 +235,7 @@ export default function AdminCafeProfilePage() {
                 type="text"
                 value={profile.whatsapp}
                 onChange={(e) => setProfile({ ...profile, whatsapp: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900"
+                className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-xs text-slate-900"
               />
             </div>
 
@@ -245,7 +245,7 @@ export default function AdminCafeProfilePage() {
                 type="url"
                 value={profile.google_maps_url}
                 onChange={(e) => setProfile({ ...profile, google_maps_url: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900"
+                className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-xs text-slate-900"
               />
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function AdminCafeProfilePage() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 text-slate-900 font-bold py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 hover:from-blue-700 text-slate-900 font-bold py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
         >
           <span className="material-symbols-outlined text-lg">save</span>
           <span>{saving ? 'Saving Changes...' : 'Save Public Profile'}</span>

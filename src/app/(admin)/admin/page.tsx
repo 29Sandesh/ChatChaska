@@ -137,14 +137,14 @@ export default function OwnerDashboardPage() {
         <div className="flex items-center gap-2.5">
           <Link
             href="/admin/menu"
-            className="bg-white hover:bg-slate-50 text-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 border border-slate-200 shadow-2xs transition-all active:scale-95"
+            className="bg-white hover:bg-slate-50 text-slate-700 font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 border border-slate-200 shadow-2xs transition-all active:scale-95"
           >
             <span className="material-symbols-outlined text-[16px] text-slate-500">restaurant_menu</span>
             Edit Menu
           </Link>
           <Link
             href="/staff/pos"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
+            className="bg-black hover:bg-slate-800 text-white font-extrabold px-4 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
           >
             <span className="material-symbols-outlined text-[16px]">point_of_sale</span>
             Open POS
@@ -154,14 +154,14 @@ export default function OwnerDashboardPage() {
 
       {/* Setup Wizard Incomplete Banner */}
       {!setupCompleted && (
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
+        <div className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md p-4 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
+            <div className="w-10 h-10 rounded-md bg-white/20 flex items-center justify-center text-xl shrink-0">
               🚀
             </div>
             <div>
               <h3 className="font-bold text-sm">Finish Setting Up Your Cafe Workspace</h3>
-              <p className="text-xs text-blue-100">
+              <p className="text-xs text-slate-800">
                 Configure your GST/FSSAI numbers, dining tables, and staff PINs in 2 minutes.
               </p>
             </div>
@@ -169,7 +169,7 @@ export default function OwnerDashboardPage() {
 
           <Link
             href="/admin/setup"
-            className="px-4 py-2 bg-white text-blue-600 hover:bg-blue-50 font-black rounded-xl text-xs shadow-xs shrink-0 transition-all cursor-pointer"
+            className="px-4 py-2 bg-white text-slate-950 hover:bg-[#B3926C] hover:text-slate-950 font-black rounded-md text-xs shadow-xs shrink-0 transition-all cursor-pointer"
           >
             Launch Setup Wizard →
           </Link>
@@ -178,22 +178,22 @@ export default function OwnerDashboardPage() {
 
       {/* Top Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="p-4.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-1.5">
+        <div className="p-4.5 bg-white border border-slate-200/80 rounded-md shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s Sales</span>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
-          <div className="text-2xl md:text-3xl font-black text-blue-600">₹{metrics.netRevenue}</div>
+          <div className="text-2xl md:text-3xl font-black text-slate-900">₹{metrics.netRevenue}</div>
           <div className="text-[11px] text-slate-400 font-medium truncate">From {metrics.totalBills} completed bills</div>
         </div>
 
-        <div className="p-4.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-1.5">
+        <div className="p-4.5 bg-white border border-slate-200/80 rounded-md shadow-2xs space-y-1.5">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Total Bills</span>
           <div className="text-2xl md:text-3xl font-black text-slate-900">{metrics.totalBills}</div>
           <div className="text-[11px] text-slate-400 font-medium">Avg Ticket: ₹{metrics.avgTicket}</div>
         </div>
 
-        <div className="p-4.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-1.5">
+        <div className="p-4.5 bg-white border border-slate-200/80 rounded-md shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Live Dining</span>
             <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">LIVE</span>
@@ -204,13 +204,13 @@ export default function OwnerDashboardPage() {
           <div className="text-[11px] text-slate-400 font-medium">Tables Occupied</div>
         </div>
 
-        <div className="p-4.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-1.5">
+        <div className="p-4.5 bg-white border border-slate-200/80 rounded-md shadow-2xs space-y-1.5">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">GST Collected</span>
           <div className="text-2xl md:text-3xl font-black text-amber-600">₹{metrics.totalTax}</div>
           <div className="text-[11px] text-slate-400 font-medium">CGST + SGST</div>
         </div>
 
-        <div className="p-4.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-1.5">
+        <div className="p-4.5 bg-white border border-slate-200/80 rounded-md shadow-2xs space-y-1.5">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Discounts</span>
           <div className="text-2xl md:text-3xl font-black text-rose-600">₹{metrics.totalDiscounts}</div>
           <div className="text-[11px] text-slate-400 font-medium">Promotional savings</div>
@@ -220,13 +220,13 @@ export default function OwnerDashboardPage() {
       {/* Middle Section: Top Dishes & Payment Modes */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Top Selling Dishes */}
-        <div className="lg:col-span-2 bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs space-y-3.5">
+        <div className="lg:col-span-2 bg-white border border-slate-200/80 rounded-md p-5 shadow-2xs space-y-3.5">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <span className="text-base">🔥</span>
               <h2 className="font-bold text-sm text-slate-900">Top Selling Dishes Today</h2>
             </div>
-            <Link href="/admin/menu" className="text-xs font-bold text-blue-600 hover:text-blue-700">
+            <Link href="/admin/menu" className="text-xs font-bold text-slate-900 hover:text-blue-700">
               View All Menu →
             </Link>
           </div>
@@ -255,7 +255,7 @@ export default function OwnerDashboardPage() {
                     </div>
                     <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                       <div
-                        className="bg-blue-600 h-full rounded-full transition-all duration-500"
+                        className="bg-[#C3A27C] h-full rounded-full transition-all duration-500"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -267,7 +267,7 @@ export default function OwnerDashboardPage() {
         </div>
 
         {/* Payment Modes Breakdown */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs space-y-4">
+        <div className="bg-white border border-slate-200/80 rounded-md p-5 shadow-2xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <span className="text-base">💳</span>
@@ -287,7 +287,7 @@ export default function OwnerDashboardPage() {
                 const isCash = (pm.payment_mode || '').toLowerCase() === 'cash';
 
                 return (
-                  <div key={idx} className="p-3 bg-slate-50 border border-slate-200/60 rounded-xl space-y-1.5">
+                  <div key={idx} className="p-3 bg-slate-50 border border-slate-200/60 rounded-md space-y-1.5">
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-extrabold uppercase tracking-wide text-slate-800 flex items-center gap-1.5">
                         <span>{isUpi ? '📱' : isCash ? '💵' : '💳'}</span>
@@ -301,7 +301,7 @@ export default function OwnerDashboardPage() {
                     </div>
                     <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full ${isUpi ? 'bg-blue-600' : isCash ? 'bg-emerald-600' : 'bg-purple-600'}`}
+                        className={`h-full rounded-full ${isUpi ? 'bg-[#C3A27C]' : isCash ? 'bg-emerald-600' : 'bg-purple-600'}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -314,13 +314,13 @@ export default function OwnerDashboardPage() {
       </div>
 
       {/* Bottom Section: Recent Completed Bills */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-2xs">
+      <div className="bg-white border border-slate-200/80 rounded-md overflow-hidden shadow-2xs">
         <div className="p-4 border-b border-slate-100 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="text-base">🧾</span>
             <h2 className="font-bold text-sm text-slate-900">Recent Bills Today</h2>
           </div>
-          <Link href="/admin/reports" className="text-xs font-bold text-blue-600 hover:text-blue-700">
+          <Link href="/admin/reports" className="text-xs font-bold text-slate-900 hover:text-blue-700">
             View All Sales →
           </Link>
         </div>
@@ -349,14 +349,14 @@ export default function OwnerDashboardPage() {
                   <tr
                     key={b.id}
                     onClick={() => handleRowClick(b)}
-                    className="hover:bg-blue-50/50 cursor-pointer transition-colors"
+                    className="hover:bg-[#C3A27C]/20 cursor-pointer transition-colors"
                   >
                     <td className="p-3 font-mono font-bold text-slate-800">#{b.tokenNumber || '01'}</td>
                     <td className="p-3 font-mono font-semibold text-slate-600">{b.id}</td>
                     <td className="p-3 font-medium">{b.tableNumber}</td>
                     <td className="p-3 text-slate-500">{b.waiterName}</td>
                     <td className="p-3 uppercase font-bold text-[11px] text-amber-600">{b.paymentMode}</td>
-                    <td className="p-3 font-black text-blue-600 text-right">₹{b.grandTotal}</td>
+                    <td className="p-3 font-black text-slate-900 text-right">₹{b.grandTotal}</td>
                   </tr>
                 ))
               )}

@@ -71,7 +71,7 @@ export default function AdminStaffPage() {
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6 select-none">
       {toastMsg && (
-        <div className="fixed top-5 right-5 z-50 bg-slate-900 text-white font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 border border-slate-700 text-xs">
+        <div className="fixed top-5 right-5 z-50 bg-slate-900 text-white font-bold px-4 py-3 rounded-md shadow-2xl flex items-center gap-2 border border-slate-700 text-xs">
           <span>✨</span> {toastMsg}
         </div>
       )}
@@ -82,7 +82,7 @@ export default function AdminStaffPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-md p-5 space-y-4 shadow-sm">
           <h2 className="font-bold text-sm text-slate-900">Active Staff List ({staff.length})</h2>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {staff.length === 0 ? (
@@ -93,13 +93,13 @@ export default function AdminStaffPage() {
               />
             ) : (
               staff.map((s) => (
-                <div key={s.id} className="flex justify-between items-center p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                <div key={s.id} className="flex justify-between items-center p-3 bg-slate-50 border border-slate-200 rounded-md text-xs">
                   <div>
                     <div className="font-bold text-slate-900 text-sm">{s.name}</div>
                     <div className="text-slate-500 font-medium">{s.role} {s.phone ? `• ${s.phone}` : ''}</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded font-mono font-bold text-[11px]">
+                    <span className="px-2 py-1 bg-slate-100 text-slate-800 rounded font-mono font-bold text-[11px]">
                       PIN: ••••
                     </span>
                     <button
@@ -109,14 +109,14 @@ export default function AdminStaffPage() {
                         await fetch('/api/staff', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...s, pin: newPin }) });
                         fetchStaff();
                       }}
-                      className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-1.5 bg-black text-white hover:bg-slate-800 rounded-md transition-colors"
                       title="Reset PIN"
                     >
                       <span className="material-symbols-outlined text-[18px]">key</span>
                     </button>
                     <button
                       onClick={() => handleEdit(s)}
-                      className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-[#C3A27C] hover:text-slate-950 rounded-lg transition-colors"
                       title="Edit Staff"
                     >
                       <span className="material-symbols-outlined text-[18px]">edit</span>
@@ -135,7 +135,7 @@ export default function AdminStaffPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSave} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+        <form onSubmit={handleSave} className="bg-white border border-slate-200 rounded-md p-5 space-y-4 shadow-sm">
           <div className="flex justify-between items-center">
             <h2 className="font-bold text-sm text-slate-900">
               {editingId ? 'Edit Staff Member' : 'Add New Staff Member'}
@@ -158,7 +158,7 @@ export default function AdminStaffPage() {
               value={name}
               placeholder="e.g. Rahul Sharma"
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-medium text-slate-900"
+              className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs font-medium text-slate-900"
               required
             />
           </div>
@@ -168,7 +168,7 @@ export default function AdminStaffPage() {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-bold text-slate-900"
+              className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs font-bold text-slate-900"
             >
               <option value="Cashier">Cashier</option>
               <option value="Waiter">Waiter</option>
@@ -185,7 +185,7 @@ export default function AdminStaffPage() {
               value={pin}
               placeholder="4 digits"
               onChange={(e) => setPin(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono font-bold tracking-widest text-slate-900"
+              className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs font-mono font-bold tracking-widest text-slate-900"
               required
             />
           </div>
@@ -197,13 +197,13 @@ export default function AdminStaffPage() {
               value={phone}
               placeholder="10-digit mobile number"
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium"
+              className="w-full bg-slate-50 border border-slate-300 rounded-md p-2.5 text-xs text-slate-900 font-medium"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3 rounded-xl text-xs shadow-sm transition-all active:scale-95"
+            className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] font-extrabold py-3 rounded-md text-xs shadow-sm transition-all active:scale-95"
           >
             {editingId ? 'Update Staff Member' : 'Save Staff Member'}
           </button>

@@ -159,10 +159,10 @@ export default function AdminQRCodesPage() {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 text-slate-900">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/80 border border-slate-200 p-6 rounded-3xl shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/80 border border-slate-200 p-6 rounded-md shadow-sm">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="material-symbols-outlined text-3xl text-blue-600">qr_code_2</span>
+            <span className="material-symbols-outlined text-3xl text-slate-900">qr_code_2</span>
             <h1 className="text-2xl font-black tracking-tight">QR Code Standee Manager</h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">
@@ -173,7 +173,7 @@ export default function AdminQRCodesPage() {
         <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-slate-50 hover:bg-slate-100 text-slate-800 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 border border-slate-200 cursor-pointer"
+            className="bg-slate-50 hover:bg-slate-100 text-slate-800 px-4 py-2.5 rounded-md font-semibold text-sm transition-all flex items-center gap-2 border border-slate-200 cursor-pointer"
           >
             <span className="material-symbols-outlined text-lg">add_circle</span>
             <span>Batch Add Tables</span>
@@ -182,7 +182,7 @@ export default function AdminQRCodesPage() {
           <button
             onClick={handleDownloadAllPDF}
             disabled={generating || tables.length === 0}
-            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            className="bg-black hover:bg-slate-800 text-white px-5 py-2.5 rounded-md font-bold text-sm shadow-sm transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
             <span>{generating ? 'Exporting PDF...' : 'Download All as PDF (A4)'}</span>
@@ -193,7 +193,7 @@ export default function AdminQRCodesPage() {
       {/* Template Selector Carousel */}
       <div className="space-y-3">
         <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-          <span className="material-symbols-outlined text-blue-600">palette</span>
+          <span className="material-symbols-outlined text-slate-900">palette</span>
           <span>Choose Standee Theme & Branding</span>
         </h2>
 
@@ -204,16 +204,16 @@ export default function AdminQRCodesPage() {
               <div
                 key={tmpl.id}
                 onClick={() => setSelectedTemplate(tmpl.id)}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer relative ${
+                className={`p-4 rounded-md border transition-all cursor-pointer relative ${
                   isSelected
-                    ? 'bg-slate-50 border-blue-600 ring-2 ring-blue-600/30'
+                    ? 'bg-slate-50 border-[#C3A27C] ring-2 ring-[#C3A27C]/30'
                     : 'bg-white border-slate-200 hover:border-slate-200 hover:bg-slate-50/50'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: tmpl.accentColor }} />
                   {isSelected && (
-                    <span className="text-[11px] font-bold bg-blue-600/10 text-blue-600 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-bold bg-[#C3A27C]/10 text-slate-900 px-2 py-0.5 rounded-full">
                       Active
                     </span>
                   )}
@@ -238,7 +238,7 @@ export default function AdminQRCodesPage() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="bg-white border border-slate-200 rounded-3xl h-80 animate-pulse" />
+              <div key={i} className="bg-white border border-slate-200 rounded-md h-80 animate-pulse" />
             ))}
           </div>
         ) : (
@@ -246,15 +246,15 @@ export default function AdminQRCodesPage() {
             {tables.map((table) => (
               <div
                 key={table.table_number}
-                className="bg-white border border-slate-200 rounded-3xl p-4 flex flex-col items-center shadow-sm hover:border-slate-200 transition-all group"
+                className="bg-white border border-slate-200 rounded-md p-4 flex flex-col items-center shadow-sm hover:border-slate-200 transition-all group"
               >
                 {/* Preview Image */}
-                <div className="w-full aspect-[3/4] bg-slate-50 rounded-2xl overflow-hidden mb-4 relative flex items-center justify-center p-2">
+                <div className="w-full aspect-[3/4] bg-slate-50 rounded-md overflow-hidden mb-4 relative flex items-center justify-center p-2">
                   {table.previewUrl ? (
                     <img
                       src={table.previewUrl}
                       alt={table.table_label}
-                      className="w-full h-full object-contain rounded-xl"
+                      className="w-full h-full object-contain rounded-md"
                     />
                   ) : (
                     <span className="material-symbols-outlined text-4xl text-slate-600 animate-spin">
@@ -272,7 +272,7 @@ export default function AdminQRCodesPage() {
 
                   <button
                     onClick={() => handleDownloadPNG(table)}
-                    className="bg-slate-50 hover:bg-blue-600 text-slate-800 hover:text-slate-900 p-2.5 rounded-xl transition-all cursor-pointer"
+                    className="bg-slate-50 hover:bg-[#C3A27C] text-slate-800 hover:text-slate-900 p-2.5 rounded-md transition-all cursor-pointer"
                     title="Download PNG"
                   >
                     <span className="material-symbols-outlined text-lg">download</span>
@@ -287,7 +287,7 @@ export default function AdminQRCodesPage() {
       {/* Batch Generator Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-100/70 backdrop-blur-xs">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-md w-full shadow-md space-y-5 text-slate-900">
+          <div className="bg-white border border-slate-200 rounded-md p-6 max-w-md w-full shadow-md space-y-5 text-slate-900">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-bold">Generate Table Range</h3>
               <button
@@ -305,7 +305,7 @@ export default function AdminQRCodesPage() {
                   type="text"
                   value={prefix}
                   onChange={(e) => setPrefix(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-sm"
                   placeholder="e.g. Table, Booth, Terrace"
                 />
               </div>
@@ -318,7 +318,7 @@ export default function AdminQRCodesPage() {
                     value={startTable}
                     onChange={(e) => setStartTable(Number(e.target.value))}
                     min={1}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-sm"
                   />
                 </div>
                 <div>
@@ -328,7 +328,7 @@ export default function AdminQRCodesPage() {
                     value={endTable}
                     onChange={(e) => setEndTable(Number(e.target.value))}
                     min={startTable}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-md px-3.5 py-2.5 text-sm"
                   />
                 </div>
               </div>
@@ -336,7 +336,7 @@ export default function AdminQRCodesPage() {
 
             <button
               onClick={handleGenerateBatch}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-slate-900 font-bold py-3 rounded-xl shadow-sm transition-all cursor-pointer"
+              className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold py-3 rounded-md shadow-sm transition-all cursor-pointer"
             >
               Generate Standees
             </button>

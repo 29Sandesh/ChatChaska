@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/Toast';
+import { StaffNavigationDrawer } from '@/components/layout/StaffNavigationDrawer';
 
 export default function ShiftManagementPage() {
   const router = useRouter();
@@ -27,6 +29,22 @@ export default function ShiftManagementPage() {
   const [closingNotes, setClosingNotes] = useState('');
   const [closingSubmitting, setClosingSubmitting] = useState(false);
   const [showZReport, setShowZReport] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState('');
+
+  useEffect(() => {
+    if (!activeShift?.created_at) return;
+    const tick = () => {
+      const start = new Date(activeShift.created_at).getTime();
+      const diff = Date.now() - start;
+      const hrs = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      setElapsedTime(hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`);
+    };
+    tick();
+    const id = setInterval(tick, 60000);
+    return () => clearInterval(id);
+  }, [activeShift?.created_at]);
 
   const loadShiftData = async () => {
     setLoading(true);
@@ -111,21 +129,59 @@ export default function ShiftManagementPage() {
   const cashDifference = Number(closingCash) - (metrics.expectedCash || 0);
 
   return (
-    <div className="p-4 w-full select-none font-sans">
-      <div className="max-w-3xl mx-auto space-y-5">
-        
-        {/* Simple Page Title */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-2xl text-slate-900">point_of_sale</span>
-            <h1 className="text-lg font-black text-slate-900">Shift &amp; Cash Drawer</h1>
-          </div>
-          {activeShift && !showZReport && (
-            <span className="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1 rounded-sm border border-slate-200">
-              {activeShift.cashier_name}
+    <div className="flex-1 flex flex-col h-full w-full select-none font-sans bg-slate-50 overflow-hidden">
+      {/* Custom Header */}
+      <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-4 shrink-0 shadow-2xs z-30 sticky top-0">
+        {/* Left: Logo */}
+        <div className="flex items-center gap-4 shrink-0">
+          <Link href="/staff/pos" className="flex items-center">
+            <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-8 w-auto max-w-[160px] object-contain drop-shadow-2xs" />
+          </Link>
+        </div>
+
+        {/* Center: Shift Status Badge */}
+        <div className="flex items-center gap-2">
+          {activeShift && !showZReport ? (
+            <>
+              <span className="px-2.5 py-1 rounded-sm bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Active • {activeShift.cashier_name}{elapsedTime ? ` • ${elapsedTime}` : ''}
+              </span>
+              <span className="px-2.5 py-1 rounded-sm bg-[#FAF7F2] text-slate-950 border border-[#C3A27C]/50 text-[11px] font-bold flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[14px]">payments</span>
+                ₹{metrics.totalSales || 0}
+              </span>
+            </>
+          ) : (
+            <span className="px-2.5 py-1 rounded-sm bg-slate-100 text-slate-500 border border-slate-200 text-[11px] font-bold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-slate-400" />
+              No Active Shift
             </span>
           )}
         </div>
+
+        {/* Right: POS + Menu */}
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/staff/pos"
+            className="px-3.5 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs border border-[#B2906A]"
+          >
+            <span className="material-symbols-outlined text-[16px]">point_of_sale</span>
+            <span>POS</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setIsDrawerOpen(true)}
+            className="w-9 h-9 rounded-md hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer border border-slate-200"
+            title="Navigation Menu"
+          >
+            <span className="material-symbols-outlined text-[22px]">menu</span>
+          </button>
+        </div>
+      </header>
+
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="max-w-3xl mx-auto space-y-5">
 
         {loading ? (
           <div className="bg-white p-12 rounded-md border border-slate-200 text-center space-y-2">
@@ -368,6 +424,8 @@ export default function ShiftManagementPage() {
           </div>
         )}
       </div>
+      </div>
+      <StaffNavigationDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </div>
   );
 }

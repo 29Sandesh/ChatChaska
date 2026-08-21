@@ -79,7 +79,7 @@ export function AdminSidebar({
       {!isCollapsed ? (
         <Link
           href="/staff/pos"
-          className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold text-xs shadow-sm hover:from-blue-700 hover:to-indigo-700 transition-all mb-4 group cursor-pointer"
+          className="flex items-center justify-between p-3 rounded-md bg-black text-white font-extrabold text-xs shadow-sm hover:bg-slate-900 transition-all mb-4 group cursor-pointer"
         >
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[20px]">point_of_sale</span>
@@ -90,7 +90,7 @@ export function AdminSidebar({
       ) : (
         <Link href="/staff/pos" className="flex justify-center mb-4 cursor-pointer">
           <div
-            className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 flex items-center justify-center font-bold transition-all border border-slate-200"
+            className="w-10 h-10 rounded-md bg-slate-100 hover:bg-black hover:text-white text-slate-700 flex items-center justify-center font-bold transition-all border border-slate-200"
             title="Open Staff POS"
           >
             <span className="material-symbols-outlined text-[20px]">point_of_sale</span>
@@ -108,9 +108,9 @@ export function AdminSidebar({
               href={item.href}
               className={cn(
                 'sidebar-link group flex items-center transition-all',
-                isCollapsed ? 'justify-center p-2.5 rounded-xl text-center' : 'gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold',
+                isCollapsed ? 'justify-center p-2.5 rounded-md text-center' : 'gap-3 px-3 py-2.5 rounded-md text-xs font-semibold',
                 isActive
-                  ? 'bg-blue-50 text-blue-600 font-bold border-l-4 border-blue-600'
+                  ? 'bg-[#C3A27C] text-slate-950 font-bold border-l-4 border-[#B2906A]'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               )}
               title={isCollapsed ? item.label : undefined}
@@ -118,7 +118,7 @@ export function AdminSidebar({
               <span
                 className={cn(
                   'material-symbols-outlined text-[20px]',
-                  isActive ? 'icon-filled text-blue-600' : 'text-slate-400 group-hover:text-slate-600 transition-colors'
+                  isActive ? 'icon-filled text-slate-950' : 'text-slate-400 group-hover:text-slate-600 transition-colors'
                 )}
               >
                 {item.icon}

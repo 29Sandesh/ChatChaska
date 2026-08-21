@@ -13,7 +13,10 @@ export function StaffNavbar() {
   const isCustomHeader =
     pathname === '/staff/pos' ||
     pathname === '/staff/orders' ||
-    pathname === '/staff/kitchen';
+    pathname === '/staff/kitchen' ||
+    pathname === '/staff/tables' ||
+    pathname === '/staff/history' ||
+    pathname === '/staff/shift';
 
   return (
     <>

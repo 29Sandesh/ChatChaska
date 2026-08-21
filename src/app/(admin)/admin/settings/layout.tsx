@@ -30,7 +30,7 @@ export default function AdminSettingsLayout({
               className={cn(
                 'flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap',
                 isActive
-                  ? 'border-blue-600 text-blue-600'
+                  ? 'border-[#C3A27C] text-slate-950 font-bold'
                   : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-600'
               )}
             >

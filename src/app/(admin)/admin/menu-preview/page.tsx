@@ -33,10 +33,10 @@ export default function AdminMenuPreviewPage() {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 text-slate-900">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white border border-slate-200 p-6 rounded-3xl shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white border border-slate-200 p-6 rounded-md shadow-sm">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="material-symbols-outlined text-3xl text-blue-600">visibility</span>
+            <span className="material-symbols-outlined text-3xl text-slate-900">visibility</span>
             <h1 className="text-2xl font-black tracking-tight">Customer Digital Menu Preview</h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">
@@ -46,11 +46,11 @@ export default function AdminMenuPreviewPage() {
 
         <div className="flex items-center gap-3 flex-wrap">
           {/* Device Switcher */}
-          <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1 gap-1">
+          <div className="flex items-center bg-slate-50 border border-slate-200 rounded-md p-1 gap-1">
             <button
               onClick={() => setDevice('mobile')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                device === 'mobile' ? 'bg-blue-600 text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                device === 'mobile' ? 'bg-[#C3A27C] text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               <span className="material-symbols-outlined text-base">smartphone</span>
@@ -59,8 +59,8 @@ export default function AdminMenuPreviewPage() {
 
             <button
               onClick={() => setDevice('tablet')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                device === 'tablet' ? 'bg-blue-600 text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                device === 'tablet' ? 'bg-[#C3A27C] text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               <span className="material-symbols-outlined text-base">tablet</span>
@@ -69,8 +69,8 @@ export default function AdminMenuPreviewPage() {
 
             <button
               onClick={() => setDevice('desktop')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                device === 'desktop' ? 'bg-blue-600 text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                device === 'desktop' ? 'bg-[#C3A27C] text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               <span className="material-symbols-outlined text-base">desktop_windows</span>
@@ -82,7 +82,7 @@ export default function AdminMenuPreviewPage() {
           <button
             onClick={handleSyncToCloud}
             disabled={syncing}
-            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 text-slate-900 font-bold px-4 py-2.5 rounded-md text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-base">cloud_sync</span>
             <span>{syncing ? 'Syncing...' : 'Sync Menu to Cloud'}</span>
@@ -91,13 +91,13 @@ export default function AdminMenuPreviewPage() {
       </div>
 
       {syncStatus && (
-        <div className="bg-white border border-slate-200 p-4 rounded-2xl text-xs font-semibold">
+        <div className="bg-white border border-slate-200 p-4 rounded-md text-xs font-semibold">
           {syncStatus}
         </div>
       )}
 
       {/* Frame Mockup Container */}
-      <div className="flex justify-center items-center py-6 bg-slate-50/80 border border-slate-200/80 rounded-3xl shadow-inner min-h-[720px] overflow-hidden">
+      <div className="flex justify-center items-center py-6 bg-slate-50/80 border border-slate-200/80 rounded-md shadow-inner min-h-[720px] overflow-hidden">
         <div
           className={`transition-all duration-300 bg-slate-100 rounded-[40px] p-3 shadow-md border-4 border-slate-200 relative overflow-hidden ${
             device === 'mobile'

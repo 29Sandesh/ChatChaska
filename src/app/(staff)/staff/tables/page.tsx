@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { StaffNavigationDrawer } from '@/components/layout/StaffNavigationDrawer';
 import { PaymentSettlementModal } from '@/components/pos/PaymentSettlementModal';
 import { ReceiptPreviewModal, type BillData } from '@/components/pos/ReceiptPreviewModal';
 import { useCafeConfig } from '@/hooks/useCafeConfig';
@@ -27,6 +28,7 @@ export default function StaffTablesPage() {
 
   const [tables, setTables] = useState<TableData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Add Table Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -214,145 +216,166 @@ export default function StaffTablesPage() {
   const freeCount = tables.filter((t) => t.status === 'free').length;
 
   return (
-    <div className="p-4 w-full space-y-6 select-none font-sans">
-      {/* Clean Minimal Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
-        <div className="flex items-center gap-3">
-          <h1 className="text-lg font-black text-slate-900 tracking-tight">Tables</h1>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded-sm bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px] text-rose-500">circle</span>
-              {occupiedCount} Occupied
-            </span>
-            <span className="px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px] text-emerald-500">circle</span>
-              {freeCount} Free
-            </span>
-          </div>
+    <div className="flex-1 flex flex-col h-full w-full select-none font-sans bg-slate-50 overflow-hidden">
+      {/* Custom Header */}
+      <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-4 shrink-0 shadow-2xs z-30 sticky top-0">
+        {/* Left: Logo */}
+        <div className="flex items-center gap-4 shrink-0">
+          <Link href="/staff/pos" className="flex items-center">
+            <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-8 w-auto max-w-[160px] object-contain drop-shadow-2xs" />
+          </Link>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        {/* Center: Status Badges */}
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-1 rounded-sm bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[12px] text-rose-500">circle</span>
+            {occupiedCount} Occupied
+          </span>
+          <span className="px-2.5 py-1 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[12px] text-emerald-500">circle</span>
+            {freeCount} Free
+          </span>
+        </div>
+
+        {/* Right: Add Table + POS + Menu */}
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => {
-              // Suggest next table number
               const nextNum = tables.length + 1;
               setNewTableNumber(`${nextNum}`);
               setIsAddModalOpen(true);
             }}
-            className="flex-1 sm:flex-none bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] rounded-md font-bold text-xs px-3.5 py-1.5 shadow-2xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+            className="px-3 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] rounded-md font-bold text-xs shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <span className="material-symbols-outlined text-base">add</span>
+            <span className="material-symbols-outlined text-[16px]">add</span>
             <span>Add Table</span>
           </button>
+          <Link
+            href="/staff/pos"
+            className="px-3.5 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs border border-[#B2906A]"
+          >
+            <span className="material-symbols-outlined text-[16px]">point_of_sale</span>
+            <span>POS</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setIsDrawerOpen(true)}
+            className="w-9 h-9 rounded-md hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer border border-slate-200"
+            title="Navigation Menu"
+          >
+            <span className="material-symbols-outlined text-[22px]">menu</span>
+          </button>
         </div>
-      </div>
+      </header>
 
-      {/* Table Grid (Only 2 High-Contrast States: Free vs Occupied) */}
-      {loading && tables.length === 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-            <div key={n} className="h-40 bg-slate-100 rounded-md animate-pulse" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {tables.map((table) => {
-            const isOccupied = table.status === 'occupied';
-            const pureNumber = table.name.replace(/\D/g, '') || table.name;
+      <div className="flex-1 overflow-y-auto p-4">
+        {/* Table Grid (Only 2 High-Contrast States: Free vs Occupied) */}
+        {loading && tables.length === 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+              <div key={n} className="h-40 bg-slate-100 rounded-md animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {tables.map((table) => {
+              const isOccupied = table.status === 'occupied';
+              const pureNumber = table.name.replace(/\D/g, '') || table.name;
 
-            return (
-              <div
-                key={table.id}
-                onClick={() => {
-                  if (isOccupied) {
-                    handleStartGenerateBill(table);
-                  } else {
-                    router.push(`/staff/pos?table=${encodeURIComponent(table.name)}`);
+              return (
+                <div
+                  key={table.id}
+                  onClick={() => {
+                    if (isOccupied) {
+                      handleStartGenerateBill(table);
+                    } else {
+                      router.push(`/staff/pos?table=${encodeURIComponent(table.name)}`);
+                    }
+                  }}
+                  className={
+                    isOccupied
+                      ? 'bg-[#FAF7F2] border-2 border-[#C3A27C] rounded-md p-4 h-40 flex flex-col justify-between shadow-xs cursor-pointer transition-all'
+                      : 'bg-white border border-slate-200 rounded-md p-4 h-40 flex flex-col justify-between shadow-2xs hover:border-[#C3A27C] transition-all cursor-pointer'
                   }
-                }}
-                className={
-                  isOccupied
-                    ? 'bg-[#FAF7F2] border-2 border-[#C3A27C] rounded-md p-4 h-40 flex flex-col justify-between shadow-xs cursor-pointer transition-all'
-                    : 'bg-white border border-slate-200 rounded-md p-4 h-40 flex flex-col justify-between shadow-2xs hover:border-[#C3A27C] transition-all cursor-pointer'
-                }
-              >
-                {/* Top Row: Table Name + Status Badge */}
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-black text-lg text-slate-900 tracking-tight">
-                      {pureNumber}
-                    </h3>
-                    <span className="text-[11px] font-medium text-slate-400">
-                      {table.seats} Seats
+                >
+                  {/* Top Row: Table Name + Status Badge */}
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-black text-lg text-slate-900 tracking-tight">
+                        {pureNumber}
+                      </h3>
+                      <span className="text-[11px] font-medium text-slate-400">
+                        {table.seats} Seats
+                      </span>
+                    </div>
+
+                    <span
+                      className={
+                        isOccupied
+                          ? 'px-2 py-0.5 rounded-sm bg-[#C3A27C] text-slate-950 text-[10px] font-bold flex items-center gap-1.5 shadow-xs'
+                          : 'px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold flex items-center gap-1.5'
+                      }
+                    >
+                      {isOccupied ? (
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      ) : (
+                        <span className="material-symbols-outlined text-[10px] text-emerald-500">circle</span>
+                      )}
+                      <span>{isOccupied ? 'OCCUPIED' : 'FREE'}</span>
                     </span>
                   </div>
 
-                  <span
-                    className={
-                      isOccupied
-                        ? 'px-2 py-0.5 rounded-sm bg-[#C3A27C] text-slate-950 text-[10px] font-bold flex items-center gap-1.5 shadow-xs'
-                        : 'px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold flex items-center gap-1.5'
-                    }
-                  >
+                  {/* Center Content */}
+                  <div>
                     {isOccupied ? (
-                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      <div className="space-y-0.5">
+                        <div className="text-xl font-black text-slate-950 tracking-tight">
+                          ₹{(table.totalAmount || 0).toLocaleString('en-IN')}
+                        </div>
+                        <div className="text-xs font-bold text-slate-600">
+                          {table.itemCount || 1} {table.itemCount === 1 ? 'item' : 'items'} ordered
+                        </div>
+                      </div>
                     ) : (
-                      <span className="material-symbols-outlined text-[10px] text-emerald-500">circle</span>
+                      <div className="text-xs font-medium text-slate-400">
+                        Ready for customers
+                      </div>
                     )}
-                    <span>{isOccupied ? 'OCCUPIED' : 'FREE'}</span>
-                  </span>
-                </div>
+                  </div>
 
-                {/* Center Content */}
-                <div>
-                  {isOccupied ? (
-                    <div className="space-y-0.5">
-                      <div className="text-xl font-black text-slate-950 tracking-tight">
-                        ₹{(table.totalAmount || 0).toLocaleString('en-IN')}
-                      </div>
-                      <div className="text-xs font-bold text-slate-600">
-                        {table.itemCount || 1} {table.itemCount === 1 ? 'item' : 'items'} ordered
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-xs font-medium text-slate-400">
-                      Ready for customers
-                    </div>
-                  )}
+                  {/* Bottom Action Button */}
+                  <div>
+                    {isOccupied ? (
+                      <button
+                        type="button"
+                        onClick={(e) => handleStartGenerateBill(table, e)}
+                        className="w-full py-2 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                      >
+                        <span className="material-symbols-outlined text-base">receipt_long</span>
+                        <span>Generate Bill</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/staff/pos?table=${encodeURIComponent(table.name)}`);
+                        }}
+                        className="w-full py-2 bg-white hover:bg-[#FAF7F2] border border-[#C3A27C]/50 text-slate-800 font-bold text-xs rounded-md transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-base">add</span>
+                        <span>Take Order</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-
-                {/* Bottom Action Button */}
-                <div>
-                  {isOccupied ? (
-                    <button
-                      type="button"
-                      onClick={(e) => handleStartGenerateBill(table, e)}
-                      className="w-full py-2 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-                    >
-                      <span className="material-symbols-outlined text-base">receipt_long</span>
-                      <span>Generate Bill</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/staff/pos?table=${encodeURIComponent(table.name)}`);
-                      }}
-                      className="w-full py-2 bg-white hover:bg-[#FAF7F2] border border-[#C3A27C]/50 text-slate-800 font-bold text-xs rounded-md transition-all flex items-center justify-center gap-1 cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-base">add</span>
-                      <span>Take Order</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Add Table Modal */}
       {isAddModalOpen && (
@@ -456,6 +479,8 @@ export default function StaffTablesPage() {
           billData={receiptData}
         />
       )}
+
+      <StaffNavigationDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </div>
   );
 }

@@ -62,7 +62,7 @@ export default function AdminReviewsPage() {
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 text-slate-900">
       {/* Header */}
-      <div className="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm flex justify-between items-center">
+      <div className="bg-white border border-slate-200 p-6 rounded-md shadow-sm flex justify-between items-center">
         <div>
           <div className="flex items-center gap-2.5">
             <span className="material-symbols-outlined text-3xl text-amber-500">rate_review</span>
@@ -73,7 +73,7 @@ export default function AdminReviewsPage() {
           </p>
         </div>
 
-        <div className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-2xl text-center">
+        <div className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-md text-center">
           <span className="text-xl font-black text-amber-500">⭐ {reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : '0.0'}</span>
           <span className="text-[11px] text-slate-500 block font-semibold">{reviews.length} total reviews</span>
         </div>
@@ -84,11 +84,11 @@ export default function AdminReviewsPage() {
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-white border border-slate-200 h-32 rounded-2xl animate-pulse" />
+              <div key={i} className="bg-white border border-slate-200 h-32 rounded-md animate-pulse" />
             ))}
           </div>
         ) : reviews.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
+          <div className="bg-white border border-slate-200 rounded-md p-6 shadow-xs">
             <EmptyState
               icon="reviews"
               title="No Customer Reviews Yet"
@@ -99,12 +99,12 @@ export default function AdminReviewsPage() {
           reviews.map((rev) => (
             <div
               key={rev.id}
-              className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3 hover:border-slate-200 transition-all"
+              className="bg-white border border-slate-200 rounded-md p-5 shadow-sm space-y-3 hover:border-slate-200 transition-all"
             >
               {/* Top Row: User & Rating */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 text-blue-600 font-bold text-sm flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 text-slate-900 font-bold text-sm flex items-center justify-center">
                     {rev.customer_name?.[0] || 'G'}
                   </div>
                   <div>
@@ -126,9 +126,9 @@ export default function AdminReviewsPage() {
 
               {/* Existing Owner Reply */}
               {rev.owner_reply && (
-                <div className="ml-12 bg-slate-50 border-l-2 border-blue-600 p-3.5 rounded-r-2xl space-y-1">
+                <div className="ml-12 bg-slate-50 border-l-2 border-[#C3A27C] p-3.5 rounded-r-2xl space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-blue-600">Your Official Response:</span>
+                    <span className="text-xs font-bold text-slate-900">Your Official Response:</span>
                     <span className="text-[10px] text-slate-500">
                       {rev.owner_replied_at ? new Date(rev.owner_replied_at).toLocaleDateString() : 'Replied'}
                     </span>
@@ -146,19 +146,19 @@ export default function AdminReviewsPage() {
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       placeholder="Write a polite response to this customer..."
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-500 focus:outline-hidden focus:border-blue-600"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-md p-3 text-xs text-slate-900 placeholder-slate-500 focus:outline-hidden focus:border-[#C3A27C]"
                     />
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => { setReplyingId(null); setReplyText(''); }}
-                        className="px-3 py-1.5 rounded-xl bg-slate-50 text-slate-500 hover:text-slate-800 text-xs font-bold"
+                        className="px-3 py-1.5 rounded-md bg-slate-50 text-slate-500 hover:text-slate-800 text-xs font-bold"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={() => handleSendReply(rev.id)}
                         disabled={submittingReply || !replyText.trim()}
-                        className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-slate-900 text-xs font-bold shadow-md disabled:opacity-50"
+                        className="px-4 py-1.5 rounded-md bg-gradient-to-r from-blue-600 to-blue-500 text-slate-900 text-xs font-bold shadow-md disabled:opacity-50"
                       >
                         {submittingReply ? 'Posting...' : 'Post Reply'}
                       </button>
@@ -168,7 +168,7 @@ export default function AdminReviewsPage() {
                   !rev.owner_reply && (
                     <button
                       onClick={() => { setReplyingId(rev.id); setReplyText(''); }}
-                      className="text-xs font-bold text-blue-600 hover:text-orange-300 flex items-center gap-1 cursor-pointer"
+                      className="text-xs font-bold text-slate-900 hover:text-[#B3926C] flex items-center gap-1 cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-sm">reply</span>
                       <span>Reply to Customer</span>

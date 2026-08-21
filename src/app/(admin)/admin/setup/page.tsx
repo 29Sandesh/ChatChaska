@@ -103,14 +103,14 @@ export default function SetupWizardPage() {
         {/* Header Branding */}
         <div className="text-center space-y-1">
           <div className="flex items-center justify-center gap-2">
-            <img src="/chaska-c-logo.png" alt="ChatChaska" className="w-9 h-9 rounded-xl shadow-xs" />
+            <img src="/chaska-c-logo.png" alt="ChatChaska" className="w-9 h-9 rounded-md shadow-xs" />
             <h1 className="text-2xl font-black text-slate-900">Welcome to ChatChaska</h1>
           </div>
           <p className="text-xs text-slate-500 font-medium">Let&apos;s get your cafe set up for billing and orders in 2 minutes.</p>
         </div>
 
         {/* Step Indicator */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-md border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between relative mb-2">
             {[
               { num: 1, label: 'Cafe Info' },
@@ -123,7 +123,7 @@ export default function SetupWizardPage() {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     step === s.num
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-100'
+                      ? 'bg-[#C3A27C] text-slate-950 ring-4 ring-[#C3A27C]/30'
                       : step > s.num
                       ? 'bg-emerald-600 text-white'
                       : 'bg-slate-100 text-slate-400 border border-slate-200'
@@ -133,7 +133,7 @@ export default function SetupWizardPage() {
                 </div>
                 <span
                   className={`text-[10px] font-bold hidden sm:block ${
-                    step === s.num ? 'text-blue-600' : 'text-slate-400'
+                    step === s.num ? 'text-slate-900' : 'text-slate-400'
                   }`}
                 >
                   {s.label}
@@ -144,14 +144,14 @@ export default function SetupWizardPage() {
 
           <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
             <div
-              className="bg-blue-600 h-full transition-all duration-300 ease-out"
+              className="bg-[#C3A27C] h-full transition-all duration-300 ease-out"
               style={{ width: `${(step / 5) * 100}%` }}
             />
           </div>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="bg-white rounded-md border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
           {/* STEP 1: CAFE DETAILS */}
           {step === 1 && (
             <div className="space-y-4 animate-in fade-in">
@@ -168,7 +168,7 @@ export default function SetupWizardPage() {
                     value={cafeName}
                     onChange={(e) => setCafeName(e.target.value)}
                     placeholder="e.g. Chai & Bites Cafe"
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 font-medium"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-md px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#C3A27C] font-medium"
                     required
                   />
                 </div>
@@ -181,7 +181,7 @@ export default function SetupWizardPage() {
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       placeholder="e.g. Pune"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 font-medium"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-md px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#C3A27C] font-medium"
                     />
                   </div>
 
@@ -192,7 +192,7 @@ export default function SetupWizardPage() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="e.g. 9876543210"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 font-medium"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-md px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#C3A27C] font-medium"
                     />
                   </div>
                 </div>
@@ -204,7 +204,7 @@ export default function SetupWizardPage() {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Shop No. 4, Main Market, MG Road..."
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-blue-600 font-medium"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-md p-3 text-xs text-slate-900 focus:outline-none focus:border-[#C3A27C] font-medium"
                   />
                 </div>
               </div>
@@ -228,7 +228,7 @@ export default function SetupWizardPage() {
                       value={gstin}
                       onChange={(e) => setGstin(e.target.value.toUpperCase())}
                       placeholder="27AABCM1234A1Z5"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 uppercase font-mono font-bold focus:outline-none focus:border-blue-600"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-md px-4 py-2.5 text-xs text-slate-900 uppercase font-mono font-bold focus:outline-none focus:border-[#C3A27C]"
                     />
                   </div>
 
@@ -239,7 +239,7 @@ export default function SetupWizardPage() {
                       value={fssai}
                       onChange={(e) => setFssai(e.target.value)}
                       placeholder="11521001000123"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 font-mono font-medium focus:outline-none focus:border-blue-600"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-md px-4 py-2.5 text-xs text-slate-900 font-mono font-medium focus:outline-none focus:border-[#C3A27C]"
                     />
                   </div>
                 </div>
@@ -251,13 +251,13 @@ export default function SetupWizardPage() {
                     value={upiId}
                     onChange={(e) => setUpiId(e.target.value)}
                     placeholder="e.g. yourcafe@okaxis or 9876543210@paytm"
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-blue-600"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-md px-4 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-[#C3A27C]"
                   />
                   <p className="text-[10px] text-slate-400 mt-1">This UPI ID is used when generating table QR pay codes.</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-1">
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <div className="bg-slate-50 p-3 rounded-md border border-slate-200">
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">CGST Rate (%)</label>
                     <input
                       type="number"
@@ -268,7 +268,7 @@ export default function SetupWizardPage() {
                     />
                   </div>
 
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <div className="bg-slate-50 p-3 rounded-md border border-slate-200">
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">SGST Rate (%)</label>
                     <input
                       type="number"
@@ -301,9 +301,9 @@ export default function SetupWizardPage() {
                       max={30}
                       value={tableCount}
                       onChange={(e) => setTableCount(parseInt(e.target.value, 10))}
-                      className="flex-1 accent-blue-600 cursor-pointer"
+                      className="flex-1 accent-[#C3A27C] cursor-pointer"
                     />
-                    <span className="text-sm font-black text-blue-600 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-xl min-w-16 text-center">
+                    <span className="text-sm font-black text-slate-950 bg-[#C3A27C] border border-[#B2906A] px-3 py-1.5 rounded-md min-w-16 text-center">
                       {tableCount} Tables
                     </span>
                   </div>
@@ -317,9 +317,9 @@ export default function SetupWizardPage() {
                         key={sec}
                         type="button"
                         onClick={() => toggleSection(sec)}
-                        className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                        className={`px-3 py-2 rounded-md text-xs font-bold transition-all cursor-pointer border ${
                           sections.includes(sec)
-                            ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                            ? 'bg-[#C3A27C] text-white border-[#C3A27C] shadow-xs'
                             : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                         }`}
                       >
@@ -341,15 +341,15 @@ export default function SetupWizardPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div className="p-4 rounded-2xl border-2 border-blue-200 bg-blue-50/50 space-y-2 text-center">
-                  <span className="material-symbols-outlined text-3xl text-blue-600">document_scanner</span>
-                  <h3 className="font-bold text-xs text-blue-900">Scan Menu Card with AI</h3>
+                <div className="p-4 rounded-md border-2 border-[#B2906A] bg-[#C3A27C]/20 space-y-2 text-center">
+                  <span className="material-symbols-outlined text-3xl text-slate-900">document_scanner</span>
+                  <h3 className="font-bold text-xs text-slate-900">Scan Menu Card with AI</h3>
                   <p className="text-[11px] text-slate-600">
                     Snap a photo of your paper menu; AI extracts all dish names, prices, and categories automatically.
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2 text-center">
+                <div className="p-4 rounded-md border border-slate-200 bg-slate-50 space-y-2 text-center">
                   <span className="material-symbols-outlined text-3xl text-slate-600">edit_note</span>
                   <h3 className="font-bold text-xs text-slate-900">Add Manually in Menu Tab</h3>
                   <p className="text-[11px] text-slate-500">
@@ -369,10 +369,10 @@ export default function SetupWizardPage() {
               </div>
 
               <div className="space-y-3">
-                <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
+                <div className="p-3.5 rounded-md border border-slate-200 bg-slate-50 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-xs text-slate-800">Owner Manager PIN</span>
-                    <span className="text-[10px] font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                    <span className="text-[10px] font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-300">
                       ADMIN
                     </span>
                   </div>
@@ -382,14 +382,14 @@ export default function SetupWizardPage() {
                     value={ownerPin}
                     onChange={(e) => setOwnerPin(e.target.value.replace(/\D/g, ''))}
                     placeholder="4-digit PIN (default 1234)"
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-center tracking-widest font-mono text-sm font-bold text-slate-900"
+                    className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-center tracking-widest font-mono text-sm font-bold text-slate-900"
                   />
                 </div>
 
-                <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
+                <div className="p-3.5 rounded-md border border-slate-200 bg-slate-50 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-xs text-slate-800">Cashier 1 PIN</span>
-                    <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                    <span className="text-[10px] font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-300">
                       CASHIER
                     </span>
                   </div>
@@ -399,7 +399,7 @@ export default function SetupWizardPage() {
                       value={cashierName}
                       onChange={(e) => setCashierName(e.target.value)}
                       placeholder="Cashier Name"
-                      className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900"
+                      className="bg-white border border-slate-300 rounded-md px-3 py-2 text-xs font-bold text-slate-900"
                     />
                     <input
                       type="password"
@@ -407,7 +407,7 @@ export default function SetupWizardPage() {
                       value={cashierPin}
                       onChange={(e) => setCashierPin(e.target.value.replace(/\D/g, ''))}
                       placeholder="4-digit PIN"
-                      className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-center tracking-widest font-mono text-sm font-bold text-slate-900"
+                      className="bg-white border border-slate-300 rounded-md px-3 py-2 text-center tracking-widest font-mono text-sm font-bold text-slate-900"
                     />
                   </div>
                 </div>
@@ -421,7 +421,7 @@ export default function SetupWizardPage() {
               <button
                 type="button"
                 onClick={handleBack}
-                className="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+                className="px-5 py-2.5 rounded-md border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 ← Back
               </button>
@@ -431,7 +431,7 @@ export default function SetupWizardPage() {
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+                className="px-6 py-2.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-bold transition-all shadow-sm cursor-pointer"
               >
                 Continue →
               </button>
@@ -440,7 +440,7 @@ export default function SetupWizardPage() {
                 type="button"
                 disabled={submitting}
                 onClick={handleCompleteSetup}
-                className="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white text-xs font-black transition-all shadow-md cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                className="px-8 py-3 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-black transition-all shadow-md cursor-pointer disabled:opacity-50 flex items-center gap-2"
               >
                 {submitting ? (
                   <span>Saving Configuration...</span>

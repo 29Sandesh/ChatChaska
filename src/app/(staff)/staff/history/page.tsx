@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Bill } from '@/types';
+import { StaffNavigationDrawer } from '@/components/layout/StaffNavigationDrawer';
 import { ReceiptPreviewModal, BillData } from '@/components/pos/ReceiptPreviewModal';
 import { useCafeConfig } from '@/hooks/useCafeConfig';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -13,6 +15,17 @@ export default function StaffOrderHistoryPage() {
   const [isReceiptOpen, setIsReceiptOpen] = useState<boolean>(false);
   const [emailSending, setEmailSending] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const todayRevenue = bills
+    .filter((b) => {
+      try {
+        const d = new Date(b.createdAt || '');
+        const today = new Date();
+        return d.toDateString() === today.toDateString();
+      } catch { return false; }
+    })
+    .reduce((sum, b) => sum + (b.grandTotal || 0), 0);
 
   useEffect(() => {
     fetch('/api/bills')
@@ -91,29 +104,57 @@ export default function StaffOrderHistoryPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6 select-none font-sans">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
-        <div>
-          <h1 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <span className="material-symbols-outlined text-slate-900 text-[22px]">history</span>
-            Bill History & Sales
-          </h1>
-          <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-            Past receipts, EOD reports & daily automated PDF backup
-          </p>
+    <div className="flex-1 flex flex-col h-full w-full select-none font-sans bg-slate-50 overflow-hidden">
+      {/* Custom Header */}
+      <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-4 shrink-0 shadow-2xs z-30 sticky top-0">
+        {/* Left: Logo */}
+        <div className="flex items-center gap-4 shrink-0">
+          <Link href="/staff/pos" className="flex items-center">
+            <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-8 w-auto max-w-[160px] object-contain drop-shadow-2xs" />
+          </Link>
         </div>
 
-        <button
-          onClick={handleSendDailyPdfReport}
-          disabled={emailSending}
-          className="py-2 px-4 bg-[#C3A27C] hover:bg-[#B3926C] disabled:opacity-50 text-slate-950 font-bold text-xs rounded-md shadow-2xs transition-colors cursor-pointer flex items-center gap-2 border border-[#B2906A]"
-        >
-          <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-          {emailSending ? 'Generating...' : 'Email EOD Report'}
-        </button>
-      </div>
+        {/* Center: Summary Badges */}
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-1 rounded-sm bg-slate-100 text-slate-800 border border-slate-200 text-[11px] font-bold flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[14px]">receipt_long</span>
+            {bills.length} Bills
+          </span>
+          <span className="px-2.5 py-1 rounded-sm bg-[#FAF7F2] text-slate-950 border border-[#C3A27C]/50 text-[11px] font-bold flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[14px]">payments</span>
+            ₹{todayRevenue.toLocaleString('en-IN')} Today
+          </span>
+        </div>
 
+        {/* Right: EOD Report + POS + Menu */}
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleSendDailyPdfReport}
+            disabled={emailSending}
+            className="px-3 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] disabled:opacity-50 text-slate-950 font-bold text-xs rounded-md shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5 border border-[#B2906A]"
+          >
+            <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+            <span>{emailSending ? 'Sending...' : 'EOD Report'}</span>
+          </button>
+          <Link
+            href="/staff/pos"
+            className="px-3.5 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs border border-[#B2906A]"
+          >
+            <span className="material-symbols-outlined text-[16px]">point_of_sale</span>
+            <span>POS</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setIsDrawerOpen(true)}
+            className="w-9 h-9 rounded-md hover:bg-slate-100 flex items-center justify-center text-slate-900 transition-all cursor-pointer border border-slate-200"
+            title="Navigation Menu"
+          >
+            <span className="material-symbols-outlined text-[22px]">menu</span>
+          </button>
+        </div>
+      </header>
+
+      <div className="flex-1 overflow-y-auto p-4">
       {/* Bills Table */}
       <div className="bg-white border border-slate-200 rounded-md overflow-hidden shadow-2xs">
         <table className="w-full text-left text-xs text-slate-700">
@@ -184,6 +225,8 @@ export default function StaffOrderHistoryPage() {
           {toastMsg}
         </div>
       )}
+      </div>
+      <StaffNavigationDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </div>
   );
 }
