@@ -119,11 +119,18 @@ export default function HostedBillPage() {
     window.print();
   };
 
+  const handleShareWhatsApp = () => {
+    if (!bill) return;
+    const text = `*${bill.restaurantName} - Invoice #${bill.tokenNumber}*\nTotal: ₹${bill.grandTotal.toFixed(2)}\nLink: ${window.location.href}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
   if (loading || !bill) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">
         <div className="flex items-center gap-2 text-slate-600 font-bold text-sm">
-          <span className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span className="w-5 h-5 border-2 border-[#C3A27C] border-t-transparent rounded-full animate-spin" />
           Loading digital tax invoice...
         </div>
       </div>
@@ -140,20 +147,23 @@ export default function HostedBillPage() {
 
   return (
     <div className="min-h-screen bg-slate-100 py-8 px-4 flex flex-col items-center justify-center font-sans text-slate-900">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+      <div className="max-w-md w-full bg-white rounded-md shadow-xl border border-slate-200 overflow-hidden">
         {/* Header Ribbon */}
-        <div className="bg-slate-950 text-white p-6 text-center relative">
+        <div className="bg-black text-white p-6 text-center relative rounded-t-md">
           <img
-            src="/chaska-logo.png"
+            src="/chatchaska-logo.png"
             alt="ChatChaska"
             className="h-10 object-contain mx-auto mb-2 drop-shadow-sm"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/chaska-c-logo.png';
+            }}
           />
           <h1 className="text-xl font-black tracking-tight">{bill.restaurantName}</h1>
-          <p className="text-xs text-slate-400 font-medium mt-0.5">Tax Invoice &amp; Digital Receipt</p>
+          <p className="text-xs text-[#C3A27C] font-medium mt-0.5">Tax Invoice &amp; Digital Receipt</p>
           
-          <div className="mt-4 inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wide">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            {bill.status === 'paid' ? 'Payment Completed' : bill.status}
+          <div className="mt-4 inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-sm text-[11px] font-bold uppercase tracking-wide">
+            <span className="material-symbols-outlined text-[14px]">check_circle</span>
+            {bill.status === 'paid' ? `Payment Completed via ${bill.paymentMode}` : bill.status}
           </div>
         </div>
 
@@ -161,33 +171,36 @@ export default function HostedBillPage() {
         <div className="p-6 border-b border-dashed border-slate-200 grid grid-cols-2 gap-3 text-xs">
           <div>
             <span className="text-slate-400 font-bold block uppercase text-[10px]">Invoice #</span>
-            <span className="font-mono font-black text-slate-800">#{bill.tokenNumber}</span>
+            <span className="font-mono font-black text-slate-950">#{bill.tokenNumber}</span>
           </div>
           <div className="text-right">
             <span className="text-slate-400 font-bold block uppercase text-[10px]">Date &amp; Time</span>
-            <span className="font-semibold text-slate-800">{formattedDate}</span>
+            <span className="font-semibold text-slate-950">{formattedDate}</span>
           </div>
           <div>
             <span className="text-slate-400 font-bold block uppercase text-[10px]">Table / Section</span>
-            <span className="font-bold text-slate-800">{bill.tableNumber}</span>
+            <span className="font-bold text-slate-950">{bill.tableNumber}</span>
           </div>
           <div className="text-right">
             <span className="text-slate-400 font-bold block uppercase text-[10px]">Payment Mode</span>
-            <span className="font-bold text-slate-800 uppercase">{bill.paymentMode}</span>
+            <span className="font-bold text-slate-950 uppercase">{bill.paymentMode}</span>
           </div>
         </div>
 
         {/* Itemized Breakdown */}
         <div className="p-6 space-y-3">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Ordered Items</div>
-          <div className="space-y-2.5">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-2 flex justify-between">
+            <span>Ordered Items</span>
+            <span>Total</span>
+          </div>
+          <div className="space-y-3">
             {bill.items.map((item, idx) => (
-              <div key={idx} className="flex justify-between items-center text-xs">
+              <div key={idx} className="flex justify-between items-start text-xs">
                 <div className="flex-1 pr-2">
-                  <span className="font-bold text-slate-900">{item.name}</span>
-                  <span className="text-slate-500 font-medium ml-1.5">x{item.quantity}</span>
+                  <span className="font-bold text-slate-950 block">{item.name}</span>
+                  <span className="text-slate-500 font-medium">₹{item.price.toFixed(2)} x {item.quantity}</span>
                 </div>
-                <span className="font-bold font-mono text-slate-900">
+                <span className="font-bold font-mono text-slate-950">
                   ₹{(item.quantity * item.price).toFixed(2)}
                 </span>
               </div>
@@ -195,10 +208,10 @@ export default function HostedBillPage() {
           </div>
 
           {/* Pricing Totals */}
-          <div className="pt-4 border-t border-slate-100 space-y-1.5 text-xs">
+          <div className="pt-4 border-t border-slate-200 space-y-1.5 text-xs">
             <div className="flex justify-between text-slate-600">
               <span>Subtotal</span>
-              <span className="font-mono font-semibold">₹{bill.subtotal.toFixed(2)}</span>
+              <span className="font-mono font-semibold text-slate-950">₹{bill.subtotal.toFixed(2)}</span>
             </div>
 
             {bill.discountAmount > 0 && (
@@ -211,38 +224,55 @@ export default function HostedBillPage() {
             {bill.cgstAmount > 0 && (
               <div className="flex justify-between text-slate-500 text-[11px]">
                 <span>CGST ({(bill.gstPercent / 2).toFixed(1)}%)</span>
-                <span className="font-mono">₹{bill.cgstAmount.toFixed(2)}</span>
+                <span className="font-mono text-slate-700">₹{bill.cgstAmount.toFixed(2)}</span>
               </div>
             )}
 
             {bill.sgstAmount > 0 && (
               <div className="flex justify-between text-slate-500 text-[11px]">
                 <span>SGST ({(bill.gstPercent / 2).toFixed(1)}%)</span>
-                <span className="font-mono">₹{bill.sgstAmount.toFixed(2)}</span>
+                <span className="font-mono text-slate-700">₹{bill.sgstAmount.toFixed(2)}</span>
               </div>
             )}
 
-            <div className="pt-2 border-t border-slate-200 flex justify-between items-baseline">
-              <span className="text-base font-black text-slate-900">Grand Total</span>
-              <span className="text-xl font-black font-mono text-blue-600">
+            <div className="pt-3 border-t border-slate-300 flex justify-between items-baseline mt-2">
+              <span className="text-base font-black text-slate-950 uppercase tracking-wide">Grand Total</span>
+              <span className="text-2xl font-black font-mono text-slate-950">
                 ₹{bill.grandTotal.toFixed(2)}
               </span>
             </div>
           </div>
         </div>
 
+        {/* Feedback Card */}
+        <div className="px-6 pb-2">
+          <div className="bg-[#C3A27C]/10 border border-[#C3A27C]/30 p-4 rounded-md text-center">
+            <span className="material-symbols-outlined text-[#C3A27C] text-2xl mb-1">star</span>
+            <h3 className="font-bold text-slate-950 text-sm">Rate Us on Google</h3>
+            <p className="text-xs text-slate-600 mt-1">We hope you enjoyed your meal! Leave us a review to help us improve.</p>
+          </div>
+        </div>
+
         {/* Action Buttons */}
-        <div className="p-6 bg-slate-50 border-t border-slate-200 space-y-3">
+        <div className="p-6 bg-slate-50 border-t border-slate-200 space-y-3 rounded-b-md">
           <button
             onClick={handleDownloadPdf}
-            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
+            className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold py-3 rounded-md text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
           >
-            <span className="material-symbols-outlined text-[18px]">download</span>
-            Save / Print PDF Receipt
+            <span className="material-symbols-outlined text-[18px]">print</span>
+            Print / Download PDF
           </button>
           
-          <p className="text-[11px] text-center text-slate-400 font-medium">
-            Thank you for dining with us! ✨<br />
+          <button
+            onClick={handleShareWhatsApp}
+            className="w-full bg-slate-950 hover:bg-slate-800 text-white font-bold py-3 rounded-md text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+          >
+            <span className="material-symbols-outlined text-[18px]">chat</span>
+            Share on WhatsApp
+          </button>
+          
+          <p className="text-[11px] text-center text-slate-400 font-medium mt-4">
+            Thank you for dining with us!<br />
             Powered by <strong>ChatChaska POS</strong>
           </p>
         </div>

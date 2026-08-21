@@ -65,7 +65,7 @@ export default function OrderStatusLiveTrackerPage() {
 
               if (payload.new.status === 'ready' && typeof window !== 'undefined' && 'Notification' in window) {
                 if (Notification.permission === 'granted') {
-                  new Notification('🔔 Your order is ready!', { body: 'A waiter is bringing your food to the table.' });
+                  new Notification('Your order is ready!', { body: 'A waiter is bringing your food to the table.' });
                 }
               }
             }
@@ -134,37 +134,38 @@ export default function OrderStatusLiveTrackerPage() {
   };
 
   return (
-    <div className="bg-slate-950 text-white font-sans antialiased md:max-w-md md:mx-auto md:shadow-2xl md:min-h-screen relative p-5 flex flex-col justify-between border-x border-slate-800 pb-10">
+    <div className="bg-black text-white font-sans antialiased md:max-w-md md:mx-auto md:shadow-2xl md:min-h-screen relative p-5 flex flex-col justify-between border-x border-slate-900 pb-10">
       <div>
         {/* Top Header */}
         <div className="flex justify-between items-center mb-6">
           <Link
             href={`/menu/${menuSlug}`}
-            className="w-9 h-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition-colors"
+            className="w-9 h-9 rounded-md bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition-colors"
           >
-            ←
+            <span className="material-symbols-outlined">arrow_back</span>
           </Link>
-          <span className="font-bold text-xs bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full border border-orange-500/40">
-            📍 {table}
+          <span className="bg-[#FAF7F2] text-slate-950 border border-[#B2906A] rounded-md font-bold text-xs px-3 py-1 flex items-center gap-1">
+            <span className="material-symbols-outlined text-[14px]">location_on</span>
+            {table}
           </span>
         </div>
 
         {/* Hero Order Status Badge */}
-        <div className="text-center mb-6 bg-slate-900/90 border border-slate-800 p-6 rounded-3xl shadow-xl">
-          <div className="w-16 h-16 rounded-2xl bg-orange-500/20 text-orange-400 border border-orange-500/30 mx-auto flex items-center justify-center mb-3 shadow-md">
-            <span className="text-3xl animate-pulse">
-              {currentStep === 1 && '📑'}
-              {currentStep === 2 && '👨‍🍳'}
-              {currentStep === 3 && '🔔'}
-              {currentStep === 4 && '🍽️'}
+        <div className="text-center mb-6 bg-slate-900 border border-slate-800 p-6 rounded-md shadow-xl">
+          <div className="w-16 h-16 rounded-md bg-[#FAF7F2] text-slate-950 border border-[#B2906A] mx-auto flex items-center justify-center mb-3 shadow-md">
+            <span className="material-symbols-outlined text-3xl animate-pulse">
+              {currentStep === 1 && 'receipt_long'}
+              {currentStep === 2 && 'soup_kitchen'}
+              {currentStep === 3 && 'room_service'}
+              {currentStep === 4 && 'restaurant'}
             </span>
           </div>
 
           <h1 className="font-black text-xl text-slate-100 leading-tight">
-            {currentStep === 1 && 'Order Placed'}
-            {currentStep === 2 && 'Kitchen is Preparing...'}
-            {currentStep === 3 && 'Order Ready!'}
-            {currentStep === 4 && 'Served to Your Table'}
+            {currentStep === 1 && 'Order Received'}
+            {currentStep === 2 && 'Kitchen Preparing...'}
+            {currentStep === 3 && 'Ready for Server'}
+            {currentStep === 4 && 'Served at Table'}
           </h1>
           <p className="text-xs text-slate-400 mt-1.5">
             Order #{orderId} • {currentStep < 3 ? 'Est. prep time: 10-15 mins' : 'Served hot at your table'}
@@ -172,12 +173,12 @@ export default function OrderStatusLiveTrackerPage() {
         </div>
 
         {/* Real-Time Status Steps */}
-        <div className="space-y-6 px-2 bg-slate-900/50 p-5 rounded-3xl border border-slate-800/80">
+        <div className="space-y-6 px-2 bg-slate-900/50 p-5 rounded-md border border-slate-800/80">
           {[
             { step: 1, title: 'Order Received', desc: 'Order sent to counter and kitchen KDS' },
             { step: 2, title: 'Kitchen Preparing', desc: 'Chef has accepted and started cooking' },
-            { step: 3, title: 'Plated & Ready', desc: 'Dishes ready for server pickup' },
-            { step: 4, title: `Served at ${table}`, desc: 'Enjoy your hot meal!' },
+            { step: 3, title: 'Ready for Server', desc: 'Dishes ready for server pickup' },
+            { step: 4, title: `Served at Table`, desc: 'Enjoy your hot meal!' },
           ].map((item) => {
             const isDone = currentStep > item.step;
             const isCurrent = currentStep === item.step;
@@ -186,15 +187,15 @@ export default function OrderStatusLiveTrackerPage() {
               <div key={item.step} className="flex gap-4 items-start relative">
                 <div className="flex flex-col items-center flex-shrink-0">
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold transition-all ${
                       isDone
                         ? 'bg-emerald-500 text-white'
                         : isCurrent
-                        ? 'bg-orange-500 text-white ring-4 ring-orange-500/20 animate-pulse'
+                        ? 'bg-[#C3A27C] text-slate-950 ring-2 ring-[#B2906A] animate-pulse'
                         : 'bg-slate-800 text-slate-500'
                     }`}
                   >
-                    {isDone ? '✓' : item.step}
+                    {isDone ? <span className="material-symbols-outlined text-[14px]">check</span> : item.step}
                   </div>
                   {item.step < 4 && (
                     <div className={`w-0.5 h-10 my-1 ${isDone ? 'bg-emerald-500' : 'bg-slate-800'}`} />
@@ -202,7 +203,7 @@ export default function OrderStatusLiveTrackerPage() {
                 </div>
 
                 <div className="pt-0.5">
-                  <h4 className={`text-sm font-bold ${isCurrent ? 'text-orange-400' : isDone ? 'text-slate-200' : 'text-slate-500'}`}>
+                  <h4 className={`text-sm font-bold ${isCurrent ? 'text-[#C3A27C]' : isDone ? 'text-slate-200' : 'text-slate-500'}`}>
                     {item.title}
                   </h4>
                   <p className="text-xs text-slate-400 mt-0.5">{item.desc}</p>
@@ -218,38 +219,39 @@ export default function OrderStatusLiveTrackerPage() {
         {/* Pay Bill at Table Button */}
         <button
           onClick={handleOpenPayment}
-          className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 text-white py-3.5 rounded-2xl text-sm font-black shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] py-3.5 rounded-md text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
-          <span className="material-symbols-outlined text-xl">qr_code_scanner</span>
-          <span>Pay Bill at Table (₹{billAmount})</span>
+          <span className="material-symbols-outlined text-xl">bolt</span>
+          <span>Pay at Table via UPI (₹{billAmount})</span>
         </button>
 
         <button
           onClick={handleCallWaiter}
           disabled={waiterCalled}
-          className="w-full bg-slate-900 border border-slate-800 hover:border-slate-700 py-3 rounded-2xl text-xs font-bold text-slate-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          className="w-full bg-slate-900 border border-slate-800 hover:border-slate-700 py-3 rounded-md text-xs font-bold text-slate-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
-          <span className="material-symbols-outlined text-lg text-amber-400">notifications_active</span>
+          <span className="material-symbols-outlined text-lg text-amber-400">notifications</span>
           <span>{waiterCalled ? 'Waiter Notified! Coming soon...' : 'Call Waiter to Table'}</span>
         </button>
 
         <Link
           href={`/menu/${menuSlug}`}
-          className="w-full bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 py-3 rounded-2xl text-xs font-bold text-center block transition-all"
+          className="w-full bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 py-3 rounded-md text-xs font-bold text-center flex items-center justify-center gap-2 transition-all"
         >
-          Order More Dishes
+          <span className="material-symbols-outlined text-lg">restaurant_menu</span>
+          <span>Order More Dishes</span>
         </Link>
       </div>
 
       {/* Dynamic Pay-at-Table UPI Modal */}
       {isPayModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 text-white">
+          <div className="bg-black border border-[#B2906A] rounded-md p-6 max-w-sm w-full shadow-2xl text-center space-y-4 text-white">
             <div className="flex justify-between items-center">
-              <h3 className="font-bold text-base">Pay at Table via UPI</h3>
+              <h3 className="font-bold text-base text-[#C3A27C]">Pay at Table via UPI</h3>
               <button
                 onClick={() => setIsPayModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-md bg-slate-900 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
               >
                 <span className="material-symbols-outlined text-lg">close</span>
               </button>
@@ -265,16 +267,16 @@ export default function OrderStatusLiveTrackerPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 inline-block mx-auto shadow-inner">
+                <div className="bg-[#FAF7F2] p-3 rounded-md border border-[#B2906A] inline-block mx-auto shadow-inner">
                   {upiQrUrl ? (
-                    <img src={upiQrUrl} alt="UPI Payment QR" className="w-56 h-56 mx-auto rounded-xl" />
+                    <img src={upiQrUrl} alt="UPI Payment QR" className="w-56 h-56 mx-auto rounded-md" />
                   ) : (
-                    <div className="w-56 h-56 bg-slate-900 rounded-xl animate-pulse" />
+                    <div className="w-56 h-56 bg-slate-300 rounded-md animate-pulse" />
                   )}
                 </div>
 
                 <div>
-                  <div className="text-2xl font-black text-emerald-400">₹{billAmount.toFixed(2)}</div>
+                  <div className="text-2xl font-black text-[#C3A27C]">₹{billAmount.toFixed(2)}</div>
                   <p className="text-xs text-slate-400 mt-0.5">Scan with Google Pay, PhonePe, or Paytm</p>
                 </div>
 
@@ -282,16 +284,17 @@ export default function OrderStatusLiveTrackerPage() {
                 {upiIntentUri && (
                   <a
                     href={upiIntentUri}
-                    className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all block"
+                    className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold py-2.5 rounded-md text-xs flex items-center justify-center gap-2 transition-all block"
                   >
-                    <span>⚡ Tap to Open UPI App</span>
+                    <span className="material-symbols-outlined text-lg inline-block align-middle mb-0.5">open_in_new</span>
+                    <span className="inline-block align-middle">Tap to Open UPI App</span>
                   </a>
                 )}
 
                 <button
                   onClick={handleConfirmPaid}
                   disabled={settling}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] font-bold py-3 rounded-md shadow-lg transition-all cursor-pointer disabled:opacity-50"
                 >
                   {settling ? 'Confirming...' : 'I Have Completed Payment'}
                 </button>
