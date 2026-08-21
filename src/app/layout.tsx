@@ -22,6 +22,10 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/chaska-c-logo.png" />
         <link rel="apple-touch-icon" href="/chaska-c-logo.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#C3A27C" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}

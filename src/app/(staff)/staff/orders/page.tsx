@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { formatBillCurrency } from '@/lib/billing';
@@ -40,6 +40,7 @@ function OrdersContent() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState<boolean>(false);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(false);
 
   // Order Rejection Modal State
   const [rejectingOrderId, setRejectingOrderId] = useState<string | null>(null);
@@ -50,6 +51,47 @@ function OrdersContent() {
   
   // Payment Settlement State
   const [settlingOrder, setSettlingOrder] = useState<QROrder | null>(null);
+
+  const prevPendingCountRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('chatchaska_sound_enabled');
+    if (saved === 'true') {
+      setSoundEnabled(true);
+    }
+  }, []);
+
+  const toggleSound = () => {
+    const newVal = !soundEnabled;
+    setSoundEnabled(newVal);
+    localStorage.setItem('chatchaska_sound_enabled', newVal.toString());
+  };
+
+  const playChime = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1); // A5
+      
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.6);
+    } catch (e) {
+      console.error('Audio playback failed:', e);
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
@@ -75,6 +117,17 @@ function OrdersContent() {
     const interval = setInterval(fetchQROrders, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const pendingCount = useMemo(() => orders.filter((o) => o.status === 'pending').length, [orders]);
+
+  useEffect(() => {
+    if (prevPendingCountRef.current !== null && pendingCount > prevPendingCountRef.current) {
+      if (soundEnabled) {
+        playChime();
+      }
+    }
+    prevPendingCountRef.current = pendingCount;
+  }, [pendingCount, soundEnabled]);
 
   const handleUpdateStatus = async (orderId: string, newStatus: string, notes?: string) => {
     try {
@@ -210,8 +263,6 @@ function OrdersContent() {
   };
 
   // Filter orders based on active filter:
-  // - Live Active Queues (ALL / TABLE_QR / PENDING / KITCHEN): Only show live active orders!
-  // - Completed Tab (DONE): Shows completed/settled orders.
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
       const isDone = order.status === 'completed';
@@ -237,7 +288,6 @@ function OrdersContent() {
 
   const activeOrdersCount = useMemo(() => orders.filter((o) => o.status !== 'completed' && o.status !== 'cancelled').length, [orders]);
   const tableQrCount = useMemo(() => orders.filter((o) => Boolean(o.tableNumber) && o.status !== 'completed' && o.status !== 'cancelled').length, [orders]);
-  const pendingCount = useMemo(() => orders.filter((o) => o.status === 'pending').length, [orders]);
   const kitchenCount = useMemo(() => orders.filter((o) => o.status === 'preparing' || o.status === 'ready').length, [orders]);
   const completedCount = useMemo(() => orders.filter((o) => o.status === 'completed').length, [orders]);
 
@@ -338,6 +388,22 @@ function OrdersContent() {
               {completedCount}
             </span>
           </button>
+
+          {/* Sound Toggle */}
+          <button
+            type="button"
+            onClick={toggleSound}
+            className={`px-2 py-1.5 ml-2 rounded-md border text-xs font-black transition-all cursor-pointer flex items-center shadow-2xs ${
+              soundEnabled
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                : 'bg-white text-slate-500 border-slate-300 hover:bg-slate-50'
+            }`}
+            title={soundEnabled ? 'Mute new order chime' : 'Enable new order chime'}
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              {soundEnabled ? 'volume_up' : 'volume_off'}
+            </span>
+          </button>
         </div>
 
         {/* Right: POS Quick Button + Right Navigation Drawer Trigger */}
@@ -425,6 +491,12 @@ function OrdersContent() {
                       <span className="text-slate-400 font-mono text-[11px] font-bold">
                         #{order.id.slice(-5)}
                       </span>
+                      {isPending && (
+                        <span className="relative flex h-2 w-2 ml-1">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-1.5">
@@ -445,7 +517,7 @@ function OrdersContent() {
                       <span
                         className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-sm h-6 inline-flex items-center justify-center ${
                           isPending
-                            ? 'bg-amber-500 text-white'
+                            ? 'bg-amber-500 text-white animate-pulse'
                             : isCompleted
                             ? 'bg-emerald-600 text-white'
                             : isCancelled

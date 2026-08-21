@@ -1,21 +1,23 @@
 {
-  "name": "ChatChaska Captain POS",
-  "short_name": "ChatChaska POS",
-  "description": "Mobile Table Ordering & Billing App for ChatChaska POS",
-  "start_url": "/pos/quick-order",
+  "name": "ChatChaska POS",
+  "short_name": "ChatChaska",
+  "description": "Smart Next-Gen POS & Restaurant Management",
+  "start_url": "/staff/pos",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#2563eb",
+  "background_color": "#FAF7F2",
+  "theme_color": "#C3A27C",
   "icons": [
     {
       "src": "/chaska-c-logo.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/chaska-c-logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

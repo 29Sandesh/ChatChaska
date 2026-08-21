@@ -27,6 +27,13 @@ export default function MenuManagerPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
 
+  // Bulk Selection
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+
+  // Inline Price Editing
+  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
+  const [editingPriceValue, setEditingPriceValue] = useState<number>(0);
+
   // AI Scanner state
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<{ count: number; message: string } | null>(null);
@@ -268,11 +275,111 @@ export default function MenuManagerPage() {
     return true;
   });
 
+  // --- New Handlers ---
+
+  const handleEditPrice = (item: MenuItem) => {
+    setEditingPriceId(item.id);
+    setEditingPriceValue(item.price);
+  };
+
+  const handleSavePrice = async (item: MenuItem) => {
+    if (editingPriceValue === item.price) {
+      setEditingPriceId(null);
+      return;
+    }
+    const newPrice = editingPriceValue;
+    
+    // Optimistic update
+    setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, price: newPrice } : i)));
+    setEditingPriceId(null);
+
+    try {
+      await fetch('/api/menu-items', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: item.id, price: newPrice }),
+      });
+      showToast(`Price updated to ₹${newPrice}!`);
+    } catch (err) {
+      fetchItems(); // Revert on error
+    }
+  };
+
+  const handleToggleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedItemIds(filteredItems.map(i => i.id));
+    } else {
+      setSelectedItemIds([]);
+    }
+  };
+
+  const handleToggleSelect = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedItemIds(prev => [...prev, id]);
+    } else {
+      setSelectedItemIds(prev => prev.filter(item => item !== id));
+    }
+  };
+
+  const handleBulkStockUpdate = async (available: boolean) => {
+    // Optimistic
+    setItems(prev => prev.map(i => selectedItemIds.includes(i.id) ? { ...i, available } : i));
+    
+    const count = selectedItemIds.length;
+    
+    try {
+      await Promise.all(
+        selectedItemIds.map(id => 
+          fetch('/api/menu-items', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, available }),
+          })
+        )
+      );
+      showToast(`Bulk updated ${count} items to ${available ? 'Available' : 'Sold Out'}`);
+      setSelectedItemIds([]);
+    } catch (err) {
+      fetchItems();
+    }
+  };
+
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-5 select-none">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-5 select-none relative">
+      {/* Sticky Bulk Action Bar */}
+      {selectedItemIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-4 py-3 rounded-md shadow-2xl flex items-center gap-4 border border-slate-700 animate-in slide-in-from-bottom-10 fade-in">
+          <div className="text-sm font-bold text-slate-200 whitespace-nowrap">
+            Selected ({selectedItemIds.length})
+          </div>
+          <div className="w-px h-5 bg-slate-700" />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleBulkStockUpdate(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-md text-xs font-bold transition-colors cursor-pointer"
+            >
+              ✓ Mark as Available
+            </button>
+            <button
+              onClick={() => handleBulkStockUpdate(false)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 rounded-md text-xs font-bold transition-colors cursor-pointer"
+            >
+              ✕ Mark as Sold Out
+            </button>
+          </div>
+          <div className="w-px h-5 bg-slate-700" />
+          <button
+            onClick={() => setSelectedItemIds([])}
+            className="text-xs text-slate-400 hover:text-white font-medium whitespace-nowrap cursor-pointer"
+          >
+            Deselect All
+          </button>
+        </div>
+      )}
+
       {/* Toast Notification */}
       {toastMsg && (
-        <div className="fixed top-5 right-5 z-50 bg-slate-900 font-bold px-4 py-3 rounded-md shadow-2xl flex items-center gap-2 border border-slate-700 text-xs">
+        <div className="fixed top-5 right-5 z-50 bg-slate-900 font-bold px-4 py-3 rounded-md shadow-2xl flex items-center gap-2 border border-slate-700 text-xs text-white">
           <span>✨</span> {toastMsg}
         </div>
       )}
@@ -337,7 +444,7 @@ export default function MenuManagerPage() {
           />
           <label
             htmlFor="menu-photo-upload"
-            className={`cursor-pointer bg-slate-900 hover:bg-slate-800 font-bold px-4 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 ${
+            className={`cursor-pointer bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 ${
               isScanning ? 'opacity-50 pointer-events-none' : ''
             }`}
           >
@@ -364,7 +471,7 @@ export default function MenuManagerPage() {
           </div>
           <button
             onClick={() => setScanResult(null)}
-            className="text-emerald-700 hover:text-emerald-900 text-xs font-bold"
+            className="text-emerald-700 hover:text-emerald-900 text-xs font-bold cursor-pointer"
           >
             ✕
           </button>
@@ -388,7 +495,7 @@ export default function MenuManagerPage() {
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto py-0.5">
           <button
             onClick={() => setSelectedCategory('ALL')}
-            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all shrink-0 ${
+            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all shrink-0 cursor-pointer ${
               selectedCategory === 'ALL'
                 ? 'bg-[#C3A27C] text-white shadow-2xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -402,7 +509,7 @@ export default function MenuManagerPage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
                   selectedCategory === cat.id
                     ? 'bg-[#C3A27C] text-white shadow-2xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -433,6 +540,14 @@ export default function MenuManagerPage() {
           <table className="w-full text-left text-xs text-slate-700">
             <thead className="bg-slate-50/80 text-slate-500 uppercase font-bold border-b border-slate-200/80">
               <tr>
+                <th className="p-3 w-10 text-center">
+                  <input
+                    type="checkbox"
+                    checked={filteredItems.length > 0 && selectedItemIds.length === filteredItems.length}
+                    onChange={(e) => handleToggleSelectAll(e.target.checked)}
+                    className="accent-[#C3A27C] cursor-pointer w-3.5 h-3.5 rounded-sm"
+                  />
+                </th>
                 <th className="p-3">Type</th>
                 <th className="p-3">Dish Name</th>
                 <th className="p-3">Category</th>
@@ -444,13 +559,21 @@ export default function MenuManagerPage() {
             <tbody className="divide-y divide-slate-100">
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-slate-400 font-medium">
+                  <td colSpan={7} className="p-8 text-center text-slate-400 font-medium">
                     No menu items found.
                   </td>
                 </tr>
               ) : (
                 filteredItems.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedItemIds.includes(item.id)}
+                        onChange={(e) => handleToggleSelect(item.id, e.target.checked)}
+                        className="accent-[#C3A27C] cursor-pointer w-3.5 h-3.5 rounded-sm"
+                      />
+                    </td>
                     <td className="p-3">
                       <span
                         className={`w-3.5 h-3.5 rounded-xs border-2 inline-flex items-center justify-center ${
@@ -477,11 +600,37 @@ export default function MenuManagerPage() {
                         {categories.find((c) => c.id === item.category)?.name || item.category}
                       </span>
                     </td>
-                    <td className="p-3 font-black text-slate-900">₹{item.price}</td>
+                    <td className="p-3 font-black text-slate-900 group">
+                      {editingPriceId === item.id ? (
+                        <div className="flex items-center gap-1 relative">
+                          <span className="absolute left-2 text-slate-500 font-medium">₹</span>
+                          <input
+                            type="number"
+                            autoFocus
+                            value={editingPriceValue}
+                            onChange={(e) => setEditingPriceValue(Number(e.target.value))}
+                            onBlur={() => handleSavePrice(item)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSavePrice(item);
+                              if (e.key === 'Escape') setEditingPriceId(null);
+                            }}
+                            className="w-20 pl-5 pr-2 py-1 rounded-md border border-[#C3A27C] outline-none shadow-sm text-xs font-black text-slate-900 bg-white"
+                          />
+                        </div>
+                      ) : (
+                        <div 
+                          className="flex items-center gap-1.5 cursor-pointer hover:bg-slate-100 p-1 -ml-1 rounded-md transition-colors w-max"
+                          onClick={() => handleEditPrice(item)}
+                        >
+                          ₹{item.price}
+                          <span className="material-symbols-outlined text-[14px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
+                        </div>
+                      )}
+                    </td>
                     <td className="p-3">
                       <button
                         onClick={() => handleToggleItemAvailable(item)}
-                        className={`px-2.5 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1.5 transition-all ${
+                        className={`px-2.5 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1.5 transition-all cursor-pointer ${
                           item.available
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                             : 'bg-rose-50 text-rose-700 border border-rose-200'
@@ -499,14 +648,14 @@ export default function MenuManagerPage() {
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => handleOpenEditModal(item)}
-                          className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-[#C3A27C]/20 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-[#C3A27C]/20 rounded-lg transition-colors cursor-pointer"
                           title="Edit Dish"
                         >
                           <span className="material-symbols-outlined text-[16px]">edit</span>
                         </button>
                         <button
                           onClick={() => handleDeleteItem(item)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                           title="Delete Dish"
                         >
                           <span className="material-symbols-outlined text-[16px]">delete</span>
@@ -531,7 +680,7 @@ export default function MenuManagerPage() {
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold"
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -588,7 +737,7 @@ export default function MenuManagerPage() {
                       name="vegType"
                       checked={formVeg}
                       onChange={() => setFormVeg(true)}
-                      className="accent-emerald-600"
+                      className="accent-emerald-600 cursor-pointer"
                     />
                     <span className="text-emerald-700 font-bold text-xs">🟢 Veg</span>
                   </label>
@@ -598,7 +747,7 @@ export default function MenuManagerPage() {
                       name="vegType"
                       checked={!formVeg}
                       onChange={() => setFormVeg(false)}
-                      className="accent-rose-600"
+                      className="accent-rose-600 cursor-pointer"
                     />
                     <span className="text-rose-700 font-bold text-xs">🔴 Non-Veg</span>
                   </label>
