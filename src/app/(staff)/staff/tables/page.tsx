@@ -43,6 +43,9 @@ export default function StaffTablesPage() {
   // Receipt Preview Modal State
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<BillData | null>(null);
+  
+  // Real-time tick for elapsed time
+  const [currentTime, setCurrentTime] = useState(new Date().getTime());
 
   // Fetch tables and live status
   const fetchTables = async () => {
@@ -61,7 +64,10 @@ export default function StaffTablesPage() {
 
   useEffect(() => {
     fetchTables();
-    const interval = setInterval(fetchTables, 3000); // 3s real-time live sync
+    const interval = setInterval(() => {
+      fetchTables();
+      setCurrentTime(new Date().getTime());
+    }, 3000); // 3s real-time live sync
     return () => clearInterval(interval);
   }, []);
 
@@ -95,6 +101,22 @@ export default function StaffTablesPage() {
       toast.error('Network error');
     } finally {
       setSubmittingAdd(false);
+    }
+  };
+
+  const handleDeleteTable = async (id: string, name: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+    try {
+      const res = await fetch(`/api/tables?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        toast.success('Table deleted successfully');
+        fetchTables();
+      } else {
+        toast.error('Failed to delete table');
+      }
+    } catch (error) {
+      toast.error('Network error');
     }
   };
 
@@ -214,6 +236,20 @@ export default function StaffTablesPage() {
 
   const occupiedCount = tables.filter((t) => t.status === 'occupied').length;
   const freeCount = tables.filter((t) => t.status === 'free').length;
+  const totalTables = tables.length;
+
+  const getElapsedIndicator = (orderTime?: string) => {
+    if (!orderTime) return null;
+    const elapsedMs = currentTime - new Date(orderTime).getTime();
+    if (elapsedMs < 0) return null;
+    const elapsedMins = Math.floor(elapsedMs / 60000);
+    
+    if (elapsedMins < 30) return <span className="text-slate-500 text-[11px] font-bold">⏱ {elapsedMins}m</span>;
+    if (elapsedMins < 60) return <span className="text-amber-600 text-[11px] font-bold">⏱ {elapsedMins}m</span>;
+    const h = Math.floor(elapsedMins / 60);
+    const m = elapsedMins % 60;
+    return <span className="text-rose-600 text-[11px] font-bold">⏱ {h}h {m}m</span>;
+  };
 
   return (
     <div className="flex-1 flex flex-col h-full w-full select-none font-sans bg-slate-50 overflow-hidden">
@@ -228,13 +264,16 @@ export default function StaffTablesPage() {
 
         {/* Center: Status Badges */}
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 rounded-sm bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[12px] text-rose-500">circle</span>
-            {occupiedCount} Occupied
+          <span className="px-2.5 py-1 rounded-sm bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-bold flex items-center gap-1.5">
+            Total {totalTables}
           </span>
           <span className="px-2.5 py-1 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold flex items-center gap-1.5">
             <span className="material-symbols-outlined text-[12px] text-emerald-500">circle</span>
             {freeCount} Free
+          </span>
+          <span className="px-2.5 py-1 rounded-sm bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[12px] text-rose-500">circle</span>
+            {occupiedCount} Occupied
           </span>
         </div>
 
@@ -275,7 +314,7 @@ export default function StaffTablesPage() {
         {loading && tables.length === 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-              <div key={n} className="h-40 bg-slate-100 rounded-md animate-pulse" />
+              <div key={n} className="h-44 bg-slate-100 rounded-md animate-pulse" />
             ))}
           </div>
         ) : (
@@ -296,50 +335,69 @@ export default function StaffTablesPage() {
                   }}
                   className={
                     isOccupied
-                      ? 'bg-[#FAF7F2] border-2 border-[#C3A27C] rounded-md p-4 h-40 flex flex-col justify-between shadow-xs cursor-pointer transition-all'
-                      : 'bg-white border border-slate-200 rounded-md p-4 h-40 flex flex-col justify-between shadow-2xs hover:border-[#C3A27C] transition-all cursor-pointer'
+                      ? 'bg-[#FAF7F2] border-2 border-[#C3A27C] rounded-md p-4 min-h-[176px] flex flex-col justify-between shadow-xs cursor-pointer transition-all relative'
+                      : 'bg-white border border-slate-200 rounded-md p-4 min-h-[176px] flex flex-col justify-between shadow-2xs hover:border-[#C3A27C] transition-all cursor-pointer relative group'
                   }
                 >
                   {/* Top Row: Table Name + Status Badge */}
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-black text-lg text-slate-900 tracking-tight">
+                      <h3 className="font-black text-2xl text-slate-900 tracking-tight leading-none">
                         {pureNumber}
                       </h3>
-                      <span className="text-[11px] font-medium text-slate-400">
+                      <span className="text-[11px] font-medium text-slate-500">
                         {table.seats} Seats
                       </span>
                     </div>
 
-                    <span
-                      className={
-                        isOccupied
-                          ? 'px-2 py-0.5 rounded-sm bg-[#C3A27C] text-slate-950 text-[10px] font-bold flex items-center gap-1.5 shadow-xs'
-                          : 'px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold flex items-center gap-1.5'
-                      }
-                    >
-                      {isOccupied ? (
-                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                      ) : (
-                        <span className="material-symbols-outlined text-[10px] text-emerald-500">circle</span>
+                    <div className="flex items-center gap-1.5">
+                      {isOccupied && getElapsedIndicator(table.orderTime)}
+                      <span
+                        className={
+                          isOccupied
+                            ? 'px-2 py-0.5 rounded-sm bg-[#C3A27C] text-slate-950 text-[10px] font-bold flex items-center gap-1.5 shadow-xs'
+                            : 'px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold flex items-center gap-1.5'
+                        }
+                      >
+                        {isOccupied ? (
+                          <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-pulse" />
+                        ) : (
+                          <span className="material-symbols-outlined text-[10px] text-emerald-500">circle</span>
+                        )}
+                        <span>{isOccupied ? 'OCCUPIED' : 'FREE'}</span>
+                      </span>
+                      {!isOccupied && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteTable(table.id, table.name, e)}
+                          className="w-5 h-5 rounded-sm bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-500 flex items-center justify-center transition-colors shadow-2xs border border-slate-200 opacity-0 group-hover:opacity-100"
+                        >
+                          <span className="material-symbols-outlined text-[14px]">close</span>
+                        </button>
                       )}
-                      <span>{isOccupied ? 'OCCUPIED' : 'FREE'}</span>
-                    </span>
+                    </div>
                   </div>
 
                   {/* Center Content */}
-                  <div>
+                  <div className="my-2">
                     {isOccupied ? (
-                      <div className="space-y-0.5">
+                      <div className="space-y-1">
                         <div className="text-xl font-black text-slate-950 tracking-tight">
                           ₹{(table.totalAmount || 0).toLocaleString('en-IN')}
                         </div>
-                        <div className="text-xs font-bold text-slate-600">
-                          {table.itemCount || 1} {table.itemCount === 1 ? 'item' : 'items'} ordered
+                        <div className="text-xs font-bold text-slate-700">
+                          {table.itemCount || 1} {table.itemCount === 1 ? 'item' : 'items'}
                         </div>
+                        {table.items && table.items.length > 0 && (
+                          <div className="text-[10px] text-slate-500 truncate mt-1">
+                            {table.items.slice(0, 2).map(i => `${i.name} x${i.quantity}`).join(', ')}
+                            {table.items.length > 2 ? ' ...' : ''}
+                          </div>
+                        )}
                       </div>
                     ) : (
-                      <div className="text-xs font-medium text-slate-400">
+                      <div className="text-xs font-bold text-slate-400 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[14px]">check_circle</span>
                         Ready for customers
                       </div>
                     )}

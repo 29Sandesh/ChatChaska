@@ -1,76 +1,75 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-interface StaffNavigationDrawerProps {
+export interface StaffNavigationDrawerProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const NAV_LINKS = [
-  {
-    href: '/staff/pos',
-    label: 'POS Billing Terminal',
-    description: 'Create bills, KOTs & take orders',
-    icon: 'point_of_sale',
-  },
-  {
-    href: '/staff/tables',
-    label: 'Tables Floor Map',
-    description: 'Live table occupancy & status',
-    icon: 'grid_view',
-  },
-  {
-    href: '/staff/orders',
-    label: 'Orders Queue',
-    description: 'Incoming table QR & counter tickets',
-    icon: 'receipt_long',
-  },
-  {
-    href: '/staff/kitchen',
-    label: 'Kitchen Display (KDS)',
-    description: 'Live cooking orders & timers',
-    icon: 'soup_kitchen',
-  },
-  {
-    href: '/staff/history',
-    label: 'Bill History & Sales',
-    description: 'Past receipts, EOD & daily reports',
-    icon: 'history',
-  },
-  {
-    href: '/staff/shift',
-    label: 'Shift & Cash Drawer',
-    description: 'Opening float, Z-reading & reconciliation',
-    icon: 'point_of_sale',
-  },
-  {
-    href: '/admin',
-    label: 'Cafe Admin Console',
-    description: 'Menu, UPI QR, Printer & Staff setup',
-    icon: 'settings',
-  },
-];
-
 export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawerProps) {
   const pathname = usePathname();
+  const [pendingCount, setPendingCount] = useState(0);
+  const [kitchenCount, setKitchenCount] = useState(0);
+  const [occupiedTables, setOccupiedTables] = useState(0);
+  const [totalTables, setTotalTables] = useState(0);
+  const [hasActiveShift, setHasActiveShift] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    async function fetchBadges() {
+      try {
+        const [ordersRes, tablesRes, shiftsRes] = await Promise.all([
+          fetch("/api/orders").catch(() => null),
+          fetch("/api/tables").catch(() => null),
+          fetch("/api/shifts").catch(() => null),
+        ]);
+
+        if (ordersRes?.ok) {
+          const ordersData = await ordersRes.json();
+          const list = Array.isArray(ordersData) ? ordersData : ordersData.orders || [];
+          const pending = list.filter((o: any) => o.status === "pending").length;
+          const kitchen = list.filter((o: any) => o.status === "preparing" || o.status === "ready").length;
+          setPendingCount(pending);
+          setKitchenCount(kitchen);
+        }
+
+        if (tablesRes?.ok) {
+          const tablesData = await tablesRes.json();
+          const list = Array.isArray(tablesData) ? tablesData : tablesData.tables || [];
+          setTotalTables(list.length);
+          setOccupiedTables(list.filter((t: any) => t.status === "occupied").length);
+        }
+
+        if (shiftsRes?.ok) {
+          const shiftsData = await shiftsRes.json();
+          setHasActiveShift(Boolean(shiftsData.activeShift));
+        }
+      } catch (err) {
+        console.error("Failed to fetch badges", err);
+      }
+    }
+
+    fetchBadges();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 select-none font-sans">
-      {/* 1. Backdrop Overlay to Hide/Dim the Rest of Page */}
+      {/* Backdrop Overlay */}
       <div
         onClick={onClose}
         className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
       />
 
-      {/* 2. Full-Height RIGHT Slide Drawer */}
+      {/* Full-Height RIGHT Slide Drawer */}
       <aside className="fixed top-0 right-0 bottom-0 w-[310px] max-w-[85vw] bg-white shadow-2xl z-50 flex flex-col justify-between animate-in slide-in-from-right duration-300 border-l border-[#C3A27C]/30">
-        {/* Top Header with Logo & Close Button */}
         <div>
+          {/* Header */}
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-[#FAF7F2]">
             <img
               src="/chatchaska-logo.png"
@@ -98,41 +97,148 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
             </div>
           </div>
 
-          {/* Navigation Links (Box Shaped with #C3A27C Beige) */}
-          <nav className="p-3 space-y-1.5 overflow-y-auto max-h-[calc(100vh-220px)] no-scrollbar">
-            {NAV_LINKS.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={onClose}
-                  className={`flex items-start gap-3 p-3 rounded-md transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-[#C3A27C] text-slate-950 font-bold shadow-2xs border border-[#B2906A]'
-                      : 'text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 border border-transparent'
+          {/* Navigation Links with Sections */}
+          <nav className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-220px)] no-scrollbar">
+            {/* ESSENTIAL */}
+            <div className="space-y-1">
+              <div className="px-2 pb-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Essential
+              </div>
+              <Link
+                href="/staff/pos"
+                onClick={onClose}
+                className={`flex items-center justify-between p-2.5 rounded-md transition-all cursor-pointer ${
+                  pathname === "/staff/pos"
+                    ? "bg-[#C3A27C] text-slate-950 font-bold shadow-2xs border border-[#B2906A]"
+                    : "text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[20px]">point_of_sale</span>
+                  <span className="text-xs font-bold">POS Billing Terminal</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/staff/orders"
+                onClick={onClose}
+                className={`flex items-center justify-between p-2.5 rounded-md transition-all cursor-pointer ${
+                  pathname === "/staff/orders"
+                    ? "bg-[#C3A27C] text-slate-950 font-bold shadow-2xs border border-[#B2906A]"
+                    : "text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[20px]">receipt_long</span>
+                  <span className="text-xs font-bold">Orders Queue</span>
+                </div>
+                {pendingCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-sm bg-amber-500 text-white font-black text-[11px] shadow-2xs">
+                    {pendingCount}
+                  </span>
+                )}
+              </Link>
+            </div>
+
+            {/* MORE TOOLS */}
+            <div className="space-y-1">
+              <div className="px-2 pb-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                More Tools
+              </div>
+              <Link
+                href="/staff/kitchen"
+                onClick={onClose}
+                className={`flex items-center justify-between p-2.5 rounded-md transition-all cursor-pointer ${
+                  pathname === "/staff/kitchen"
+                    ? "bg-[#C3A27C] text-slate-950 font-bold shadow-2xs border border-[#B2906A]"
+                    : "text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[20px]">soup_kitchen</span>
+                  <span className="text-xs font-bold">Kitchen Display (KDS)</span>
+                </div>
+                {kitchenCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-sm bg-slate-900 text-white font-black text-[11px]">
+                    {kitchenCount}
+                  </span>
+                )}
+              </Link>
+
+              <Link
+                href="/staff/tables"
+                onClick={onClose}
+                className={`flex items-center justify-between p-2.5 rounded-md transition-all cursor-pointer ${
+                  pathname === "/staff/tables"
+                    ? "bg-[#C3A27C] text-slate-950 font-bold shadow-2xs border border-[#B2906A]"
+                    : "text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[20px]">grid_view</span>
+                  <span className="text-xs font-bold">Tables Floor Map</span>
+                </div>
+                {totalTables > 0 && (
+                  <span className="px-2 py-0.5 rounded-sm bg-slate-100 text-slate-800 border border-slate-200 font-bold text-[11px]">
+                    {occupiedTables}/{totalTables}
+                  </span>
+                )}
+              </Link>
+
+              <Link
+                href="/staff/history"
+                onClick={onClose}
+                className={`flex items-center justify-between p-2.5 rounded-md transition-all cursor-pointer ${
+                  pathname === "/staff/history"
+                    ? "bg-[#C3A27C] text-slate-950 font-bold shadow-2xs border border-[#B2906A]"
+                    : "text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[20px]">history</span>
+                  <span className="text-xs font-bold">Bill History & Sales</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/staff/shift"
+                onClick={onClose}
+                className={`flex items-center justify-between p-2.5 rounded-md transition-all cursor-pointer ${
+                  pathname === "/staff/shift"
+                    ? "bg-[#C3A27C] text-slate-950 font-bold shadow-2xs border border-[#B2906A]"
+                    : "text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[20px]">point_of_sale</span>
+                  <span className="text-xs font-bold">Shift & Cash Drawer</span>
+                </div>
+                <span
+                  className={`px-2 py-0.5 rounded-sm text-[10px] font-bold ${
+                    hasActiveShift
+                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      : "bg-slate-100 text-slate-600 border border-slate-200"
                   }`}
                 >
-                  <span
-                    className={`material-symbols-outlined text-[20px] shrink-0 mt-0.5 ${
-                      isActive ? 'text-slate-950 font-bold' : 'text-slate-500'
-                    }`}
-                  >
-                    {link.icon}
-                  </span>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold leading-snug">{link.label}</div>
-                    <div className={`text-[11px] font-normal leading-tight mt-0.5 ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>
-                      {link.description}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+                  {hasActiveShift ? "Active" : "No Shift"}
+                </span>
+              </Link>
+
+              <Link
+                href="/admin"
+                onClick={onClose}
+                className="flex items-center justify-between p-2.5 rounded-md text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 transition-all border border-transparent"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[20px]">settings</span>
+                  <span className="text-xs font-bold">Cafe Admin Console</span>
+                </div>
+              </Link>
+            </div>
           </nav>
         </div>
 
-        {/* Bottom Exit / Logout Link */}
+        {/* Bottom Exit */}
         <div className="p-3 border-t border-slate-100 bg-[#FAF7F2]">
           <Link
             href="/login?logout=true"
@@ -147,3 +253,5 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
     </div>
   );
 }
+
+export default StaffNavigationDrawer;

@@ -84,8 +84,9 @@ export default function ShiftManagementPage() {
       });
 
       if (res.ok) {
-        toast.success(`🎉 Shift opened with ₹${openingCash} opening cash!`);
+        toast.success('🎉 Shift opened! Opening POS Terminal...');
         await loadShiftData();
+        setTimeout(() => router.push('/staff/pos'), 1200);
       } else {
         toast.error('Failed to start shift');
       }

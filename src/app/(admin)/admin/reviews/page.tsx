@@ -3,6 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { EmptyState } from '@/components/ui/EmptyState';
 
+const QUICK_REPLIES = [
+  "Thank you so much! 😊",
+  "Glad you enjoyed your meal! Visit again soon.",
+  "Apologies for the inconvenience. We will improve this!"
+];
+
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,7 +105,7 @@ export default function AdminReviewsPage() {
           reviews.map((rev) => (
             <div
               key={rev.id}
-              className="bg-white border border-slate-200 rounded-md p-5 shadow-sm space-y-3 hover:border-slate-200 transition-all"
+              className="bg-white border border-slate-200 rounded-md p-5 shadow-sm space-y-3 hover:border-slate-300 transition-all"
             >
               {/* Top Row: User & Rating */}
               <div className="flex items-center justify-between">
@@ -141,6 +147,18 @@ export default function AdminReviewsPage() {
               <div className="ml-12 pt-1 flex justify-end">
                 {replyingId === rev.id ? (
                   <div className="w-full space-y-2 pt-2">
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {QUICK_REPLIES.map((qr) => (
+                        <button 
+                          key={qr} 
+                          type="button" 
+                          onClick={() => setReplyText(qr)} 
+                          className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] px-2 py-1 rounded-sm border border-slate-200 transition-colors"
+                        >
+                          {qr}
+                        </button>
+                      ))}
+                    </div>
                     <textarea
                       rows={2}
                       value={replyText}
@@ -151,14 +169,14 @@ export default function AdminReviewsPage() {
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => { setReplyingId(null); setReplyText(''); }}
-                        className="px-3 py-1.5 rounded-md bg-slate-50 text-slate-500 hover:text-slate-800 text-xs font-bold"
+                        className="px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold transition-all"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={() => handleSendReply(rev.id)}
                         disabled={submittingReply || !replyText.trim()}
-                        className="px-4 py-1.5 rounded-md bg-gradient-to-r from-blue-600 to-blue-500 text-slate-900 text-xs font-bold shadow-md disabled:opacity-50"
+                        className="px-4 py-1.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-bold shadow-sm disabled:opacity-50 transition-all"
                       >
                         {submittingReply ? 'Posting...' : 'Post Reply'}
                       </button>
@@ -168,7 +186,7 @@ export default function AdminReviewsPage() {
                   !rev.owner_reply && (
                     <button
                       onClick={() => { setReplyingId(rev.id); setReplyText(''); }}
-                      className="text-xs font-bold text-slate-900 hover:text-[#B3926C] flex items-center gap-1 cursor-pointer"
+                      className="text-xs font-bold text-slate-900 hover:text-[#B3926C] flex items-center gap-1 cursor-pointer transition-colors"
                     >
                       <span className="material-symbols-outlined text-sm">reply</span>
                       <span>Reply to Customer</span>
