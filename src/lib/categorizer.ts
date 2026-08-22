@@ -6,16 +6,16 @@ export interface PredefinedCategory {
 }
 
 export const PREDEFINED_CATEGORIES: Record<string, PredefinedCategory> = {
-  'starters': { id: 'starters', name: 'Starters & Tandoor', icon: '🍢', order: 0 },
-  'main-course': { id: 'main-course', name: 'Main Course & Curries', icon: '🥘', order: 1 },
-  'breads-rice': { id: 'breads-rice', name: 'Breads, Rice & Biryani', icon: '🍚', order: 2 },
-  'soups-salads': { id: 'soups-salads', name: 'Soups, Salads & Papad', icon: '🥗', order: 3 },
-  'raita-curd': { id: 'raita-curd', name: 'Raita & Sides', icon: '🥣', order: 4 },
-  'indo-chinese': { id: 'indo-chinese', name: 'Indo-Chinese', icon: '🍜', order: 5 },
-  'snacks-chaat': { id: 'snacks-chaat', name: 'Chaat & Street Snacks', icon: '🥪', order: 6 },
-  'shakes-beverages': { id: 'shakes-beverages', name: 'Shakes & Thick Drinks', icon: '🥤', order: 7 },
-  'desserts': { id: 'desserts', name: 'Desserts & Sweets', icon: '🍰', order: 8 },
-  'drinks': { id: 'drinks', name: 'Tea, Coffee & Beverages', icon: '☕', order: 9 },
+  'starters': { id: 'starters', name: 'Starters & Tandoor', icon: '', order: 0 },
+  'main-course': { id: 'main-course', name: 'Main Course & Curries', icon: '', order: 1 },
+  'breads-rice': { id: 'breads-rice', name: 'Breads, Rice & Biryani', icon: '', order: 2 },
+  'soups-salads': { id: 'soups-salads', name: 'Soups, Salads & Papad', icon: '', order: 3 },
+  'raita-curd': { id: 'raita-curd', name: 'Raita & Sides', icon: '', order: 4 },
+  'indo-chinese': { id: 'indo-chinese', name: 'Indo-Chinese', icon: '', order: 5 },
+  'snacks-chaat': { id: 'snacks-chaat', name: 'Chaat & Street Snacks', icon: '', order: 6 },
+  'shakes-beverages': { id: 'shakes-beverages', name: 'Shakes & Thick Drinks', icon: '', order: 7 },
+  'desserts': { id: 'desserts', name: 'Desserts & Sweets', icon: '', order: 8 },
+  'drinks': { id: 'drinks', name: 'Tea, Coffee & Beverages', icon: '', order: 9 },
 };
 
 interface CategoryRule {

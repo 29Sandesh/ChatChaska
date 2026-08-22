@@ -700,10 +700,10 @@ export default function SetupWizardPage() {
 
                 <div className="space-y-0.5">
                   <h4 className="font-black text-slate-900 flex items-center gap-1.5">
-                    <span className="text-[#8C6D47]">✓</span> 2. Local Data Privacy & Sovereignty
+                    <span className="text-[#8C6D47]">✓</span> 2. Device Privacy & Offline-First Storage
                   </h4>
                   <p className="text-slate-600 leading-relaxed pl-5 text-[11px]">
-                    All customer orders, bills, and catalog data reside locally in your offline SQLite database.
+                    Your sales, orders, and customer data are saved directly on your device (Local Database & Browser Storage) with automated cloud backup, ensuring your billing never stops even during internet downtime.
                   </p>
                 </div>
 

@@ -125,34 +125,42 @@ export default function MenuManagerPage() {
     fetchCategories();
   }, []);
 
-  // Handle AI Menu Photo Upload
+  // Handle AI Menu Photo Upload (supports multiple images)
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setIsScanning(true);
     setScanResult(null);
 
-    const formData = new FormData();
-    formData.append('file', file);
-
+    let totalAdded = 0;
     try {
-      const res = await fetch('/api/ai/extract-menu', {
-        method: 'POST',
-        body: formData,
-      });
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('file', file);
 
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setScanResult({
-          count: data.itemsAdded || 0,
-          message: data.message || `Added ${data.itemsAdded} dishes to your menu!`,
+        const res = await fetch('/api/ai/extract-menu', {
+          method: 'POST',
+          body: formData,
         });
-        showToast(`🎉 AI added ${data.itemsAdded} dishes!`);
+
+        const data = await res.json();
+        if (res.ok && data.itemsAdded > 0) {
+          totalAdded += data.itemsAdded;
+        }
+      }
+
+      if (totalAdded > 0) {
+        setScanResult({
+          count: totalAdded,
+          message: `Vision AI added ${totalAdded} dishes from ${files.length} menu photo(s)!`,
+        });
+        showToast(`🎉 Vision AI added ${totalAdded} dishes!`);
         fetchItems();
         fetchCategories();
       } else {
-        showToast(data.error || 'Failed to scan menu image');
+        showToast('No dishes could be extracted from the uploaded photo(s)');
       }
     } catch (err) {
       console.error(err);
@@ -283,48 +291,44 @@ export default function MenuManagerPage() {
     }
   };
 
-  const filteredItems = items.filter((item) => {
-    if (selectedCategory !== 'ALL' && item.category !== selectedCategory) return false;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      return (
-        item.name.toLowerCase().includes(q) ||
-        item.category.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
-
-  // --- New Handlers ---
-
-  const handleEditPrice = (item: MenuItem) => {
+  // Inline Price Editing Handlers
+  const handleStartEditingPrice = (item: MenuItem) => {
     setEditingPriceId(item.id);
     setEditingPriceValue(item.price);
   };
 
-  const handleSavePrice = async (item: MenuItem) => {
-    if (editingPriceValue === item.price) {
-      setEditingPriceId(null);
-      return;
-    }
-    const newPrice = editingPriceValue;
-    
-    // Optimistic update
-    setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, price: newPrice } : i)));
-    setEditingPriceId(null);
-
+  const handleSaveInlinePrice = async (itemId: string) => {
+    if (editingPriceValue <= 0) return;
     try {
-      await fetch('/api/menu-items', {
+      // Optimistic update
+      setItems(prev => prev.map(i => i.id === itemId ? { ...i, price: editingPriceValue } : i));
+      setEditingPriceId(null);
+
+      const res = await fetch('/api/menu-items', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: item.id, price: newPrice }),
+        body: JSON.stringify({ id: itemId, price: editingPriceValue }),
       });
-      showToast(`Price updated to ₹${newPrice}!`);
-    } catch (err) {
-      fetchItems(); // Revert on error
+
+      if (res.ok) {
+        showToast(`Price updated to ₹${editingPriceValue}!`);
+      } else {
+        fetchItems();
+      }
+    } catch {
+      fetchItems();
     }
   };
 
+  const filteredItems = items.filter((item) => {
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory = selectedCategory === 'ALL' || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Bulk selection helpers
   const handleToggleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedItemIds(filteredItems.map(i => i.id));
@@ -333,19 +337,17 @@ export default function MenuManagerPage() {
     }
   };
 
-  const handleToggleSelect = (id: string, checked: boolean) => {
-    if (checked) {
-      setSelectedItemIds(prev => [...prev, id]);
-    } else {
-      setSelectedItemIds(prev => prev.filter(item => item !== id));
-    }
+  const handleToggleSelectItem = (id: string) => {
+    setSelectedItemIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
   };
 
   const handleBulkStockUpdate = async (available: boolean) => {
-    // Optimistic
-    setItems(prev => prev.map(i => selectedItemIds.includes(i.id) ? { ...i, available } : i));
-    
+    if (selectedItemIds.length === 0) return;
     const count = selectedItemIds.length;
+    // Optimistic update
+    setItems(prev => prev.map(i => selectedItemIds.includes(i.id) ? { ...i, available } : i));
     
     try {
       await Promise.all(
@@ -407,13 +409,41 @@ export default function MenuManagerPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-200/80">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Menu & Dishes</h1>
-          <p className="text-xs text-slate-500 font-medium">
-            {items.length} total dishes • AI category assignment
-          </p>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Menu</h1>
         </div>
 
         <div className="flex items-center flex-wrap gap-2">
+          {/* Upload New Menu Button */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            capture="environment"
+            onChange={handleFileUpload}
+            className="hidden"
+            id="menu-photo-upload"
+            disabled={isScanning}
+          />
+          <label
+            htmlFor="menu-photo-upload"
+            className={`cursor-pointer bg-slate-900 hover:bg-slate-800 text-white font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 ${
+              isScanning ? 'opacity-50 pointer-events-none' : ''
+            }`}
+          >
+            {isScanning ? (
+              <>
+                <span className="animate-spin text-xs">⏳</span>
+                <span>Reading menu...</span>
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-[16px]">photo_camera</span>
+                <span>Upload New Menu</span>
+              </>
+            )}
+          </label>
+
           <button
             type="button"
             disabled={isAutoCategorizing}
@@ -422,7 +452,7 @@ export default function MenuManagerPage() {
             title="Automatically sort all dishes into predefined categories based on keywords"
           >
             <span className="material-symbols-outlined text-[16px] text-[#C3A27C]">bolt</span>
-            <span>{isAutoCategorizing ? 'Sorting Dishes...' : 'Auto-Sort Categories'}</span>
+            <span>{isAutoCategorizing ? 'Sorting...' : 'Auto-Sort Categories'}</span>
           </button>
 
           <button
@@ -440,59 +470,8 @@ export default function MenuManagerPage() {
             className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] font-extrabold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">add</span>
-            <span>+ Add Dish</span>
+            <span>Add Dish</span>
           </button>
-        </div>
-      </div>
-
-      {/* Minimal AI Menu Scanner Bar */}
-      <div className="bg-white border border-slate-200/80 rounded-md p-4 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="w-10 h-10 rounded-md bg-blue-50 text-slate-900 flex items-center justify-center text-xl shrink-0">
-            📸
-          </div>
-          <div>
-            <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-              <span>Scan Menu Photo with AI</span>
-              <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-black rounded-md uppercase">
-                Groq Vision
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 font-medium">
-              Upload a menu photo to automatically extract dishes, prices & categories.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleFileUpload}
-            className="hidden"
-            id="menu-photo-upload"
-            disabled={isScanning}
-          />
-          <label
-            htmlFor="menu-photo-upload"
-            className={`cursor-pointer bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 ${
-              isScanning ? 'opacity-50 pointer-events-none' : ''
-            }`}
-          >
-            {isScanning ? (
-              <>
-                <span className="animate-spin text-xs">⏳</span>
-                <span>Reading menu...</span>
-              </>
-            ) : (
-              <>
-                <span className="material-symbols-outlined text-[16px]">photo_camera</span>
-                <span>Upload Menu Photo</span>
-              </>
-            )}
-          </label>
         </div>
       </div>
 
@@ -524,7 +503,7 @@ export default function MenuManagerPage() {
           />
         </div>
 
-        {/* Categories Bar with no-scrollbar */}
+        {/* Categories Bar with no-scrollbar and no emojis */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto py-0.5 scrollbar-none">
           <button
             onClick={() => setSelectedCategory('ALL')}
@@ -539,6 +518,7 @@ export default function MenuManagerPage() {
           {categories.map((cat) => {
             const count = items.filter((i) => i.category === cat.id).length;
             const isSelected = selectedCategory === cat.id;
+            const cleanName = cat.name.replace(/[\p{Emoji}\u200d]+/gu, '').trim() || cat.name;
             return (
               <button
                 key={cat.id}
@@ -549,8 +529,7 @@ export default function MenuManagerPage() {
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                <span>{cat.icon || '🍽️'}</span>
-                <span>{cat.name}</span>
+                <span>{cleanName}</span>
                 {count > 0 && (
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-sm font-black ${
                     isSelected ? 'bg-black/15 text-slate-950' : 'bg-slate-200 text-slate-700'
@@ -568,7 +547,6 @@ export default function MenuManagerPage() {
       <div className="bg-white border border-slate-200/80 rounded-md overflow-hidden shadow-2xs">
         <div className="p-3.5 border-b border-slate-100 font-bold text-xs text-slate-900 flex justify-between items-center">
           <span>Showing {filteredItems.length} dishes</span>
-          <span className="text-[11px] text-slate-400 font-normal">Categories auto-managed by AI</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-700">
@@ -604,7 +582,7 @@ export default function MenuManagerPage() {
                       <input
                         type="checkbox"
                         checked={selectedItemIds.includes(item.id)}
-                        onChange={(e) => handleToggleSelect(item.id, e.target.checked)}
+                        onChange={() => handleToggleSelectItem(item.id)}
                         className="accent-[#C3A27C] cursor-pointer w-3.5 h-3.5 rounded-sm"
                       />
                     </td>
@@ -631,7 +609,7 @@ export default function MenuManagerPage() {
                     </td>
                     <td className="p-3">
                       <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md font-medium text-[11px]">
-                        {categories.find((c) => c.id === item.category)?.name || item.category}
+                        {categories.find((c) => c.id === item.category)?.name?.replace(/[\p{Emoji}\u200d]+/gu, '').trim() || item.category}
                       </span>
                     </td>
                     <td className="p-3 font-black text-slate-900 group">
@@ -643,9 +621,9 @@ export default function MenuManagerPage() {
                             autoFocus
                             value={editingPriceValue}
                             onChange={(e) => setEditingPriceValue(Number(e.target.value))}
-                            onBlur={() => handleSavePrice(item)}
+                            onBlur={() => handleSaveInlinePrice(item.id)}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter') handleSavePrice(item);
+                              if (e.key === 'Enter') handleSaveInlinePrice(item.id);
                               if (e.key === 'Escape') setEditingPriceId(null);
                             }}
                             className="w-20 pl-5 pr-2 py-1 rounded-md border border-[#C3A27C] outline-none shadow-sm text-xs font-black text-slate-900 bg-white"
@@ -654,7 +632,7 @@ export default function MenuManagerPage() {
                       ) : (
                         <div 
                           className="flex items-center gap-1.5 cursor-pointer hover:bg-slate-100 p-1 -ml-1 rounded-md transition-colors w-max"
-                          onClick={() => handleEditPrice(item)}
+                          onClick={() => handleStartEditingPrice(item)}
                         >
                           ₹{item.price}
                           <span className="material-symbols-outlined text-[14px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
