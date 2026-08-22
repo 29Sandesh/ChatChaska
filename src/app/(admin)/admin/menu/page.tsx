@@ -525,34 +525,35 @@ export default function MenuManagerPage() {
         </div>
 
         {/* Categories Bar with no-scrollbar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto py-0.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto py-0.5 scrollbar-none">
           <button
             onClick={() => setSelectedCategory('ALL')}
             className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all shrink-0 cursor-pointer ${
               selectedCategory === 'ALL'
-                ? 'bg-[#C3A27C] text-white shadow-2xs'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-[#C3A27C] text-slate-950 shadow-2xs border border-[#B2906A]'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
             All ({items.length})
           </button>
           {categories.map((cat) => {
             const count = items.filter((i) => i.category === cat.id).length;
+            const isSelected = selectedCategory === cat.id;
             return (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? 'bg-[#C3A27C] text-white shadow-2xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  isSelected
+                    ? 'bg-[#C3A27C] text-slate-950 shadow-2xs border border-[#B2906A]'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
                 <span>{cat.icon || '🍽️'}</span>
                 <span>{cat.name}</span>
                 {count > 0 && (
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                    selectedCategory === cat.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-sm font-black ${
+                    isSelected ? 'bg-black/15 text-slate-950' : 'bg-slate-200 text-slate-700'
                   }`}>
                     {count}
                   </span>

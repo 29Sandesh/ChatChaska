@@ -141,31 +141,31 @@ export default function OwnerDashboardPage() {
       </div>
       
       {/* Quick Action Bar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Link href="/admin/menu" className="bg-white hover:bg-slate-50 text-slate-700 font-bold px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border border-slate-200 shadow-sm transition-all">
-          <span className="text-base leading-none">+</span> Add Dish
+      <div className="flex flex-wrap items-center gap-2.5">
+        <Link href="/admin/menu" className="bg-white hover:bg-slate-50 text-slate-800 font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 border border-slate-200 shadow-2xs transition-all">
+          <span className="material-symbols-outlined text-[16px] text-[#8C6D47]">add_circle</span> Add Dish
         </Link>
-        <button onClick={handleWhatsAppEOD} className="bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold px-3 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-sm transition-all">
-          <span className="text-base leading-none">💬</span> Send WhatsApp EOD
+        <button onClick={handleWhatsAppEOD} className="bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer">
+          <span className="material-symbols-outlined text-[16px]">chat</span> Send WhatsApp EOD
         </button>
-        <Link href="/admin/qr-codes" className="bg-white hover:bg-slate-50 text-slate-700 font-bold px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border border-slate-200 shadow-sm transition-all">
-          <span className="text-base leading-none">🖨️</span> Table QR Codes
+        <Link href="/admin/qr-codes" className="bg-white hover:bg-slate-50 text-slate-800 font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 border border-slate-200 shadow-2xs transition-all">
+          <span className="material-symbols-outlined text-[16px] text-slate-600">qr_code_2</span> Table QR Codes
         </Link>
-        <Link href="/staff/pos" className="bg-black hover:bg-slate-800 text-white font-bold px-3 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-sm transition-all">
-          <span className="text-base leading-none">⚡</span> Open Billing POS
+        <Link href="/staff/pos" className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 border border-[#B2906A] shadow-2xs transition-all">
+          <span className="material-symbols-outlined text-[16px]">point_of_sale</span> Open Billing POS
         </Link>
       </div>
 
       {/* Setup Wizard Incomplete Banner */}
       {!setupCompleted && (
-        <div className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md p-4 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
+        <div className="bg-[#FAF7F2] border border-[#C3A27C]/40 text-slate-900 rounded-md p-4 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-md bg-white/20 flex items-center justify-center text-xl shrink-0">
-              🚀
+            <div className="w-10 h-10 rounded-md bg-[#C3A27C]/20 border border-[#C3A27C]/30 flex items-center justify-center text-slate-900 shrink-0">
+              <span className="material-symbols-outlined text-[#8C6D47]">rocket_launch</span>
             </div>
             <div>
-              <h3 className="font-bold text-sm">Finish Setting Up Your Cafe Workspace</h3>
-              <p className="text-xs text-slate-800">
+              <h3 className="font-bold text-sm text-slate-900">Finish Setting Up Your Cafe Workspace</h3>
+              <p className="text-xs text-slate-600 font-medium">
                 Configure your GST/FSSAI numbers, dining tables, and staff PINs in 2 minutes.
               </p>
             </div>
@@ -173,7 +173,7 @@ export default function OwnerDashboardPage() {
 
           <Link
             href="/admin/setup"
-            className="px-4 py-2 bg-white text-slate-950 hover:bg-[#B3926C] hover:text-slate-950 font-black rounded-md text-xs shadow-sm shrink-0 transition-all cursor-pointer"
+            className="px-4 py-2 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold rounded-md text-xs border border-[#B2906A] shadow-2xs shrink-0 transition-all cursor-pointer"
           >
             Launch Setup Wizard →
           </Link>
