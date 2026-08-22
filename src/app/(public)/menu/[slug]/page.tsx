@@ -51,7 +51,7 @@ function DietIcon({ veg, size = 15 }: { veg: boolean; size?: number }) {
 }
 
 /* ─────────────────────────────────────────────
-   Swiggy-style Enable/Disable Toggle Filter Button
+   Single-tap On/Off Toggle Filter Button
    ───────────────────────────────────────────── */
 function ToggleFilterButton({
   label,
@@ -64,34 +64,27 @@ function ToggleFilterButton({
   isActive: boolean;
   onToggle: () => void;
 }) {
-  const activeBorder = veg
-    ? 'border-emerald-500 bg-emerald-50 text-emerald-800 font-bold'
-    : 'border-red-500 bg-red-50 text-red-800 font-bold';
-  const knobBg = veg ? 'bg-emerald-600' : 'bg-red-600';
+  const activeClass = veg
+    ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-black shadow-2xs'
+    : 'border-rose-600 bg-rose-50 text-rose-950 font-black shadow-2xs';
 
   return (
     <button
+      type="button"
       onClick={onToggle}
-      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] border text-[11px] transition-all shadow-2xs active:scale-95 whitespace-nowrap ${
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs transition-all active:scale-95 whitespace-nowrap cursor-pointer ${
         isActive
-          ? activeBorder
-          : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
+          ? activeClass
+          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 font-bold'
       }`}
     >
       <DietIcon veg={veg} size={11} />
       <span>{label}</span>
-      {/* Enable / Disable Toggle Switch Handle */}
-      <div
-        className={`w-6 h-3.5 rounded-[4px] p-0.5 transition-colors relative flex items-center ${
-          isActive ? (veg ? 'bg-emerald-200' : 'bg-red-200') : 'bg-gray-200'
+      <span
+        className={`w-2 h-2 rounded-full transition-colors ${
+          isActive ? (veg ? 'bg-emerald-600' : 'bg-rose-600') : 'bg-slate-300'
         }`}
-      >
-        <div
-          className={`w-2.5 h-2.5 rounded-[3px] shadow-2xs transition-transform duration-200 ${
-            isActive ? `${knobBg} translate-x-2.5` : 'bg-white translate-x-0'
-          }`}
-        />
-      </div>
+      />
     </button>
   );
 }
@@ -515,12 +508,10 @@ export default function CustomerDigitalMenuPage() {
             <h1 className="font-black text-sm text-slate-950 leading-tight truncate tracking-tight">
               {cafeInfo.name}
             </h1>
-            <div className="flex items-center gap-1.5 text-slate-500 text-[11px] mt-1 font-medium leading-none">
-              <span className="text-amber-500 font-black inline-flex items-center gap-0.5 shrink-0">
+            <div className="flex items-center gap-1 text-slate-500 text-[11px] mt-0.5 font-medium leading-none">
+              <span className="text-amber-500 font-black inline-flex items-center gap-0.5">
                 ★ 4.8
               </span>
-              <span className="text-slate-300 shrink-0">•</span>
-              <span className="truncate text-slate-500">{cafeInfo.cuisines || 'Multi-Cuisine'}</span>
             </div>
           </div>
         </div>
@@ -544,116 +535,81 @@ export default function CustomerDigitalMenuPage() {
         </div>
       )}
 
-      {/* ── STICKY HEADER (Search, Veg/NonVeg Toggles, Categories Bar) ─────────────────────── */}
-      <div className="sticky top-0 z-50 bg-white border-b border-gray-100 px-4 py-2 shadow-xs transition-all duration-300">
-        {isScrolled && !isSearchExpanded ? (
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setIsSearchExpanded(true)}
-              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-emerald-50 hover:text-emerald-600 flex items-center justify-center text-gray-600 text-xs font-bold shadow-xs active:scale-95 transition-all"
-              title="Search menu"
-            >
-              🔍
-            </button>
-            <span className="font-bold text-xs text-gray-800 truncate px-2">
-              {DEMO_RESTAURANT.name}
-            </span>
-            <span className="text-[10px] font-bold text-gray-400">
-              📍 {tableNumber}
-            </span>
-          </div>
-        ) : (
-          /* Swiggy Exact Vector Search Bar with Left Chevron, Search Icon, Vertical Divider & Vector Mic Icon */
-          <div className="w-full bg-gray-100/90 hover:bg-gray-100 rounded-[6px] px-3 py-2 flex items-center gap-2 border border-gray-200/80 shadow-2xs transition-all">
-            {/* Left Chevron Icon */}
-            <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            
-            {/* Search Input */}
+      {/* ── STICKY HEADER (Filters Row + Small Search Icon Button) ─────────────────────── */}
+      <div className="sticky top-0 z-50 bg-white border-b border-slate-200 px-4 py-2 shadow-2xs transition-all duration-300">
+        {isSearchExpanded ? (
+          /* Clean Compact Search Input (No Voice Icon, Easy Close) */
+          <div className="w-full bg-slate-50 rounded-md px-3 py-1.5 flex items-center gap-2 border border-slate-200 shadow-2xs animate-in fade-in duration-200">
+            <span className="material-symbols-outlined text-[16px] text-slate-400">search</span>
             <input
               type="text"
-              autoFocus={isSearchExpanded}
-              placeholder={`Search in ${DEMO_RESTAURANT.name}`}
+              autoFocus
+              placeholder={`Search in ${cafeInfo.name}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent text-xs text-gray-800 placeholder-gray-400 outline-none font-medium"
+              className="w-full bg-transparent text-xs text-slate-900 placeholder-slate-400 outline-none font-bold"
             />
-            
-            {/* Search Magnifying Glass Icon */}
-            {searchQuery ? (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="text-gray-400 hover:text-gray-600 text-xs flex-shrink-0"
-              >
-                ✕
-              </button>
-            ) : (
-              <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            )}
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setIsSearchExpanded(false);
+              }}
+              className="text-slate-400 hover:text-slate-700 text-xs font-bold px-1 py-0.5 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
+          /* Filter Buttons Row + Small Search Icon on the Right */
+          <div className="flex items-center justify-between gap-1.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar flex-1 min-w-0">
+              {queryType !== 'non_veg' && (
+                <ToggleFilterButton
+                  label="Veg"
+                  veg={true}
+                  isActive={vegFilter === 'veg'}
+                  onToggle={() => setVegFilter(vegFilter === 'veg' ? 'all' : 'veg')}
+                />
+              )}
+              {queryType !== 'pure_veg' && (
+                <ToggleFilterButton
+                  label="Non-Veg"
+                  veg={false}
+                  isActive={vegFilter === 'nonveg'}
+                  onToggle={() => setVegFilter(vegFilter === 'nonveg' ? 'all' : 'nonveg')}
+                />
+              )}
+              {queryJain && queryType !== 'non_veg' && (
+                <button
+                  type="button"
+                  onClick={() => setVegFilter(vegFilter === 'jain' ? 'all' : 'jain')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs transition-all active:scale-95 whitespace-nowrap cursor-pointer ${
+                    vegFilter === 'jain'
+                      ? 'border-amber-500 bg-amber-50 text-amber-950 font-black shadow-2xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 font-bold'
+                  }`}
+                >
+                  <span className="w-2.5 h-2.5 rounded-xs bg-amber-500" />
+                  <span>Jain</span>
+                  <span
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      vegFilter === 'jain' ? 'bg-amber-600' : 'bg-slate-300'
+                    }`}
+                  />
+                </button>
+              )}
+            </div>
 
-            {/* Vertical Divider Line */}
-            <div className="w-[1px] h-4 bg-gray-300 flex-shrink-0 mx-0.5" />
-
-            {/* Vector Orange Mic Icon */}
-            <button className="flex-shrink-0 hover:opacity-80 transition-opacity" title="Voice search">
-              <svg className="w-4 h-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-              </svg>
+            {/* Small Search Icon Button */}
+            <button
+              onClick={() => setIsSearchExpanded(true)}
+              className="w-8 h-8 rounded-md bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center shrink-0 shadow-2xs active:scale-95 transition-all cursor-pointer"
+              title="Search menu"
+            >
+              <span className="material-symbols-outlined text-[17px]">search</span>
             </button>
           </div>
         )}
-
-        {/* ── VEG / NON-VEG / JAIN FILTER TOGGLES ── */}
-        <div
-          className={`transition-all duration-300 overflow-hidden ${
-            isScrolled && !isSearchExpanded
-              ? 'max-h-0 opacity-0 pointer-events-none mt-0'
-              : 'max-h-12 opacity-100 mt-2'
-          }`}
-        >
-          <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-0.5">
-            {queryType !== 'non_veg' && (
-              <ToggleFilterButton
-                label="Pure Veg"
-                veg={true}
-                isActive={vegFilter === 'veg'}
-                onToggle={() => setVegFilter(vegFilter === 'veg' ? 'all' : 'veg')}
-              />
-            )}
-            {queryType !== 'pure_veg' && (
-              <ToggleFilterButton
-                label="Non Veg"
-                veg={false}
-                isActive={vegFilter === 'nonveg'}
-                onToggle={() => setVegFilter(vegFilter === 'nonveg' ? 'all' : 'nonveg')}
-              />
-            )}
-            {queryJain && queryType !== 'non_veg' && (
-              <button
-                onClick={() => setVegFilter(vegFilter === 'jain' ? 'all' : 'jain')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] border text-[11px] transition-all shadow-2xs active:scale-95 whitespace-nowrap cursor-pointer ${
-                  vegFilter === 'jain'
-                    ? 'border-amber-500 bg-amber-50 text-amber-800 font-bold'
-                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
-                }`}
-              >
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                <span>Jain Friendly</span>
-              </button>
-            )}
-            {vegFilter !== 'all' && (
-              <button
-                onClick={() => setVegFilter('all')}
-                className="px-2.5 py-1 rounded-[6px] text-[11px] font-bold border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all whitespace-nowrap cursor-pointer"
-              >
-                ✕ Clear
-              </button>
-            )}
-          </div>
-        </div>
 
         {/* ── RESTAURANT CATEGORIES SCROLLING BAR (ROUNDED-MD) ── */}
         <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar pt-2 pb-1 border-t border-slate-100 mt-2">
