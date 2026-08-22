@@ -4,10 +4,10 @@ import bcrypt from 'bcryptjs';
 
 /**
  * POST /api/admin/setup
- * Saves all 5 steps of first-time onboarding wizard in one atomic transaction:
+ * Saves all steps of first-time onboarding wizard in one atomic transaction:
  * - Basic cafe info (name, address, city, phone, whatsapp)
  * - Tax & payment settings (gstin, fssai, upi_id, cgst_rate, sgst_rate)
- * - Tables generation
+ * - Main & VIP Tables generation
  * - Staff PIN creation
  * - Marks setup_completed = true
  */
@@ -26,14 +26,17 @@ export async function POST(req: Request) {
       upiId,
       cgstRate,
       sgstRate,
-      tableCount,
-      sections,
+      mainTableCount,
+      mainSeats,
+      hasVip,
+      vipTableCount,
+      vipSeats,
       ownerPin,
       cashierName,
       cashierPin,
     } = body;
 
-    // 1. Save settings
+    // 1. Save cafe settings
     if (cafeName) saveSetting('cafe_name', cafeName);
     if (address) saveSetting('cafe_address', address);
     if (city) saveSetting('cafe_city', city);
@@ -46,32 +49,39 @@ export async function POST(req: Request) {
     saveSetting('sgst_rate', String(sgstRate ?? 2.5));
     saveSetting('setup_completed', 'true');
 
-    // 2. Generate initial tables
-    const count = parseInt(String(tableCount || 6), 10);
-    const secList = Array.isArray(sections) && sections.length > 0 ? sections : ['Main Floor'];
-    
-    // Clear and re-populate default tables
+    // 2. Generate Main and VIP Tables
+    const mainCount = Math.max(1, parseInt(String(mainTableCount || 8), 10));
+    const mainSeatsPerTable = Math.max(1, parseInt(String(mainSeats || 4), 10));
+    const isVipEnabled = Boolean(hasVip);
+    const vipCount = isVipEnabled ? Math.max(1, parseInt(String(vipTableCount || 2), 10)) : 0;
+    const vipSeatsPerTable = Math.max(1, parseInt(String(vipSeats || 6), 10));
+
     try {
+      // Clear existing tables and floors
+      db.prepare('DELETE FROM tables').run();
+      db.prepare('DELETE FROM floors').run();
+
+      const insertFloorStmt = db.prepare(`
+        INSERT INTO floors (id, name, sort_order)
+        VALUES (?, ?, ?)
+      `);
+
       const insertTableStmt = db.prepare(`
-        INSERT OR REPLACE INTO tables (id, name, floor_id, seats, status)
+        INSERT INTO tables (id, name, floor_id, seats, status)
         VALUES (?, ?, ?, ?, 'blank')
       `);
 
-      let tableIdx = 1;
-      for (const section of secList) {
-        const floorId = `floor-${section.toLowerCase().replace(/\s+/g, '-')}`;
-        // Insert floor
-        db.prepare(`INSERT OR REPLACE INTO floors (id, name, sort_order) VALUES (?, ?, ?)`).run(
-          floorId,
-          section,
-          0
-        );
+      // Insert Main Floor
+      insertFloorStmt.run('floor-main', 'Main Area', 0);
+      for (let i = 1; i <= mainCount; i++) {
+        insertTableStmt.run(`table-${i}`, `Table ${i}`, 'floor-main', mainSeatsPerTable);
+      }
 
-        const tablesPerSection = Math.ceil(count / secList.length);
-        for (let i = 0; i < tablesPerSection && tableIdx <= count; i++) {
-          const tableName = `Table ${tableIdx}`;
-          insertTableStmt.run(`table-${tableIdx}`, tableName, floorId, 4);
-          tableIdx++;
+      // Insert VIP Floor if enabled
+      if (isVipEnabled && vipCount > 0) {
+        insertFloorStmt.run('floor-vip', 'VIP Section', 1);
+        for (let j = 1; j <= vipCount; j++) {
+          insertTableStmt.run(`vip-table-${j}`, `VIP ${j}`, 'floor-vip', vipSeatsPerTable);
         }
       }
     } catch (tblErr) {

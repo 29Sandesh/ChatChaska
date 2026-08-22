@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { AdminMobileNav } from '@/components/layout/AdminMobileNav';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
@@ -16,14 +17,27 @@ interface AccessInfo {
 }
 
 export default function AdminPortalLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
+  const isSetupPage = pathname === '/admin/setup';
 
   useEffect(() => {
     const saved = localStorage.getItem('admin-sidebar-collapsed');
     if (saved !== null) {
       setIsCollapsed(JSON.parse(saved));
     }
+
+    // Check if initial setup is completed
+    fetch('/api/settings?key=setup_completed')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.value !== 'true' && pathname !== '/admin/setup') {
+          router.replace('/admin/setup');
+        }
+      })
+      .catch(() => {});
 
     // Check subscription / trial access
     fetch('/api/subscription/check')
@@ -36,7 +50,7 @@ export default function AdminPortalLayout({ children }: { children: React.ReactN
       .catch(() => {
         // Silently ignore or assume normal access in offline mode
       });
-  }, []);
+  }, [pathname, router]);
 
   const handleToggleCollapse = () => {
     setIsCollapsed((prev) => {
@@ -46,17 +60,27 @@ export default function AdminPortalLayout({ children }: { children: React.ReactN
     });
   };
 
+  // If on setup page, render full screen without sidebar distractions
+  if (isSetupPage) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+        <main className="w-full">{children}</main>
+        <OfflineBanner />
+      </div>
+    );
+  }
+
   return (
     <>
       <AdminMobileNav />
       <div className="min-h-screen flex bg-slate-50 text-slate-900 font-sans">
         <AdminSidebar isCollapsed={isCollapsed} onToggleCollapse={handleToggleCollapse} />
         <div
-        className={cn(
-          'flex flex-col min-h-screen w-full transition-all duration-300',
-          isCollapsed ? 'md:ml-[72px]' : 'md:ml-[240px]'
-        )}
-      >
+          className={cn(
+            'flex flex-col min-h-screen w-full transition-all duration-300',
+            isCollapsed ? 'md:ml-[72px]' : 'md:ml-[240px]'
+          )}
+        >
         {/* Trial / Payment Warning Banner */}
         {accessInfo?.showWarning && accessInfo.warningMessage && (
           <div className="bg-amber-500 text-slate-950 font-bold px-4 py-2 text-xs flex items-center justify-between shadow-sm select-none border-b border-amber-600">
