@@ -1,5 +1,5 @@
 {
-  "name": "menucraft",
+  "name": "chatchaska",
   "version": "0.1.0",
   "private": true,
   "main": "desktop/main.js",
@@ -14,8 +14,8 @@
     "desktop:build": "electron-builder --win nsis"
   },
   "build": {
-    "appId": "com.menucraft.pos",
-    "productName": "MenuCraft POS",
+    "appId": "com.chatchaska.pos",
+    "productName": "ChatChaska POS",
     "files": [
       "desktop/**/*",
       "public/**/*"
@@ -27,14 +27,14 @@
       "target": [
         "nsis"
       ],
-      "icon": "public/logo-circle.png"
+      "icon": "public/app.ico"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "MenuCraft POS"
+      "shortcutName": "ChatChaska POS"
     }
   },
   "dependencies": {

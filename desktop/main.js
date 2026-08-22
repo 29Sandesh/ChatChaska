@@ -14,6 +14,9 @@ const SERVER_URL = `http://localhost:${PORT}/login`;
 
 function getIconPath() {
   const candidates = [
+    path.join(__dirname, '../public/app.ico'),
+    path.join(__dirname, 'public/app.ico'),
+    path.join(process.resourcesPath || '', 'public/app.ico'),
     path.join(__dirname, '../public/chaska-c-logo.png'),
     path.join(__dirname, 'public/chaska-c-logo.png'),
     path.join(process.resourcesPath || '', 'public/chaska-c-logo.png'),
@@ -414,7 +417,7 @@ ipcMain.handle('send-whatsapp-native', async (event, { phone, text }) => {
 
     // Auto-trigger Enter keypress on Windows after WhatsApp Desktop loads text
     if (process.platform === 'win32') {
-      const vbsPath = path.join(app.getPath('temp'), 'menucraft_wa_autosend.vbs');
+      const vbsPath = path.join(app.getPath('temp'), 'chatchaska_wa_autosend.vbs');
       const vbsContent = `
         WScript.Sleep 900
         Set WshShell = WScript.CreateObject("WScript.Shell")

@@ -6,7 +6,10 @@ export const metadata: Metadata = {
   title: 'ChatChaska — Smart POS & Restaurant Management',
   description: 'Fast, minimal, and modern POS and billing platform for cafes and restaurants.',
   icons: {
-    icon: '/chaska-c-logo.png',
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/chaska-c-logo.png' },
+    ],
     shortcut: '/chaska-c-logo.png',
     apple: '/chaska-c-logo.png',
   },
