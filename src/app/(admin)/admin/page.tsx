@@ -130,30 +130,32 @@ export default function OwnerDashboardPage() {
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6 select-none">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200/80">
+      {/* Header with Actual Cafe Name & Right-Aligned Action Bar */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-slate-200/80">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">My Cafe</h1>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            {config?.cafeName || 'ChatChaska Cafe'}
+          </h1>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
             {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })} • Live store overview
           </p>
         </div>
-      </div>
-      
-      {/* Quick Action Bar */}
-      <div className="flex flex-wrap items-center gap-2.5">
-        <Link href="/admin/menu" className="bg-white hover:bg-slate-50 text-slate-800 font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 border border-slate-200 shadow-2xs transition-all">
-          <span className="material-symbols-outlined text-[16px] text-[#8C6D47]">add_circle</span> Add Dish
-        </Link>
-        <button onClick={handleWhatsAppEOD} className="bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer">
-          <span className="material-symbols-outlined text-[16px]">chat</span> Send WhatsApp EOD
-        </button>
-        <Link href="/admin/qr-codes" className="bg-white hover:bg-slate-50 text-slate-800 font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 border border-slate-200 shadow-2xs transition-all">
-          <span className="material-symbols-outlined text-[16px] text-slate-600">qr_code_2</span> Table QR Codes
-        </Link>
-        <Link href="/staff/pos" className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 border border-[#B2906A] shadow-2xs transition-all">
-          <span className="material-symbols-outlined text-[16px]">point_of_sale</span> Open Billing POS
-        </Link>
+
+        {/* Right-Aligned Quick Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link href="/admin/menu" className="bg-white hover:bg-slate-50 text-slate-800 font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 border border-slate-200 shadow-2xs transition-all">
+            <span className="material-symbols-outlined text-[16px] text-[#8C6D47]">add_circle</span> Add Dish
+          </Link>
+          <button onClick={handleWhatsAppEOD} className="bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer">
+            <span className="material-symbols-outlined text-[16px]">chat</span> Send WhatsApp EOD
+          </button>
+          <Link href="/admin/qr-codes" className="bg-white hover:bg-slate-50 text-slate-800 font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 border border-slate-200 shadow-2xs transition-all">
+            <span className="material-symbols-outlined text-[16px] text-slate-600">qr_code_2</span> Table QR Codes
+          </Link>
+          <Link href="/staff/pos" className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 border border-[#B2906A] shadow-2xs transition-all">
+            <span className="material-symbols-outlined text-[16px]">point_of_sale</span> Open Billing POS
+          </Link>
+        </div>
       </div>
 
       {/* Setup Wizard Incomplete Banner */}
