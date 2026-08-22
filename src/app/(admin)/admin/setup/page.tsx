@@ -10,10 +10,13 @@ export default function SetupWizardPage() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
 
-  // Step 1: Cafe Info
+  // Step 1: Owner (Private) & Cafe (Public) Info
+  const [ownerName, setOwnerName] = useState('');
+  const [ownerPhone, setOwnerPhone] = useState('');
+  const [ownerEmail, setOwnerEmail] = useState('');
   const [cafeName, setCafeName] = useState('');
+  const [cafePhone, setCafePhone] = useState('');
   const [city, setCity] = useState('');
-  const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
 
   // Step 2: Taxes & UPI
@@ -40,12 +43,25 @@ export default function SetupWizardPage() {
   const [cashierName, setCashierName] = useState('Counter Cashier');
   const [cashierPin, setCashierPin] = useState('1111');
 
+  // Step 6: Terms & Agreement
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
   const handleNext = () => {
-    if (step === 1 && !cafeName.trim()) {
-      toast.warning('Please enter your cafe name');
-      return;
+    if (step === 1) {
+      if (!ownerName.trim()) {
+        toast.warning('Please enter owner name');
+        return;
+      }
+      if (!ownerPhone.trim()) {
+        toast.warning('Please enter owner personal contact number');
+        return;
+      }
+      if (!cafeName.trim()) {
+        toast.warning('Please enter cafe business name');
+        return;
+      }
     }
-    setStep((prev) => Math.min(prev + 1, 5));
+    setStep((prev) => Math.min(prev + 1, 6));
   };
 
   const handleBack = () => {
@@ -81,16 +97,24 @@ export default function SetupWizardPage() {
   };
 
   const handleCompleteSetup = async () => {
+    if (!agreedToTerms) {
+      toast.warning('Please accept the Terms & Conditions to complete setup');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const res = await fetch('/api/admin/setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          ownerName,
+          ownerPhone,
+          ownerEmail,
           cafeName,
+          cafePhone: cafePhone || ownerPhone,
           address,
           city,
-          phone,
           gstin,
           fssai,
           upiId,
@@ -108,7 +132,7 @@ export default function SetupWizardPage() {
       });
 
       if (res.ok) {
-        toast.success('🎉 Setup complete! Opening your cafe dashboard...');
+        toast.success('🎉 Cafe setup complete! Opening your workspace...');
         setTimeout(() => {
           router.push('/admin');
         }, 1000);
@@ -126,8 +150,8 @@ export default function SetupWizardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between p-4 sm:p-8 lg:p-12 font-sans select-none">
-      <div className="max-w-3xl mx-auto w-full space-y-6 pt-2 sm:pt-6">
-        {/* Top Header Bar */}
+      <div className="max-w-3xl mx-auto w-full space-y-6 pt-2 sm:pt-4">
+        {/* Top Bar with Back to Login */}
         <div className="flex items-center justify-between pb-2 border-b border-slate-200">
           <button
             type="button"
@@ -144,21 +168,22 @@ export default function SetupWizardPage() {
         </div>
 
         {/* Step Progress Indicators */}
-        <div className="bg-white p-4 rounded-md border border-slate-200 shadow-2xs">
-          <div className="grid grid-cols-5 gap-2">
+        <div className="bg-white p-3.5 rounded-md border border-slate-200 shadow-2xs">
+          <div className="grid grid-cols-6 gap-1.5">
             {[
-              { num: 1, label: 'Cafe Info' },
+              { num: 1, label: 'Profile' },
               { num: 2, label: 'Taxes & UPI' },
               { num: 3, label: 'Tables' },
               { num: 4, label: 'Menu' },
-              { num: 5, label: 'Staff PINs' },
+              { num: 5, label: 'PINs' },
+              { num: 6, label: 'Terms' },
             ].map((s) => {
               const isCurrent = step === s.num;
               const isDone = step > s.num;
               return (
                 <div
                   key={s.num}
-                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md text-xs font-bold transition-all ${
+                  className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-bold transition-all ${
                     isCurrent
                       ? 'bg-[#FAF7F2] text-slate-950 border-2 border-[#C3A27C]'
                       : isDone
@@ -174,62 +199,127 @@ export default function SetupWizardPage() {
           </div>
         </div>
 
-        {/* Main Form Card (Spacious & Comfortable) */}
+        {/* Main Form Card (Spacious & Clean) */}
         <div className="bg-white rounded-md border border-slate-200 p-6 sm:p-8 md:p-10 shadow-sm space-y-6">
-          {/* STEP 1: CAFE DETAILS */}
+          {/* STEP 1: OWNER (PRIVATE) & CAFE (PUBLIC) DETAILS */}
           {step === 1 && (
-            <div className="space-y-5 animate-in fade-in">
+            <div className="space-y-6 animate-in fade-in">
               <div className="border-b border-slate-100 pb-3">
-                <h2 className="text-xl font-black text-slate-900">Cafe Profile</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Information displayed on customer bills, WhatsApp receipts, and table QR menus.</p>
+                <h2 className="text-xl font-black text-slate-900">Owner & Cafe Profile</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Separate sections for owner account credentials and public customer outlet details.</p>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Cafe Name *</label>
-                  <input
-                    type="text"
-                    value={cafeName}
-                    onChange={(e) => setCafeName(e.target.value)}
-                    placeholder="e.g. ChatChaska Cafe"
-                    className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-3 text-sm text-slate-900 font-semibold outline-none transition-colors"
-                    required
-                  />
+              {/* Section 1: Owner Details (Private) */}
+              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-slate-900 text-[18px]">person</span>
+                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Owner Account Details</h3>
+                  </div>
+                  <span className="text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-sm flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px]">lock</span> Private (Saved For Platform)
+                  </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">City</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Owner Full Name *</label>
+                    <input
+                      type="text"
+                      value={ownerName}
+                      onChange={(e) => setOwnerName(e.target.value)}
+                      placeholder="e.g. Sandesh Agrawal"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Owner Personal Contact *</label>
+                    <input
+                      type="tel"
+                      value={ownerPhone}
+                      onChange={(e) => setOwnerPhone(e.target.value)}
+                      placeholder="e.g. 9876543210"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                      required
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">Kept private for account recovery & system support.</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Owner Email (Optional)</label>
+                  <input
+                    type="email"
+                    value={ownerEmail}
+                    onChange={(e) => setOwnerEmail(e.target.value)}
+                    placeholder="e.g. owner@gmail.com"
+                    className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Section 2: Cafe Outlet Details (Public) */}
+              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-slate-900 text-[18px]">storefront</span>
+                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Cafe Outlet Details</h3>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-sm flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px]">public</span> Public (Shown on Bills & QR)
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Cafe Business Name *</label>
+                    <input
+                      type="text"
+                      value={cafeName}
+                      onChange={(e) => setCafeName(e.target.value)}
+                      placeholder="e.g. ChatChaska Cafe"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Cafe Public Helpline / Phone</label>
+                    <input
+                      type="tel"
+                      value={cafePhone}
+                      onChange={(e) => setCafePhone(e.target.value)}
+                      placeholder="e.g. 020-12345678 or 9876543210"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">Printed on receipts, invoices, and customer menus.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">City</label>
                     <input
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       placeholder="e.g. Pune"
-                      className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-3 text-sm text-slate-900 font-semibold outline-none transition-colors"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Phone Number</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Outlet Address</label>
                     <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="e.g. 9876543210"
-                      className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-3 text-sm text-slate-900 font-semibold outline-none transition-colors"
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Shop No. 4, Main Market, MG Road..."
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Full Address</label>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Shop No. 4, Main Market, MG Road..."
-                    className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-3 text-sm text-slate-900 font-semibold outline-none transition-colors"
-                  />
                 </div>
               </div>
             </div>
@@ -240,7 +330,7 @@ export default function SetupWizardPage() {
             <div className="space-y-5 animate-in fade-in">
               <div className="border-b border-slate-100 pb-3">
                 <h2 className="text-xl font-black text-slate-900">Taxes & UPI Payments</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Configure your UPI ID for QR payments and government tax rates.</p>
+                <p className="text-xs text-slate-500 mt-0.5">Configure your UPI ID for direct QR payments and tax rates.</p>
               </div>
 
               <div className="space-y-4">
@@ -253,7 +343,7 @@ export default function SetupWizardPage() {
                     placeholder="e.g. yourcafe@okaxis or 9876543210@paytm"
                     className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-3 text-sm text-slate-900 font-semibold outline-none transition-colors"
                   />
-                  <p className="text-xs text-slate-400 mt-1">This UPI ID is used when generating table QR pay codes.</p>
+                  <p className="text-xs text-slate-400 mt-1">This UPI ID is used when generating table QR pay codes for instant 0% commission direct settlements.</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -312,7 +402,7 @@ export default function SetupWizardPage() {
             <div className="space-y-5 animate-in fade-in">
               <div className="border-b border-slate-100 pb-3">
                 <h2 className="text-xl font-black text-slate-900">Dining Tables & Sections</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Configure Main Dining Tables and optional VIP Lounge area with direct numeric counts.</p>
+                <p className="text-xs text-slate-500 mt-0.5">Configure Main Dining Tables and optional VIP Lounge area with direct numeric inputs.</p>
               </div>
 
               <div className="space-y-4">
@@ -441,7 +531,7 @@ export default function SetupWizardPage() {
             <div className="space-y-5 animate-in fade-in">
               <div className="border-b border-slate-100 pb-3">
                 <h2 className="text-xl font-black text-slate-900">Menu Setup</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Add dishes to your menu using Vision AI or manage them from your dashboard.</p>
+                <p className="text-xs text-slate-500 mt-0.5">Upload a photo of your paper menu or manage dishes in the admin dashboard.</p>
               </div>
 
               <div className="space-y-4">
@@ -465,7 +555,7 @@ export default function SetupWizardPage() {
                   <div>
                     <h3 className="font-bold text-sm text-slate-900">Scan Menu Card with AI</h3>
                     <p className="text-xs text-slate-500 max-w-md mx-auto mt-0.5">
-                      Upload a clear photo of your paper menu; AI will automatically extract dish names, prices, and categories.
+                      Upload a photo of your menu; AI will automatically extract dish names, prices, and categories into your catalog.
                     </p>
                   </div>
 
@@ -546,7 +636,7 @@ export default function SetupWizardPage() {
                       value={cashierName}
                       onChange={(e) => setCashierName(e.target.value)}
                       placeholder="Cashier Name"
-                      className="bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-2.5 text-xs font-bold text-slate-900 outline-none"
+                      className="bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3 py-2.5 text-xs font-bold text-slate-900 outline-none"
                     />
                     <input
                       type="password"
@@ -554,11 +644,72 @@ export default function SetupWizardPage() {
                       value={cashierPin}
                       onChange={(e) => setCashierPin(e.target.value.replace(/\D/g, ''))}
                       placeholder="4-digit PIN (1111)"
-                      className="bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-2.5 text-center tracking-widest font-mono text-base font-bold text-slate-900 outline-none"
+                      className="bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3 py-2.5 text-center tracking-widest font-mono text-base font-bold text-slate-900 outline-none"
                     />
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* STEP 6: TERMS & CONDITIONS & FINAL LAUNCH */}
+          {step === 6 && (
+            <div className="space-y-5 animate-in fade-in">
+              <div className="border-b border-slate-100 pb-3">
+                <h2 className="text-xl font-black text-slate-900">Terms of Service & Usage Policy</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Please review the fair usage terms and privacy agreement for your ChatChaska account.</p>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 rounded-md p-5 space-y-4 text-xs text-slate-700 max-h-[300px] overflow-y-auto">
+                <div className="space-y-1">
+                  <h4 className="font-black text-slate-900 flex items-center gap-1.5">
+                    <span className="text-[#8C6D47]">✓</span> 1. 100% Free Forever for Small Cafes
+                  </h4>
+                  <p className="text-slate-600 leading-relaxed pl-5">
+                    ChatChaska operates on a fair usage policy. Outlets processing under 100 bills per day enjoy permanent free access to all core POS features with zero subscription fees.
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <h4 className="font-black text-slate-900 flex items-center gap-1.5">
+                    <span className="text-[#8C6D47]">✓</span> 2. Local Data Privacy & Sovereignty
+                  </h4>
+                  <p className="text-slate-600 leading-relaxed pl-5">
+                    All customer order history, bills, and menu items are stored locally in your offline-first SQLite database. Your confidential sales records are not sold or monetized.
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <h4 className="font-black text-slate-900 flex items-center gap-1.5">
+                    <span className="text-[#8C6D47]">✓</span> 3. Direct UPI QR Settlements
+                  </h4>
+                  <p className="text-slate-600 leading-relaxed pl-5">
+                    All QR code customer payments settle directly into your linked UPI Merchant VPA at 0% platform commission without middleman delays or wallet deductions.
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <h4 className="font-black text-slate-900 flex items-center gap-1.5">
+                    <span className="text-[#8C6D47]">✓</span> 4. Owner Contact Confidentiality
+                  </h4>
+                  <p className="text-slate-600 leading-relaxed pl-5">
+                    The Owner Personal Phone number provided is kept strictly confidential for system security, account recovery, and critical platform notifications.
+                  </p>
+                </div>
+              </div>
+
+              {/* Agreement Checkbox */}
+              <label className="flex items-start gap-3 p-3.5 bg-[#FAF7F2] border border-[#C3A27C]/40 rounded-md cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded-md accent-[#C3A27C] cursor-pointer"
+                />
+                <span className="text-xs font-bold text-slate-900">
+                  I have read and agree to ChatChaska&apos;s Fair Usage Policy, Data Privacy Agreement, and Terms of Service.
+                </span>
+              </label>
             </div>
           )}
 
@@ -574,7 +725,7 @@ export default function SetupWizardPage() {
               </button>
             ) : <div />}
 
-            {step < 5 ? (
+            {step < 6 ? (
               <button
                 type="button"
                 onClick={handleNext}
@@ -585,16 +736,16 @@ export default function SetupWizardPage() {
             ) : (
               <button
                 type="button"
-                disabled={submitting}
+                disabled={submitting || !agreedToTerms}
                 onClick={handleCompleteSetup}
-                className="px-8 py-3 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-black transition-all shadow-sm cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                className="px-8 py-3.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-black transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {submitting ? (
                   <span>Saving Configuration...</span>
                 ) : (
                   <>
                     <span className="material-symbols-outlined text-base">rocket_launch</span>
-                    <span>Launch Workspace</span>
+                    <span>Launch My Cafe Workspace</span>
                   </>
                 )}
               </button>

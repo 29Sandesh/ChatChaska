@@ -5,10 +5,12 @@ import bcrypt from 'bcryptjs';
 /**
  * POST /api/admin/setup
  * Saves all steps of first-time onboarding wizard in one atomic transaction:
- * - Basic cafe info (name, address, city, phone, whatsapp)
+ * - Owner private info (ownerName, ownerPhone, ownerEmail)
+ * - Public cafe info (cafeName, cafePhone, address, city, whatsapp)
  * - Tax & payment settings (gstin, fssai, upi_id, cgst_rate, sgst_rate)
  * - Main & VIP Tables generation
  * - Staff PIN creation
+ * - Terms acceptance record
  * - Marks setup_completed = true
  */
 export async function POST(req: Request) {
@@ -16,10 +18,13 @@ export async function POST(req: Request) {
     const db = getDb();
     const body = await req.json();
     const {
+      ownerName,
+      ownerPhone,
+      ownerEmail,
       cafeName,
+      cafePhone,
       address,
       city,
-      phone,
       whatsapp,
       gstin,
       fssai,
@@ -36,20 +41,26 @@ export async function POST(req: Request) {
       cashierPin,
     } = body;
 
-    // 1. Save cafe settings
+    // 1. Save Owner Private Details
+    if (ownerName) saveSetting('owner_name', ownerName);
+    if (ownerPhone) saveSetting('owner_phone', ownerPhone);
+    if (ownerEmail) saveSetting('owner_email', ownerEmail);
+
+    // 2. Save Public Cafe Settings
     if (cafeName) saveSetting('cafe_name', cafeName);
+    if (cafePhone) saveSetting('cafe_phone', cafePhone);
     if (address) saveSetting('cafe_address', address);
     if (city) saveSetting('cafe_city', city);
-    if (phone) saveSetting('cafe_phone', phone);
-    if (whatsapp) saveSetting('cafe_whatsapp', whatsapp);
+    if (whatsapp) saveSetting('cafe_whatsapp', whatsapp || cafePhone || '');
     if (gstin) saveSetting('gstin', gstin);
     if (fssai) saveSetting('fssai', fssai);
     if (upiId) saveSetting('upi_id', upiId);
     saveSetting('cgst_rate', String(cgstRate ?? 2.5));
     saveSetting('sgst_rate', String(sgstRate ?? 2.5));
+    saveSetting('terms_accepted_at', new Date().toISOString());
     saveSetting('setup_completed', 'true');
 
-    // 2. Generate Main and VIP Tables
+    // 3. Generate Main and VIP Tables
     const mainCount = Math.max(1, parseInt(String(mainTableCount || 8), 10));
     const mainSeatsPerTable = Math.max(1, parseInt(String(mainSeats || 4), 10));
     const isVipEnabled = Boolean(hasVip);
@@ -88,7 +99,7 @@ export async function POST(req: Request) {
       console.warn('Table initialization warning:', tblErr);
     }
 
-    // 3. Create or update owner and cashier in staff table with hashed PINs
+    // 4. Create or update owner and cashier in staff table with hashed PINs
     try {
       const insertStaffStmt = db.prepare(`
         INSERT OR REPLACE INTO staff (id, name, role, pin, phone, status)
@@ -97,7 +108,7 @@ export async function POST(req: Request) {
 
       if (ownerPin) {
         const hashedOwnerPin = await bcrypt.hash(ownerPin, 10);
-        insertStaffStmt.run('staff-owner', 'Owner', 'manager', hashedOwnerPin, phone || '');
+        insertStaffStmt.run('staff-owner', ownerName || 'Owner', 'manager', hashedOwnerPin, ownerPhone || '');
       }
 
       if (cashierName && cashierPin) {
