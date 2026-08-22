@@ -24,8 +24,8 @@ export function EmptyState({
   onAction,
 }: EmptyStateProps) {
   return (
-    <div className="py-14 px-4 text-center max-w-sm mx-auto space-y-3 animate-in fade-in select-none">
-      <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-2xs">
+    <div className="py-14 px-4 text-center max-w-sm mx-auto space-y-3 animate-in fade-in select-none font-sans">
+      <div className="w-14 h-14 rounded-md bg-[#FAF7F2] text-slate-900 border border-[#C3A27C]/40 flex items-center justify-center mx-auto shadow-2xs">
         <span className="material-symbols-outlined text-3xl">{icon}</span>
       </div>
 
@@ -39,15 +39,16 @@ export function EmptyState({
           {actionHref ? (
             <Link
               href={actionHref}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] rounded-md text-xs font-bold shadow-2xs transition-all cursor-pointer"
             >
               <span>{actionLabel}</span>
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>
           ) : onAction ? (
             <button
+              type="button"
               onClick={onAction}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] rounded-md text-xs font-bold shadow-2xs transition-all cursor-pointer"
             >
               <span>{actionLabel}</span>
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
