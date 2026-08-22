@@ -186,10 +186,11 @@ export default function StaffKitchenPage() {
     return tickets;
   }, [orders, activeStation]);
 
-  const visibleTickets = displayTickets;
+  const MAX_VISIBLE_KITCHEN_SLOTS = 8;
+  const visibleTickets = displayTickets.slice(0, MAX_VISIBLE_KITCHEN_SLOTS);
 
   return (
-    <div className="bg-black flex-1 flex flex-col h-full w-full text-white select-none font-mono justify-between overflow-hidden">
+    <div className="bg-black flex-1 flex flex-col h-screen w-screen text-white select-none font-mono justify-between overflow-hidden">
       {/* 1. TOP BLACK HEADER: LOGO ON LEFT | STATION FILTERS IN CENTER | ACTIVE TICKETS BADGE + [ POS ] + [ ☰ ] ON RIGHT */}
       <header className="h-16 bg-black border-b border-neutral-800 px-4 sm:px-5 flex items-center justify-between gap-3 shrink-0 select-none sticky top-0 z-30 font-sans">
         {/* Left: Brand Logo & Title */}
@@ -236,6 +237,11 @@ export default function StaffKitchenPage() {
           <span className="bg-neutral-900 border border-neutral-700 text-amber-400 text-xs font-mono font-bold px-2.5 sm:px-3 py-1.5 rounded-md tracking-wider hidden sm:flex items-center gap-1.5 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
             <span>{displayTickets.length} ACTIVE</span>
+            {displayTickets.length > MAX_VISIBLE_KITCHEN_SLOTS && (
+              <span className="text-[10px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded font-sans font-bold">
+                +{displayTickets.length - MAX_VISIBLE_KITCHEN_SLOTS} queued
+              </span>
+            )}
           </span>
 
           <button 
@@ -270,11 +276,11 @@ export default function StaffKitchenPage() {
         </div>
       </header>
 
-      {/* 2. GRID OF KITCHEN TICKETS (Full Height, No Second Subheader Line!) */}
-      <div className="p-3 flex-1 overflow-y-auto no-scrollbar">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 min-h-full">
+      {/* 2. EXACT 8-SLOT FIXED GRID: 4 COLUMNS X 2 ROWS (Zero Scrolling, Fits 100% Viewport Height) */}
+      <div className="p-2.5 flex-1 overflow-hidden min-h-0">
+        <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-2 h-full gap-2.5 min-h-0">
           {visibleTickets.length === 0 ? (
-            <div className="col-span-full py-32 text-center bg-black border border-neutral-800 rounded-none space-y-3 my-auto">
+            <div className="col-span-full row-span-2 flex flex-col items-center justify-center bg-black border border-neutral-800 space-y-3 h-full">
               <span className="material-symbols-outlined text-[64px] text-white">check_circle</span>
               <h3 className="font-black text-white text-xl uppercase tracking-wider">KITCHEN QUEUE ALL CLEAR</h3>
               <p className="text-neutral-400 text-xs font-mono">Served tickets vanish automatically.</p>
@@ -287,7 +293,7 @@ export default function StaffKitchenPage() {
               return (
                 <div
                   key={`${ticket.orderId}-${index}`}
-                  className={`rounded-none p-4 flex flex-col justify-between shadow-none transition-all h-[calc(47vh-1.5rem)] min-h-[280px] bg-black ${
+                  className={`rounded-none p-3.5 flex flex-col justify-between shadow-none transition-all h-full min-h-0 overflow-hidden bg-black ${
                     isPending
                       ? 'border-2 border-white'
                       : isPreparing
@@ -295,11 +301,11 @@ export default function StaffKitchenPage() {
                       : 'border-2 border-neutral-700'
                   }`}
                 >
-                  <div>
+                  <div className="flex flex-col h-full justify-between min-h-0">
                     {/* Top Line: Sharp Table Badge + Action Button */}
-                    <div className="flex justify-between items-center pb-3 border-b border-neutral-800 gap-2">
-                      <div className="flex flex-col gap-1">
-                        <span className="px-3 py-1 bg-white text-black font-black text-base rounded-none flex-shrink-0 inline-block w-fit">
+                    <div className="flex justify-between items-center pb-2.5 border-b border-neutral-800 gap-2 shrink-0">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 bg-white text-black font-black text-base rounded-none flex-shrink-0 inline-block">
                           {formatTableLabel(ticket.tableNumber)} {ticket.partLabel || ''}
                         </span>
                         {(() => {
@@ -310,7 +316,7 @@ export default function StaffKitchenPage() {
                           else if (mins > 20) colorClass = 'text-rose-500 font-extrabold animate-pulse';
                           return (
                             <span className={`text-xs ${colorClass}`}>
-                              ⏱ {mins} min ago
+                              ⏱ {mins}m
                             </span>
                           );
                         })()}
@@ -319,18 +325,18 @@ export default function StaffKitchenPage() {
                       {/* Action Button: Pending -> Start | Preparing -> Ready | Ready -> Served */}
                       <button
                         onClick={() => handleBump(ticket.orderId, ticket.status)}
-                        className="px-4 py-1 bg-white hover:bg-neutral-200 text-black font-black text-sm rounded-none border border-white cursor-pointer flex-shrink-0 transition-colors"
+                        className="px-3.5 py-1 bg-white hover:bg-neutral-200 text-black font-black text-xs rounded-none border border-white cursor-pointer flex-shrink-0 transition-colors uppercase tracking-wider"
                       >
                         {isPending ? 'Start' : isPreparing ? 'Ready' : 'Served'}
                       </button>
                     </div>
 
                     {/* Sharp High-Contrast Monochrome Items List */}
-                    <div className="py-2.5 space-y-2 overflow-hidden no-scrollbar">
+                    <div className="py-2 space-y-1.5 flex-1 overflow-y-auto no-scrollbar min-h-0">
                       {ticket.items.map((i, idx) => (
-                        <div key={idx} className="flex justify-between items-center border-b border-neutral-900 pb-1.5 last:border-none">
-                          <span className="text-sm font-bold text-white truncate pr-2">• {i.name}</span>
-                          <span className="px-2.5 py-0.5 bg-white text-black rounded-none font-black text-xs flex-shrink-0">
+                        <div key={idx} className="flex justify-between items-center border-b border-neutral-900 pb-1 last:border-none">
+                          <span className="text-xs sm:text-sm font-bold text-white truncate pr-2">• {i.name}</span>
+                          <span className="px-2 py-0.5 bg-white text-black rounded-none font-black text-xs flex-shrink-0">
                             x{i.quantity}
                           </span>
                         </div>
