@@ -123,6 +123,7 @@ export default function CustomerDigitalMenuPage() {
   // Filter & search states
   const queryType = searchParams?.get('type') || 'both'; // 'pure_veg' | 'non_veg' | 'both'
   const queryJain = searchParams?.get('jain') === '1';
+  const queryWaiter = searchParams?.get('waiter') !== '0';
   const [searchQuery, setSearchQuery] = useState('');
   const [vegFilter, setVegFilter] = useState<'all' | 'veg' | 'nonveg' | 'jain'>(
     queryType === 'pure_veg' ? 'veg' : 'all'
@@ -503,7 +504,7 @@ export default function CustomerDigitalMenuPage() {
 
         {/* Restaurant Identity Row */}
         <div className="flex items-center gap-3">
-          <div className="w-13 h-13 rounded-md bg-white border border-[#B2906A]/40 text-slate-950 shadow-2xs flex items-center justify-center font-black text-lg flex-shrink-0 overflow-hidden">
+          <div className="w-12 h-12 rounded-md bg-white border border-[#B2906A]/40 text-slate-950 shadow-2xs flex items-center justify-center font-black text-lg shrink-0 overflow-hidden">
             {cafeInfo.logoUrl ? (
               <img src={cafeInfo.logoUrl} alt={cafeInfo.name} className="w-full h-full object-cover" />
             ) : (
@@ -511,33 +512,37 @@ export default function CustomerDigitalMenuPage() {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="font-black text-base text-slate-950 leading-tight truncate">
+            <h1 className="font-black text-sm text-slate-950 leading-tight truncate tracking-tight">
               {cafeInfo.name}
             </h1>
-            <div className="flex items-center gap-1.5 text-slate-500 text-[11px] mt-0.5 font-medium">
-              <span className="text-[#8C6D47] font-black">★ {cafeInfo.rating}</span>
-              <span>•</span>
-              <span className="truncate">{cafeInfo.cuisines}</span>
+            <div className="flex items-center gap-1.5 text-slate-500 text-[11px] mt-1 font-medium leading-none">
+              <span className="text-amber-500 font-black inline-flex items-center gap-0.5 shrink-0">
+                ★ 4.8
+              </span>
+              <span className="text-slate-300 shrink-0">•</span>
+              <span className="truncate text-slate-500">{cafeInfo.cuisines || 'Multi-Cuisine'}</span>
             </div>
           </div>
         </div>
       </header>
 
       {/* ── QUICK SERVICE BUTTONS (BOXES WITH ROUND-MD) ──────────── */}
-      <div className="px-4 pt-2.5 flex gap-2">
-        <button
-          onClick={handleCallWaiter}
-          className="flex-1 py-2 bg-[#FAF7F2] rounded-md border border-[#B2906A]/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-950 hover:bg-[#C3A27C]/20 active:scale-[0.98] transition-all shadow-2xs"
-        >
-          🔔 {waiterCalled ? 'Notified!' : 'Call Waiter'}
-        </button>
-        <button
-          onClick={handleCallWaiter}
-          className="flex-1 py-2 bg-[#FAF7F2] rounded-md border border-[#B2906A]/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-950 hover:bg-[#C3A27C]/20 active:scale-[0.98] transition-all shadow-2xs"
-        >
-          🧾 Request Bill
-        </button>
-      </div>
+      {queryWaiter && (
+        <div className="px-4 pt-2.5 flex gap-2">
+          <button
+            onClick={handleCallWaiter}
+            className="flex-1 py-2 bg-[#FAF7F2] rounded-md border border-[#B2906A]/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-950 hover:bg-[#C3A27C]/20 active:scale-[0.98] transition-all shadow-2xs"
+          >
+            🔔 {waiterCalled ? 'Notified!' : 'Call Waiter'}
+          </button>
+          <button
+            onClick={handleCallWaiter}
+            className="flex-1 py-2 bg-[#FAF7F2] rounded-md border border-[#B2906A]/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-950 hover:bg-[#C3A27C]/20 active:scale-[0.98] transition-all shadow-2xs"
+          >
+            🧾 Request Bill
+          </button>
+        </div>
+      )}
 
       {/* ── STICKY HEADER (Search, Veg/NonVeg Toggles, Categories Bar) ─────────────────────── */}
       <div className="sticky top-0 z-50 bg-white border-b border-gray-100 px-4 py-2 shadow-xs transition-all duration-300">

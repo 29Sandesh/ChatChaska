@@ -57,7 +57,7 @@ export default function AdminMenuPreviewPage() {
     }).catch(() => {});
   }, []);
 
-  const previewUrl = `/menu/${cafeSlug}?table=Table%201&type=${restaurantType}&jain=${showJain ? '1' : '0'}`;
+  const previewUrl = `/menu/${cafeSlug}?table=Table%201&type=${restaurantType}&jain=${showJain ? '1' : '0'}&waiter=${allowCallWaiter ? '1' : '0'}`;
 
   // Generate QR Code dynamically
   useEffect(() => {
@@ -330,7 +330,7 @@ export default function AdminMenuPreviewPage() {
           </div>
 
           {/* Card 2: Restaurant Profile Picture & Logo Upload with Cropper */}
-          <div className="bg-white border border-slate-200 rounded-md p-5 shadow-2xs space-y-3.5">
+          <div className="bg-white border border-slate-200 rounded-md p-4 shadow-2xs space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-slate-900 text-[18px]">badge</span>
@@ -338,30 +338,31 @@ export default function AdminMenuPreviewPage() {
                   Restaurant Profile & Logo
                 </h2>
               </div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase">Box Format</span>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              {/* Current Logo Preview Box (Very little round edge) */}
-              <div className="w-20 h-20 bg-[#FAF7F2] border-2 border-dashed border-[#B2906A]/50 rounded-md flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+            <div className="flex items-center gap-3.5">
+              {/* Current Logo Preview Box */}
+              <div className="w-14 h-14 bg-[#FAF7F2] border-2 border-dashed border-[#B2906A]/60 rounded-md flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
                 {cafeLogo ? (
                   <img src={cafeLogo} alt="Restaurant Logo" className="w-full h-full object-cover rounded-xs" />
                 ) : (
-                  <span className="text-2xl font-black text-[#8C6D47]">
+                  <span className="text-xl font-black text-[#8C6D47]">
                     {cafeName?.charAt(0) || 'C'}
                   </span>
                 )}
               </div>
 
-              {/* Upload & Crop Buttons */}
-              <div className="flex-1 space-y-2 text-center sm:text-left">
-                <p className="text-xs font-bold text-slate-900">Upload Restaurant Logo / Icon</p>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Upload an image from your device and crop it to fit the box profile header perfectly.
-                </p>
+              {/* Upload & Crop Info + Button */}
+              <div className="flex-1 min-w-0 space-y-1">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-900 leading-none">Restaurant Logo</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5 leading-tight">
+                    Crop and display your restaurant logo inside the menu header.
+                  </p>
+                </div>
 
-                <div className="flex flex-wrap items-center gap-2 pt-1 justify-center sm:justify-start">
-                  <label className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] font-black px-3 py-1.5 rounded-md text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95">
+                <div className="flex items-center gap-2 pt-1">
+                  <label className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] font-black px-3 py-1.5 rounded-md text-xs inline-flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95">
                     <span className="material-symbols-outlined text-[15px]">crop</span>
                     <span>Upload & Crop Logo</span>
                     <input
@@ -386,7 +387,7 @@ export default function AdminMenuPreviewPage() {
                       }}
                       className="bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 border border-slate-200 font-bold px-2.5 py-1.5 rounded-md text-xs transition-all cursor-pointer"
                     >
-                      Remove Logo
+                      Remove
                     </button>
                   )}
                 </div>
