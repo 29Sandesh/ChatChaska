@@ -1,18 +1,6 @@
 import { NextResponse } from 'next/server';
 import { saveMenuItem, saveCategory, getAllCategories } from '@/lib/database';
-
-const STANDARD_CATEGORIES: Record<string, { name: string; icon: string; order: number }> = {
-  'starters': { name: 'Starters & Tandoor', icon: '🍢', order: 0 },
-  'main-course': { name: 'Main Course & Curries', icon: '🥘', order: 1 },
-  'breads-rice': { name: 'Breads, Rice & Biryani', icon: '🍚', order: 2 },
-  'soups-salads': { name: 'Soups, Salads & Papad', icon: '🥗', order: 3 },
-  'raita-curd': { name: 'Raita & Sides', icon: '🥣', order: 4 },
-  'indo-chinese': { name: 'Indo-Chinese', icon: '🍜', order: 5 },
-  'snacks-chaat': { name: 'Chaat & Street Snacks', icon: '🥪', order: 6 },
-  'shakes-beverages': { name: 'Shakes & Thick Drinks', icon: '🥤', order: 7 },
-  'desserts': { name: 'Desserts & Sweets', icon: '🍰', order: 8 },
-  'drinks': { name: 'Tea, Coffee & Beverages', icon: '☕', order: 9 },
-};
+import { autoCategorizeMenuItem, PREDEFINED_CATEGORIES } from '@/lib/categorizer';
 
 export async function POST(req: Request) {
   try {
@@ -152,8 +140,8 @@ Rules:
     const existingCats = getAllCategories();
     const existingCatIds = new Set(existingCats.map((c) => c.id));
 
-    // Ensure all standard categories exist in database
-    for (const [catId, meta] of Object.entries(STANDARD_CATEGORIES)) {
+    // Ensure all predefined categories exist in database
+    for (const [catId, meta] of Object.entries(PREDEFINED_CATEGORIES)) {
       if (!existingCatIds.has(catId)) {
         saveCategory({
           id: catId,
@@ -166,22 +154,11 @@ Rules:
       }
     }
 
-    // Insert each extracted dish into the SQLite database
+    // Insert each extracted dish into the SQLite database with automatic predefined categorization
     const savedItems: any[] = [];
     for (const item of extractedData.items) {
-      const catKey = (item.category || 'starters').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
-      
-      // If the category is not standard, register it
-      if (!existingCatIds.has(catKey)) {
-        saveCategory({
-          id: catKey,
-          name: item.categoryName || catKey.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-          icon: '🍽️',
-          sort_order: existingCatIds.size,
-          visible: true,
-        });
-        existingCatIds.add(catKey);
-      }
+      // Auto-classify dish to predefined category based on dish name, description, and raw AI guess
+      const catKey = autoCategorizeMenuItem(item.name, item.description, item.category);
 
       const itemId = `menu-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
       const saved = saveMenuItem({

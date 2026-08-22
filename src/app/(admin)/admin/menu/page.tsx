@@ -36,6 +36,7 @@ export default function MenuManagerPage() {
 
   // AI Scanner state
   const [isScanning, setIsScanning] = useState(false);
+  const [isAutoCategorizing, setIsAutoCategorizing] = useState(false);
   const [scanResult, setScanResult] = useState<{ count: number; message: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -159,6 +160,25 @@ export default function MenuManagerPage() {
     } finally {
       setIsScanning(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleAutoCategorize = async () => {
+    setIsAutoCategorizing(true);
+    try {
+      const res = await fetch('/api/ai/auto-categorize', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(data.message || 'Dishes auto-categorized!');
+        fetchItems();
+        fetchCategories();
+      } else {
+        showToast(data.error || 'Failed to auto-categorize');
+      }
+    } catch {
+      showToast('Network error during auto-categorization');
+    } finally {
+      setIsAutoCategorizing(false);
     }
   };
 
@@ -393,21 +413,34 @@ export default function MenuManagerPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center flex-wrap gap-2">
           <button
-            onClick={() => setIsCatModalOpen(true)}
-            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+            type="button"
+            disabled={isAutoCategorizing}
+            onClick={handleAutoCategorize}
+            className="bg-[#FAF7F2] hover:bg-[#C3A27C]/20 text-slate-900 border border-[#C3A27C]/50 font-bold px-3 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+            title="Automatically sort all dishes into predefined categories based on keywords"
           >
-            <span className="material-symbols-outlined text-[16px]">folder</span>
-            Manage Categories
+            <span className="material-symbols-outlined text-[16px] text-[#C3A27C]">bolt</span>
+            <span>{isAutoCategorizing ? 'Sorting Dishes...' : 'Auto-Sort Categories'}</span>
           </button>
 
           <button
+            type="button"
+            onClick={() => setIsCatModalOpen(true)}
+            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold px-3 py-2 rounded-md text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[16px]">folder</span>
+            <span>Categories</span>
+          </button>
+
+          <button
+            type="button"
             onClick={handleOpenAddModal}
-            className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-white font-extrabold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer"
+            className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] font-extrabold px-3.5 py-2 rounded-md text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">add</span>
-            + Add Dish
+            <span>+ Add Dish</span>
           </button>
         </div>
       </div>
