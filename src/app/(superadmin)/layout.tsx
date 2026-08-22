@@ -1,4 +1,6 @@
-import SuperAdminSidebar from "@/components/layout/SuperAdminSidebar";
+"use client";
+
+import SuperAdminSidebar, { SuperAdminMobileHeader } from "@/components/layout/SuperAdminSidebar";
 
 export default function SuperAdminLayout({
   children,
@@ -6,10 +8,11 @@ export default function SuperAdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-blue-500/30">
+    <div className="flex min-h-screen bg-slate-50 text-slate-900 font-sans select-none">
       <SuperAdminSidebar />
-      <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        <div className="flex-1 p-6 md:p-8 max-w-[1600px] w-full mx-auto">
+      <SuperAdminMobileHeader />
+      <main className="flex-1 md:ml-64 flex flex-col min-h-screen pt-14 md:pt-0">
+        <div className="flex-1 p-4 md:p-8 max-w-[1600px] w-full mx-auto">
           {children}
         </div>
       </main>

@@ -11,9 +11,8 @@ import { getDb } from '@/lib/database';
  */
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
     const user = await getCurrentUser();
-    const cafeId = searchParams.get('cafeId') || user?.cafeId || 'demo';
+    const cafeId = user?.cafeId || 'demo';
 
     // Fetch license settings from local DB settings table as fallback/local source
     const db = getDb();
@@ -26,8 +25,8 @@ export async function GET(req: Request) {
 
     const plan = (settingsMap['license_plan'] || 'trial') as CafeSubscription['plan'];
     const isActive = settingsMap['license_is_active'] !== 'false';
-    const trialDays = parseInt(settingsMap['license_trial_days'] || '14', 10);
-    const trialExpiresAt = settingsMap['license_expires_at'] || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+    const trialDays = parseInt(settingsMap['license_trial_days'] || '90', 10);
+    const trialExpiresAt = settingsMap['license_expires_at'] || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
     const suspendedReason = settingsMap['license_suspended_reason'] || null;
 
     const subscription: CafeSubscription = {

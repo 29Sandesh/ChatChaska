@@ -319,7 +319,7 @@ export default function UnifiedLoginPage() {
               href="/signup"
               className="text-xs font-bold text-slate-900 hover:underline"
             >
-              Start 14-Day Free Trial →
+              Start 3-Month Free Trial →
             </Link>
           </div>
         </div>

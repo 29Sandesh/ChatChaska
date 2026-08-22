@@ -38,13 +38,33 @@ export default function CafesPage() {
   const getStatusBadge = (status: Cafe["status"]) => {
     switch (status) {
       case "Active":
-        return <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-xs font-bold flex items-center gap-1.5 w-fit"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Active</span>;
+        return (
+          <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-xs font-bold flex items-center gap-1.5 w-fit">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Active
+          </span>
+        );
       case "Trial":
-        return <span className="px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full text-xs font-bold flex items-center gap-1.5 w-fit"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Trial (5 days left)</span>;
+        return (
+          <span className="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-xs font-bold flex items-center gap-1.5 w-fit">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            Trial (5 days left)
+          </span>
+        );
       case "Suspended":
-        return <span className="px-2.5 py-1 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-full text-xs font-bold flex items-center gap-1.5 w-fit"><span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Suspended</span>;
+        return (
+          <span className="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-md text-xs font-bold flex items-center gap-1.5 w-fit">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+            Suspended
+          </span>
+        );
       case "Expired":
-        return <span className="px-2.5 py-1 bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 rounded-full text-xs font-bold flex items-center gap-1.5 w-fit"><span className="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>Expired</span>;
+        return (
+          <span className="px-2.5 py-1 bg-slate-100 text-slate-500 border border-slate-200 rounded-md text-xs font-bold flex items-center gap-1.5 w-fit">
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+            Expired
+          </span>
+        );
     }
   };
 
@@ -68,35 +88,41 @@ export default function CafesPage() {
     setNewCafeOwner("");
   };
 
-  const filteredCafes = cafes.filter(c => c.name.toLowerCase().includes(search.toLowerCase()) || c.city.toLowerCase().includes(search.toLowerCase()));
+  const filteredCafes = cafes.filter(
+    (c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      c.city.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 select-none font-sans">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white">Cafes</h1>
-          <p className="text-slate-400 mt-1">Manage all registered cafes on the ChatChaska platform.</p>
+          <h1 className="text-3xl font-black text-slate-900">Cafes</h1>
+          <p className="text-slate-500 mt-1">Manage all registered cafes on the ChatChaska platform.</p>
         </div>
         <button
           id="add-cafe-btn"
           onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-bold transition-colors flex items-center gap-2 shadow-md active:scale-95"
+          className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-5 py-2.5 rounded-md border border-[#B2906A] transition-colors flex items-center gap-2 shadow-2xs active:scale-95"
         >
           <span className="material-symbols-outlined text-[20px]">add</span>
           Add New Cafe
         </button>
       </div>
 
-      <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-slate-700/50 flex items-center gap-4">
+      <div className="bg-white border border-slate-200 rounded-md shadow-2xs overflow-hidden">
+        <div className="p-4 border-b border-slate-200 flex items-center gap-4">
           <div className="relative flex-1 max-w-md">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">
+              search
+            </span>
             <input
               type="text"
               placeholder="Search by cafe name or city..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-slate-50 border border-slate-200 rounded-md pl-10 pr-4 py-2.5 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#C3A27C] transition-colors"
             />
           </div>
         </div>
@@ -104,45 +130,48 @@ export default function CafesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-700/50 bg-slate-900/50">
-                <th className="p-4 text-sm font-semibold text-slate-400">Cafe Name</th>
-                <th className="p-4 text-sm font-semibold text-slate-400">Owner</th>
-                <th className="p-4 text-sm font-semibold text-slate-400">Location</th>
-                <th className="p-4 text-sm font-semibold text-slate-400">Plan</th>
-                <th className="p-4 text-sm font-semibold text-slate-400">Status</th>
-                <th className="p-4 text-sm font-semibold text-slate-400">Devices</th>
-                <th className="p-4 text-sm font-semibold text-slate-400 text-right">Actions</th>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="p-4 text-xs uppercase font-bold text-slate-500">Cafe Name</th>
+                <th className="p-4 text-xs uppercase font-bold text-slate-500">Owner</th>
+                <th className="p-4 text-xs uppercase font-bold text-slate-500">Location</th>
+                <th className="p-4 text-xs uppercase font-bold text-slate-500">Plan</th>
+                <th className="p-4 text-xs uppercase font-bold text-slate-500">Status</th>
+                <th className="p-4 text-xs uppercase font-bold text-slate-500">Devices</th>
+                <th className="p-4 text-xs uppercase font-bold text-slate-500 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {filteredCafes.map((cafe) => (
-                <tr key={cafe.id} className="border-b border-slate-700/30 hover:bg-slate-800/80 transition-colors">
+                <tr key={cafe.id} className="hover:bg-slate-50/80 transition-colors">
                   <td className="p-4">
-                    <Link href={`/superadmin/cafes/cafe-${cafe.id}`} className="font-bold text-white hover:text-blue-400 transition-colors">
+                    <Link
+                      href={`/superadmin/cafes/cafe-${cafe.id}`}
+                      className="font-bold text-slate-900 hover:text-[#C3A27C] transition-colors"
+                    >
                       {cafe.name}
                     </Link>
                     <p className="text-xs text-slate-500 mt-0.5">Last active: {cafe.lastActive}</p>
                   </td>
-                  <td className="p-4 text-sm text-slate-300">{cafe.owner}</td>
-                  <td className="p-4 text-sm text-slate-300">{cafe.city}</td>
+                  <td className="p-4 text-sm font-medium text-slate-900">{cafe.owner}</td>
+                  <td className="p-4 text-sm font-medium text-slate-900">{cafe.city}</td>
                   <td className="p-4">
-                    <span className="bg-slate-700/50 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-300">
+                    <span className="bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md text-xs font-bold text-slate-700">
                       {cafe.plan}
                     </span>
                   </td>
                   <td className="p-4">{getStatusBadge(cafe.status)}</td>
-                  <td className="p-4 text-sm text-slate-300">{cafe.devices}</td>
+                  <td className="p-4 text-sm font-medium text-slate-900">{cafe.devices}</td>
                   <td className="p-4 text-right space-x-2 whitespace-nowrap">
                     <Link
                       href={`/superadmin/cafes/cafe-${cafe.id}`}
-                      className="inline-flex p-2 text-slate-400 hover:text-blue-400 transition-colors rounded-lg hover:bg-slate-700/40"
+                      className="inline-flex p-2 text-slate-500 hover:text-slate-900 transition-colors rounded-md hover:bg-slate-100"
                       title="View Details & Metrics"
                     >
                       <span className="material-symbols-outlined text-[20px]">visibility</span>
                     </Link>
                     <Link
                       href={`/superadmin/cafes/cafe-${cafe.id}`}
-                      className="inline-flex p-2 text-slate-400 hover:text-amber-400 transition-colors rounded-lg hover:bg-slate-700/40"
+                      className="inline-flex p-2 text-slate-500 hover:text-slate-900 transition-colors rounded-md hover:bg-slate-100"
                       title="Edit Plan & Charges"
                     >
                       <span className="material-symbols-outlined text-[20px]">edit_document</span>
@@ -157,56 +186,59 @@ export default function CafesPage() {
 
       {/* Add Cafe Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-lg font-black text-white">Onboard New Cafe</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-md p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-lg font-black text-slate-900">Onboard New Cafe</h3>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="text-slate-500 hover:text-slate-900 transition-colors"
+              >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
             <form onSubmit={handleAddCafe} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Cafe Name</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Cafe Name</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Mumbai Chai Bar"
                   value={newCafeName}
                   onChange={(e) => setNewCafeName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-blue-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md p-3 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#C3A27C] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Owner Name</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Owner Name</label>
                 <input
                   type="text"
                   placeholder="e.g. Anand Kumar"
                   value={newCafeOwner}
                   onChange={(e) => setNewCafeOwner(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-blue-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md p-3 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#C3A27C] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">City / Location</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">City / Location</label>
                 <input
                   type="text"
                   placeholder="e.g. Mumbai"
                   value={newCafeCity}
                   onChange={(e) => setNewCafeCity(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-blue-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md p-3 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#C3A27C] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Initial Plan</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Initial Plan</label>
                 <select
                   value={newCafePlan}
                   onChange={(e) => setNewCafePlan(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-blue-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md p-3 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#C3A27C] transition-colors"
                 >
                   <option value="Trial">Free Trial Mode</option>
                   <option value="Basic">Basic Plan (₹999/mo)</option>
@@ -215,19 +247,20 @@ export default function CafesPage() {
                 </select>
               </div>
 
-              {newCafePlan === 'Trial' && (
+              {newCafePlan === "Trial" && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Trial Period Duration</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Trial Period Duration</label>
                   <select
                     id="new-cafe-trial-days"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-amber-500 font-semibold"
+                    defaultValue="90"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-md p-3 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#C3A27C] transition-colors"
                   >
                     <option value="0">0 Days (No Trial - Immediate Payment)</option>
                     <option value="7">7 Days (1 Week)</option>
-                    <option value="14" selected>14 Days (2 Weeks - Standard)</option>
+                    <option value="14">14 Days (2 Weeks)</option>
                     <option value="30">30 Days (1 Month)</option>
                     <option value="60">60 Days (2 Months)</option>
-                    <option value="90">90 Days (3 Months)</option>
+                    <option value="90">90 Days (Standard)</option>
                   </select>
                 </div>
               )}
@@ -236,13 +269,13 @@ export default function CafesPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-white"
+                  className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold px-4 py-2.5 rounded-md text-xs transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md active:scale-95"
+                  className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-5 py-2.5 rounded-md text-xs border border-[#B2906A] shadow-2xs active:scale-95 transition-colors"
                 >
                   Create Cafe Account
                 </button>
