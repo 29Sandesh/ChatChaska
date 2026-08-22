@@ -235,19 +235,14 @@ export default function SetupWizardPage() {
 
         {/* Main Form Card */}
         <div className="bg-white rounded-md border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
-          {/* STEP 1: OWNER (PRIVATE) & CAFE (PUBLIC) DETAILS - NO EMAIL */}
+          {/* STEP 1: OWNER & CAFE DETAILS - NO EMAIL */}
           {step === 1 && (
             <div className="space-y-4 animate-in fade-in">
-              {/* Section 1: Owner Details (Private) */}
+              {/* Section 1: Owner Details */}
               <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-slate-900 text-[18px]">person</span>
-                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Owner Account Details</h3>
-                  </div>
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-sm flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[12px]">lock</span> Private (Saved For Platform)
-                  </span>
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-slate-900 text-[18px]">person</span>
+                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Owner Details</h3>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -264,7 +259,7 @@ export default function SetupWizardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Owner Personal Contact *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Owner Contact Number *</label>
                     <input
                       type="tel"
                       value={ownerPhone}
@@ -273,21 +268,15 @@ export default function SetupWizardPage() {
                       className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
                       required
                     />
-                    <p className="text-[10px] text-slate-400 mt-0.5">Kept private for account recovery & system support.</p>
                   </div>
                 </div>
               </div>
 
-              {/* Section 2: Cafe Outlet Details (Public) */}
+              {/* Section 2: Cafe Outlet Details */}
               <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-slate-900 text-[18px]">storefront</span>
-                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Cafe Outlet Details</h3>
-                  </div>
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-sm flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[12px]">public</span> Public (Shown on Bills & QR)
-                  </span>
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-slate-900 text-[18px]">storefront</span>
+                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Cafe Outlet Details</h3>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -304,7 +293,7 @@ export default function SetupWizardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Cafe Public Helpline / Phone</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Cafe Phone / Helpline</label>
                     <input
                       type="tel"
                       value={cafePhone}
@@ -312,7 +301,6 @@ export default function SetupWizardPage() {
                       placeholder="e.g. 020-12345678 or 9876543210"
                       className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
                     />
-                    <p className="text-[10px] text-slate-400 mt-0.5">Printed on receipts, invoices, and customer menus.</p>
                   </div>
                 </div>
 
