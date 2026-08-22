@@ -160,6 +160,43 @@ export default function CustomerDigitalMenuPage() {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
 
+  // Dynamic Cafe Config & Logo
+  const [cafeInfo, setCafeInfo] = useState<{
+    name: string;
+    logoUrl?: string;
+    rating?: string;
+    cuisines?: string;
+  }>({
+    name: DEMO_RESTAURANT.name,
+    logoUrl: '',
+    rating: '4.8',
+    cuisines: DEMO_RESTAURANT.cuisine,
+  });
+
+  useEffect(() => {
+    fetch('/api/cafe-config')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.cafeName) {
+          setCafeInfo((prev) => ({
+            ...prev,
+            name: data.cafeName,
+            cuisines: Array.isArray(data.cuisines) && data.cuisines.length > 0 ? data.cuisines.join(' • ') : prev.cuisines,
+          }));
+        }
+      })
+      .catch(() => {});
+
+    fetch('/api/settings?key=cafe_logo')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.value) {
+          setCafeInfo((prev) => ({ ...prev, logoUrl: data.value }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Update tableNumber when queryTable changes
   useEffect(() => {
     if (queryTable) {
@@ -398,30 +435,30 @@ export default function CustomerDigitalMenuPage() {
     }
   };
 
-  /* ── SWIGGY-EXACT COMPACT BOX ADD BUTTON ─── */
+  /* ── BRAND COMPACT BOX ADD BUTTON ─── */
   const AddButton = ({ item }: { item: DemoMenuItem }) => {
     const qty = getItemTotalQtyInCart(item.id);
 
     if (qty > 0) {
       const cartKey = Object.keys(cartMap).find((k) => cartMap[k].item.id === item.id);
       return (
-        <div className="flex items-center border border-emerald-600 bg-emerald-50 rounded-[3px] overflow-hidden h-[23px] px-1.5 shadow-2xs">
+        <div className="flex items-center border border-[#B2906A] bg-[#FAF7F2] rounded-md overflow-hidden h-[25px] px-1.5 shadow-2xs">
           <button
             onClick={(e) => {
               e.stopPropagation();
               if (cartKey) decrementCartItem(cartKey);
             }}
-            className="text-emerald-700 font-bold text-xs w-3.5 h-3.5 flex items-center justify-center hover:bg-emerald-100 rounded-[2px] transition-colors"
+            className="text-slate-950 font-black text-xs w-4 h-4 flex items-center justify-center hover:bg-[#C3A27C]/30 rounded-xs transition-colors"
           >
             −
           </button>
-          <span className="font-bold text-emerald-800 text-[10px] px-1">{qty}</span>
+          <span className="font-black text-slate-950 text-[11px] px-1.5">{qty}</span>
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleItemAddClick(item);
             }}
-            className="text-emerald-700 font-bold text-xs w-3.5 h-3.5 flex items-center justify-center hover:bg-emerald-100 rounded-[2px] transition-colors"
+            className="text-slate-950 font-black text-xs w-4 h-4 flex items-center justify-center hover:bg-[#C3A27C]/30 rounded-xs transition-colors"
           >
             +
           </button>
@@ -435,7 +472,7 @@ export default function CustomerDigitalMenuPage() {
           e.stopPropagation();
           handleItemAddClick(item);
         }}
-        className="px-3.5 h-[23px] border border-gray-200 text-emerald-600 font-bold text-[10px] rounded-[3px] hover:border-emerald-500 hover:bg-emerald-50/50 active:scale-95 transition-all shadow-2xs bg-white text-center flex items-center justify-center"
+        className="px-3.5 h-[25px] border border-[#B2906A]/70 text-slate-950 font-black text-[11px] rounded-md hover:bg-[#C3A27C] hover:text-slate-950 active:scale-95 transition-all shadow-2xs bg-[#FAF7F2] text-center flex items-center justify-center"
       >
         ADD
       </button>
@@ -446,56 +483,57 @@ export default function CustomerDigitalMenuPage() {
      RENDER
      ════════════════════════════════════════════ */
   return (
-    <div className="bg-white text-gray-900 font-sans antialiased md:max-w-md md:mx-auto md:shadow-xl md:min-h-screen relative pb-32">
+    <div className="bg-white text-slate-900 font-sans antialiased md:max-w-md md:mx-auto md:shadow-xl md:min-h-screen relative pb-32">
 
-      {/* ── HEADER ─────────────────────────── */}
-      <header className="relative w-full h-48 flex-shrink-0">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80')",
-          }}
-        />
-        <div className="absolute inset-0 bg-black/40" />
+      {/* ── HEADER WITH CHATCHASKA BRANDING & RESTAURANT LOGO ── */}
+      <header className="relative w-full bg-[#FAF7F2] border-b border-[#EBEBEB] p-4 flex-shrink-0">
+        {/* Top Branding & Table Badge Row */}
+        <div className="flex justify-between items-center mb-3">
+          {/* Table Badge: Clean box with subtle round edge */}
+          <div className="bg-white border border-slate-200 shadow-2xs px-2.5 py-1 rounded-md text-xs font-black text-slate-900 flex items-center gap-1.5">
+            <span>📍</span>
+            <span>{tableNumber}</span>
+          </div>
 
-        <div className="absolute top-3 w-full flex justify-between items-center px-4">
-          <span className="bg-white/90 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[11px] font-bold text-gray-800 shadow-sm">
-            📍 {tableNumber}
-          </span>
+          {/* ChatChaska Top Brand Badge */}
+          <div className="flex items-center gap-1 bg-white border border-slate-200 shadow-2xs px-2 py-0.5 rounded-md">
+            <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-3.5 w-auto object-contain" />
+          </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 w-full p-4 pb-4 bg-gradient-to-t from-white via-white/80 to-transparent">
-          <div className="flex items-end gap-3">
-            <div className="w-14 h-14 rounded-xl bg-emerald-600 text-white shadow-md flex items-center justify-center font-bold text-lg flex-shrink-0">
-              {DEMO_RESTAURANT.logo}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="font-bold text-lg text-gray-900 leading-tight truncate">
-                {DEMO_RESTAURANT.name}
-              </h1>
-              <div className="flex items-center gap-1.5 text-gray-500 text-[11px] mt-0.5">
-                <span className="text-amber-500 font-bold">★ {DEMO_RESTAURANT.rating}</span>
-                <span>({DEMO_RESTAURANT.reviewCount})</span>
-                <span>•</span>
-                <span>{DEMO_RESTAURANT.cuisine}</span>
-              </div>
+        {/* Restaurant Identity Row */}
+        <div className="flex items-center gap-3">
+          <div className="w-13 h-13 rounded-md bg-white border border-[#B2906A]/40 text-slate-950 shadow-2xs flex items-center justify-center font-black text-lg flex-shrink-0 overflow-hidden">
+            {cafeInfo.logoUrl ? (
+              <img src={cafeInfo.logoUrl} alt={cafeInfo.name} className="w-full h-full object-cover" />
+            ) : (
+              <span>{cafeInfo.name?.charAt(0) || 'C'}</span>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h1 className="font-black text-base text-slate-950 leading-tight truncate">
+              {cafeInfo.name}
+            </h1>
+            <div className="flex items-center gap-1.5 text-slate-500 text-[11px] mt-0.5 font-medium">
+              <span className="text-[#8C6D47] font-black">★ {cafeInfo.rating}</span>
+              <span>•</span>
+              <span className="truncate">{cafeInfo.cuisines}</span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* ── QUICK SERVICE BUTTONS ──────────── */}
-      <div className="px-4 pt-2 flex gap-2">
+      {/* ── QUICK SERVICE BUTTONS (BOXES WITH ROUND-MD) ──────────── */}
+      <div className="px-4 pt-2.5 flex gap-2">
         <button
           onClick={handleCallWaiter}
-          className="flex-1 py-2 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-center gap-1.5 text-xs font-bold text-gray-700 hover:bg-gray-100 active:scale-[0.97] transition-all"
+          className="flex-1 py-2 bg-[#FAF7F2] rounded-md border border-[#B2906A]/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-950 hover:bg-[#C3A27C]/20 active:scale-[0.98] transition-all shadow-2xs"
         >
           🔔 {waiterCalled ? 'Notified!' : 'Call Waiter'}
         </button>
         <button
           onClick={handleCallWaiter}
-          className="flex-1 py-2 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-center gap-1.5 text-xs font-bold text-gray-700 hover:bg-gray-100 active:scale-[0.97] transition-all"
+          className="flex-1 py-2 bg-[#FAF7F2] rounded-md border border-[#B2906A]/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-950 hover:bg-[#C3A27C]/20 active:scale-[0.98] transition-all shadow-2xs"
         >
           🧾 Request Bill
         </button>
@@ -612,23 +650,24 @@ export default function CustomerDigitalMenuPage() {
           </div>
         </div>
 
-        {/* ── RESTAURANT CATEGORIES SCROLLING BAR (ROUNDED-[6PX]) ── */}
-        <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pt-2 pb-1 border-t border-gray-100 mt-2">
+        {/* ── RESTAURANT CATEGORIES SCROLLING BAR (ROUNDED-MD) ── */}
+        <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar pt-2 pb-1 border-t border-slate-100 mt-2">
           <button
             onClick={() => {
               setActiveCategory('all');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`px-3 py-1 rounded-[6px] text-xs font-bold transition-all whitespace-nowrap border ${
+            className={`px-3 py-1 rounded-md text-xs font-bold transition-all whitespace-nowrap border cursor-pointer ${
               activeCategory === 'all'
-                ? 'bg-emerald-600 border-emerald-600 text-white shadow-2xs'
-                : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                ? 'bg-[#C3A27C] border-[#B2906A] text-slate-950 shadow-2xs'
+                : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
             }`}
           >
             All ({DEMO_CATEGORIES.reduce((sum: number, c: { id: string }) => sum + getItemsByCategory(c.id).length, 0)})
           </button>
           {DEMO_CATEGORIES.map((cat: { id: string; name: string }) => {
             const count = getItemsByCategory(cat.id).length;
+            const cleanName = cat.name.replace(/[\p{Emoji}\u200d]+/gu, '').trim() || cat.name;
             return (
               <button
                 key={cat.id}
@@ -641,29 +680,29 @@ export default function CustomerDigitalMenuPage() {
                     window.scrollTo({ top: y, behavior: 'smooth' });
                   }
                 }}
-                className={`px-3 py-1 rounded-[6px] text-xs font-bold transition-all whitespace-nowrap border ${
+                className={`px-3 py-1 rounded-md text-xs font-bold transition-all whitespace-nowrap border cursor-pointer ${
                   activeCategory === cat.id
-                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-2xs'
-                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                    ? 'bg-[#C3A27C] border-[#B2906A] text-slate-950 shadow-2xs'
+                    : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                {cat.name} ({count})
+                {cleanName} ({count})
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* ── TOP PICKS CAROUSEL ─────────────── */}
+      {/* ── TOP PICKS CAROUSEL (BOX CARDS) ─────────────── */}
       {!searchQuery && vegFilter === 'all' && (
         <section className="py-4">
-          <h2 className="px-4 font-bold text-base text-gray-900 mb-2.5">Top Picks</h2>
+          <h2 className="px-4 font-black text-sm text-slate-900 mb-2">Top Picks</h2>
           <div className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory hide-scrollbar">
             {topPicks.map((item) => (
               <div
                 key={item.id}
                 onClick={() => setDetailItem(item)}
-                className="relative flex-shrink-0 w-[220px] h-[160px] rounded-2xl overflow-hidden shadow-md snap-start group cursor-pointer"
+                className="relative flex-shrink-0 w-[220px] h-[150px] rounded-md overflow-hidden shadow-2xs border border-slate-200 snap-start group cursor-pointer"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -672,10 +711,10 @@ export default function CustomerDigitalMenuPage() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                <div className="absolute top-2.5 left-2.5">
-                  <DietIcon veg={item.veg} size={16} />
+                <div className="absolute top-2 left-2">
+                  <DietIcon veg={item.veg} size={15} />
                 </div>
 
                 <div className="absolute bottom-0 left-0 right-0 p-2.5 flex items-end justify-between">
@@ -683,7 +722,7 @@ export default function CustomerDigitalMenuPage() {
                     <h3 className="text-white font-bold text-xs leading-tight truncate drop-shadow-md">
                       {item.name}
                     </h3>
-                    <span className="text-white/90 font-bold text-xs drop-shadow-md">₹{item.price}</span>
+                    <span className="text-[#C3A27C] font-black text-xs drop-shadow-md">₹{item.price}</span>
                   </div>
                   <AddButton item={item} />
                 </div>
@@ -693,24 +732,25 @@ export default function CustomerDigitalMenuPage() {
         </section>
       )}
 
-      {/* ── CATEGORY SECTIONS (BORDERLESS SWIGGY CARDS) ── */}
+      {/* ── CATEGORY SECTIONS (CLEAN BOX CARDS) ── */}
       <main className="px-4 pb-8">
         {filteredItemsByCategory.map((catSection) => {
           const isCollapsed = collapsedSections[catSection.id] || false;
+          const cleanSectionName = catSection.name.replace(/[\p{Emoji}\u200d]+/gu, '').trim() || catSection.name;
 
           return (
             <section key={catSection.id} className="mb-6">
               {/* Section Header */}
               <button
                 onClick={() => toggleSection(catSection.id)}
-                className="w-full flex items-center justify-between py-3 border-b border-gray-100"
+                className="w-full flex items-center justify-between py-2.5 border-b border-slate-200 cursor-pointer"
               >
-                <h2 className="font-bold text-lg text-gray-900">
-                  {catSection.name}{' '}
-                  <span className="text-gray-400 font-normal">({catSection.items.length})</span>
+                <h2 className="font-black text-base text-slate-900">
+                  {cleanSectionName}{' '}
+                  <span className="text-slate-400 font-medium text-xs">({catSection.items.length})</span>
                 </h2>
                 <span
-                  className={`text-gray-400 text-xl transition-transform duration-200 ${
+                  className={`text-slate-400 text-lg transition-transform duration-200 ${
                     isCollapsed ? '' : 'rotate-180'
                   }`}
                 >
@@ -718,21 +758,21 @@ export default function CustomerDigitalMenuPage() {
                 </span>
               </button>
 
-              {/* Items Grid — Clean White Borderless Cards */}
+              {/* Items Grid */}
               <div
                 className={`transition-all duration-300 overflow-hidden ${
                   isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[5000px] opacity-100'
                 }`}
               >
-                <div className="grid grid-cols-2 gap-x-4 gap-y-6 pt-4">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-5 pt-3">
                   {catSection.items.map((item) => (
                     <div
                       key={item.id}
                       onClick={() => setDetailItem(item)}
-                      className="flex flex-col cursor-pointer group"
+                      className="flex flex-col cursor-pointer group bg-white rounded-md p-1.5 border border-slate-100 hover:border-slate-200 shadow-2xs transition-all"
                     >
-                      {/* Image (Square 1:1, Lesser curve rounded-lg) */}
-                      <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-100 mb-1.5">
+                      {/* Image (Square 1:1, Lesser curve rounded-md) */}
+                      <div className="relative w-full aspect-square rounded-md overflow-hidden bg-slate-100 mb-1.5 border border-slate-100">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={item.image}
@@ -740,31 +780,29 @@ export default function CustomerDigitalMenuPage() {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           loading="lazy"
                         />
-                        {/* Pure Transparent Text Badge on Top-Left Corner of Dish Image (NO background box, NO emojis) */}
                         {item.badge && (
-                          <span className="absolute top-1 left-2 text-white font-extrabold text-[10px] tracking-wider uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+                          <span className="absolute top-1 left-1.5 bg-black/60 backdrop-blur-xs text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded-xs tracking-wider uppercase">
                             {item.badge === 'bestseller' ? 'Bestseller' : item.badge === 'must-try' ? 'Must Try' : 'New'}
                           </span>
                         )}
-                        {/* FSSAI Diet Icon on Bottom-Right Corner of Image */}
-                        <div className="absolute bottom-1.5 right-1.5">
-                          <DietIcon veg={item.veg} size={15} />
+                        <div className="absolute bottom-1 right-1">
+                          <DietIcon veg={item.veg} size={14} />
                         </div>
                       </div>
 
-                      {/* Dish Name Container — Fixed h-8 for uniform 2-line spacing */}
-                      <div className="h-8 flex items-start mb-1">
-                        <h3 className="font-bold text-xs text-gray-900 leading-tight line-clamp-2 group-hover:text-emerald-700 transition-colors">
+                      {/* Dish Name */}
+                      <div className="h-7 flex items-start mb-1">
+                        <h3 className="font-bold text-xs text-slate-900 leading-tight line-clamp-2 group-hover:text-[#8C6D47] transition-colors">
                           {item.name}
                         </h3>
                       </div>
 
-                      {/* Bottom Row: Price (left) + ADD Button (right) — Shifted lower */}
-                      <div className="flex items-center justify-between mt-auto pt-2 pb-0.5">
+                      {/* Bottom Row: Price + ADD Button */}
+                      <div className="flex items-center justify-between mt-auto pt-1">
                         <div className="flex items-baseline gap-1">
-                          <span className="font-bold text-xs text-gray-900">₹{item.price}</span>
+                          <span className="font-black text-xs text-slate-950">₹{item.price}</span>
                           {item.strikePrice && (
-                            <span className="text-[10px] text-gray-400 line-through">₹{item.strikePrice}</span>
+                            <span className="text-[10px] text-slate-400 line-through">₹{item.strikePrice}</span>
                           )}
                         </div>
                         <AddButton item={item} />
@@ -780,11 +818,11 @@ export default function CustomerDigitalMenuPage() {
         {/* Empty state */}
         {filteredItemsByCategory.length === 0 && (
           <div className="text-center py-16">
-            <span className="text-4xl">🍽️</span>
-            <p className="text-gray-500 text-sm mt-3 font-medium">No dishes found matching your search.</p>
+            <span className="text-3xl">🍽️</span>
+            <p className="text-slate-500 text-xs mt-2 font-medium">No dishes found matching your filter.</p>
             <button
               onClick={() => { setSearchQuery(''); setVegFilter('all'); }}
-              className="mt-3 text-emerald-600 text-sm font-bold hover:underline"
+              className="mt-2 text-[#8C6D47] text-xs font-bold hover:underline cursor-pointer"
             >
               Clear all filters
             </button>
@@ -792,15 +830,15 @@ export default function CustomerDigitalMenuPage() {
         )}
       </main>
 
-      {/* ── FLOATING ITEMS FAB ─────────────── */}
+      {/* ── FLOATING ITEMS FAB (ROUNDED-MD BOX) ─────────────── */}
       {totalItems > 0 && !isCartOpen && (
         <button
           onClick={() => setIsCartOpen(true)}
-          className="fixed bottom-6 right-6 md:absolute md:bottom-6 md:right-6 w-16 h-16 bg-gray-900 text-white rounded-full shadow-2xl flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform z-50 group"
+          className="fixed bottom-6 right-6 md:absolute md:bottom-6 md:right-6 w-14 h-14 bg-slate-950 text-white rounded-md border border-slate-800 shadow-2xl flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform z-50 cursor-pointer"
         >
-          <span className="text-lg">📋</span>
-          <span className="text-[9px] font-bold uppercase tracking-wider">Items</span>
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow">
+          <span className="material-symbols-outlined text-[20px] text-[#C3A27C]">receipt_long</span>
+          <span className="text-[9px] font-black uppercase tracking-wider">Cart</span>
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#C3A27C] text-slate-950 text-[10px] font-black rounded-xs flex items-center justify-center shadow">
             {totalItems}
           </span>
         </button>
@@ -810,55 +848,46 @@ export default function CustomerDigitalMenuPage() {
       {detailItem && (
         <>
           <div className="fixed inset-0 bg-black/50 z-50 md:absolute" onClick={() => setDetailItem(null)} />
-          <div className="fixed bottom-0 left-0 right-0 md:absolute md:max-w-md md:mx-auto bg-white rounded-t-3xl shadow-2xl z-50 max-h-[85vh] flex flex-col animate-slideUp overflow-hidden">
+          <div className="fixed bottom-0 left-0 right-0 md:absolute md:max-w-md md:mx-auto bg-white rounded-t-md border-t border-slate-200 shadow-2xl z-50 max-h-[85vh] flex flex-col animate-slideUp overflow-hidden">
             {/* Hero Image */}
-            <div className="relative w-full h-52 bg-gray-100 flex-shrink-0">
+            <div className="relative w-full h-48 bg-slate-100 flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={detailItem.image} alt={detailItem.name} className="w-full h-full object-cover" />
               <button
                 onClick={() => setDetailItem(null)}
-                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center text-sm font-bold backdrop-blur-xs"
+                className="absolute top-3 right-3 w-7 h-7 rounded-md bg-black/60 text-white flex items-center justify-center text-xs font-bold cursor-pointer"
               >
                 ✕
               </button>
-              <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs px-2 py-1 rounded-md shadow">
-                <DietIcon veg={detailItem.veg} size={16} />
+              <div className="absolute top-3 left-3 bg-white/90 px-1.5 py-0.5 rounded-md shadow-2xs">
+                <DietIcon veg={detailItem.veg} size={15} />
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-5 overflow-y-auto flex-1 space-y-3">
+            <div className="p-4 overflow-y-auto flex-1 space-y-2.5">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="font-bold text-lg text-gray-900">{detailItem.name}</h2>
-                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                    {detailItem.rating && <span className="text-amber-500 font-bold">★ {detailItem.rating} ({detailItem.ratingCount} reviews)</span>}
-                    {detailItem.badge && <span className="text-emerald-600 font-bold">• ✨ {detailItem.badge}</span>}
+                  <h2 className="font-black text-base text-slate-900">{detailItem.name}</h2>
+                  <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                    {detailItem.rating && <span className="text-amber-500 font-bold">★ {detailItem.rating}</span>}
+                    {detailItem.badge && <span className="text-[#8C6D47] font-bold">• {detailItem.badge}</span>}
                   </div>
                 </div>
-                <span className="font-bold text-lg text-gray-900">₹{detailItem.price}</span>
+                <span className="font-black text-base text-slate-950">₹{detailItem.price}</span>
               </div>
 
-              <p className="text-xs text-gray-600 leading-relaxed">{detailItem.description}</p>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-1.5 pt-2">
-                {detailItem.tags.map((tag) => (
-                  <span key={tag} className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-[11px] font-medium">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">{detailItem.description}</p>
             </div>
 
             {/* CTA */}
-            <div className="p-4 border-t border-gray-100 bg-white">
+            <div className="p-3.5 border-t border-slate-100 bg-white">
               <button
                 onClick={() => {
                   handleItemAddClick(detailItem);
                   setDetailItem(null);
                 }}
-                className="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-md hover:bg-emerald-700 active:scale-[0.98] transition-all flex items-center justify-between px-5 text-sm"
+                className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-black py-3 rounded-md shadow-2xs active:scale-[0.98] transition-all flex items-center justify-between px-4 text-xs border border-[#B2906A] cursor-pointer"
               >
                 <span>Add Item to Order</span>
                 <span>₹{detailItem.price}</span>
