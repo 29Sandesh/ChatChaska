@@ -24,7 +24,6 @@ export function MobileHeader() {
     { icon: 'palette', label: 'Theme & Colors', href: `/restaurants/${activeRestaurantId}/themes` },
     { icon: 'qr_code_2', label: 'QR Codes', href: `/restaurants/${activeRestaurantId}/qr-codes` },
     { icon: 'grid_view', label: 'Table Map', href: '/floorplan' },
-    { icon: 'event_seat', label: 'Reservations', href: '/reservations' },
     { icon: 'badge', label: 'Staff & Shifts', href: '/shifts' },
     { icon: 'group', label: 'Team Members', href: '/team' },
     { icon: 'inventory_2', label: 'Stock & Availability', href: '/inventory' },

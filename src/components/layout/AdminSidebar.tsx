@@ -15,7 +15,6 @@ interface AdminNavItem {
 const adminNavItems: AdminNavItem[] = [
   { id: 'dashboard', label: 'My Cafe', href: '/admin', icon: 'dashboard' },
   { id: 'menu', label: 'Menu', href: '/admin/menu', icon: 'restaurant_menu' },
-  { id: 'reservations', label: 'Bookings', href: '/admin/reservations', icon: 'table_restaurant' },
   { id: 'qr-codes', label: 'QR Codes', href: '/admin/qr-codes', icon: 'qr_code_2' },
   { id: 'menu-preview', label: 'Menu Preview', href: '/admin/menu-preview', icon: 'visibility' },
   { id: 'reviews', label: 'Reviews', href: '/admin/reviews', icon: 'reviews' },

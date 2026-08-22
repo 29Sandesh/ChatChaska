@@ -7,7 +7,6 @@ import { usePathname } from 'next/navigation';
 const ADMIN_NAV_LINKS = [
   { href: '/admin', label: 'My Cafe Dashboard', icon: 'dashboard' },
   { href: '/admin/menu', label: 'Menu Manager', icon: 'restaurant_menu' },
-  { href: '/admin/reservations', label: 'Bookings', icon: 'calendar_month' },
   { href: '/admin/qr-codes', label: 'QR Codes', icon: 'qr_code_2' },
   { href: '/admin/menu-preview', label: 'Menu Preview', icon: 'phone_iphone' },
   { href: '/admin/reviews', label: 'Reviews', icon: 'reviews' },

@@ -18,17 +18,6 @@ export default function CafeProfilePage() {
   const [reviewComment, setReviewComment] = useState('');
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
-  // Table Booking modal state
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [guestCount, setGuestCount] = useState(2);
-  const [bookingDate, setBookingDate] = useState(new Date().toISOString().split('T')[0]);
-  const [bookingTime, setBookingTime] = useState('07:30 PM');
-  const [bookerName, setBookerName] = useState('');
-  const [bookerPhone, setBookerPhone] = useState('');
-  const [specialRequest, setSpecialRequest] = useState('');
-  const [bookingSubmitting, setBookingSubmitting] = useState(false);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
-
   useEffect(() => {
     async function loadCafe() {
       if (!slug) return;
@@ -100,83 +89,47 @@ export default function CafeProfilePage() {
   const menuItems = data?.menuItems || [];
   const reviews = data?.reviews || [];
 
-  const handleBookingSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!bookerName || !bookerPhone) return;
-    setBookingSubmitting(true);
-    try {
-      const res = await fetch('/api/public/reservations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cafe_slug: slug,
-          customer_name: bookerName,
-          customer_phone: bookerPhone,
-          guest_count: guestCount,
-          reservation_date: bookingDate,
-          time_slot: bookingTime,
-          special_request: specialRequest,
-        }),
-      });
-      if (res.ok) {
-        setBookingSuccess(true);
-        setTimeout(() => {
-          setIsBookingModalOpen(false);
-          setBookingSuccess(false);
-        }, 2200);
-      }
-    } catch (err) {
-      console.error('Booking failed:', err);
-    } finally {
-      setBookingSubmitting(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-950 text-white pb-24">
       {/* Hero Banner with Dark Gradient */}
       <div className="relative h-64 md:h-80 w-full bg-slate-900">
         <img
           src={cafe.banner_url || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80'}
-          alt={cafe.name}
+          alt={cafe.name || 'Cafe'}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-black/30" />
 
-        {/* Back & Share Buttons */}
-        <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-          <button
-            onClick={() => router.back()}
-            className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/80 transition-all cursor-pointer"
+        {/* Top Floating Actions */}
+        <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
+          <Link
+            href="/"
+            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-black/70 transition-all cursor-pointer shadow-lg"
           >
             <span className="material-symbols-outlined text-xl">arrow_back</span>
-          </button>
-
-          <button
-            onClick={handleShare}
-            className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/80 transition-all cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-xl">share</span>
-          </button>
+          </Link>
+          <div className="flex gap-2">
+            <button
+              onClick={handleShare}
+              className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-black/70 transition-all cursor-pointer shadow-lg"
+            >
+              <span className="material-symbols-outlined text-xl">share</span>
+            </button>
+          </div>
         </div>
 
-        {/* Cafe Meta Overlay */}
-        <div className="absolute bottom-4 left-4 right-4 max-w-5xl mx-auto">
-          <div className="flex items-end justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl md:text-3xl font-black text-white">{cafe.name}</h1>
-                {cafe.is_pure_veg && (
-                  <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-0.5 rounded-full text-[10px] font-bold">
-                    PURE VEG
-                  </span>
-                )}
-              </div>
-              <p className="text-xs md:text-sm text-slate-300">
-                {cafe.cuisine_tags?.join(' • ') || 'Artisan Cafe & Gourmet Street Bites'}
-              </p>
-              <p className="text-xs text-slate-400 flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">location_on</span>
+        {/* Cafe Identity Overlay */}
+        <div className="absolute bottom-4 left-4 right-4 z-10">
+          <div className="flex items-end justify-between gap-4 max-w-5xl mx-auto">
+            <div>
+              <span className="inline-block px-2.5 py-1 rounded-full bg-orange-500/90 text-white font-black text-[10px] uppercase tracking-wider mb-2 backdrop-blur-md">
+                Verified Cafe
+              </span>
+              <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight drop-shadow-md">
+                {cafe.name || 'ChatChaska Cafe'}
+              </h1>
+              <p className="text-xs md:text-sm text-slate-300 flex items-center gap-1.5 mt-1 drop-shadow-xs">
+                <span className="material-symbols-outlined text-orange-400 text-sm">location_on</span>
                 <span>{cafe.address ? `${cafe.address}, ${cafe.city}` : cafe.city || 'India'}</span>
               </p>
             </div>
@@ -194,14 +147,6 @@ export default function CafeProfilePage() {
 
       {/* Quick Action Buttons Bar */}
       <div className="max-w-5xl mx-auto px-4 pt-4 flex items-center gap-3 overflow-x-auto no-scrollbar">
-        <button
-          onClick={() => setIsBookingModalOpen(true)}
-          className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 px-4 py-2 rounded-xl text-xs font-bold text-white shadow-md whitespace-nowrap cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-base">table_restaurant</span>
-          <span>Book a Table</span>
-        </button>
-
         {cafe.google_maps_url ? (
           <a
             href={cafe.google_maps_url}
@@ -464,129 +409,6 @@ export default function CafeProfilePage() {
                 {reviewSubmitting ? 'Posting...' : 'Submit Review'}
               </button>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Table Booking Modal */}
-      {isBookingModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 text-white">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="text-lg font-bold">Book a Table</h3>
-                <p className="text-xs text-slate-400">Reserve your spot at {cafe.name}</p>
-              </div>
-              <button
-                onClick={() => setIsBookingModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
-            </div>
-
-            {bookingSuccess ? (
-              <div className="text-center py-8 space-y-2">
-                <span className="material-symbols-outlined text-5xl text-emerald-400 animate-bounce">
-                  check_circle
-                </span>
-                <h4 className="font-bold text-emerald-400 text-lg">Reservation Requested!</h4>
-                <p className="text-xs text-slate-300">
-                  The cafe manager will confirm your table shortly. A confirmation will be sent to your phone.
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleBookingSubmit} className="space-y-3.5">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Number of Guests</label>
-                  <div className="flex gap-2">
-                    {[1, 2, 4, 6, 8, 10].map((num) => (
-                      <button
-                        key={num}
-                        type="button"
-                        onClick={() => setGuestCount(num)}
-                        className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                          guestCount === num
-                            ? 'bg-orange-500 border-orange-400 text-white shadow-md'
-                            : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
-                        }`}
-                      >
-                        {num} {num === 1 ? 'Guest' : 'Guests'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Date</label>
-                    <input
-                      type="date"
-                      value={bookingDate}
-                      onChange={(e) => setBookingDate(e.target.value)}
-                      required
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Time Slot</label>
-                    <select
-                      value={bookingTime}
-                      onChange={(e) => setBookingTime(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
-                    >
-                      {['12:30 PM', '01:00 PM', '02:00 PM', '07:00 PM', '07:30 PM', '08:00 PM', '08:30 PM', '09:00 PM'].map((t) => (
-                        <option key={t} value={t}>{t}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Your Full Name *</label>
-                  <input
-                    type="text"
-                    value={bookerName}
-                    onChange={(e) => setBookerName(e.target.value)}
-                    placeholder="e.g. Ananya Deshmukh"
-                    required
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Mobile Number *</label>
-                  <input
-                    type="tel"
-                    value={bookerPhone}
-                    onChange={(e) => setBookerPhone(e.target.value)}
-                    placeholder="e.g. 9876543210"
-                    required
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Special Request (Optional)</label>
-                  <input
-                    type="text"
-                    value={specialRequest}
-                    onChange={(e) => setSpecialRequest(e.target.value)}
-                    placeholder="e.g. Window view, Anniversary celebration"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={bookingSubmitting}
-                  className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
-                >
-                  {bookingSubmitting ? 'Requesting...' : 'Confirm Table Booking'}
-                </button>
-              </form>
-            )}
           </div>
         </div>
       )}
