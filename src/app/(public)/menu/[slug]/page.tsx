@@ -901,35 +901,35 @@ export default function CustomerDigitalMenuPage() {
       {customizingItem && (
         <>
           <div className="fixed inset-0 bg-black/50 z-50 md:absolute" onClick={() => setCustomizingItem(null)} />
-          <div className="fixed bottom-0 left-0 right-0 md:absolute md:max-w-md md:mx-auto bg-white rounded-t-3xl shadow-2xl z-50 max-h-[80vh] flex flex-col animate-slideUp">
-            <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+          <div className="fixed bottom-0 left-0 right-0 md:absolute md:max-w-md md:mx-auto bg-white rounded-t-md border-t border-slate-200 shadow-2xl z-50 max-h-[80vh] flex flex-col animate-slideUp">
+            <div className="px-4 py-3.5 border-b border-slate-100 flex justify-between items-center">
               <div>
-                <h3 className="font-bold text-base text-gray-900">Customise {customizingItem.name}</h3>
-                <p className="text-xs text-gray-500">Select size & add-ons</p>
+                <h3 className="font-black text-sm text-slate-950">Customise {customizingItem.name}</h3>
+                <p className="text-[11px] text-slate-500 font-medium">Select size & add-ons</p>
               </div>
-              <button onClick={() => setCustomizingItem(null)} className="text-gray-400 hover:text-gray-600 text-lg">
+              <button onClick={() => setCustomizingItem(null)} className="text-slate-400 hover:text-slate-700 text-base font-bold cursor-pointer">
                 ✕
               </button>
             </div>
 
-            <div className="p-5 overflow-y-auto flex-1 space-y-5">
+            <div className="p-4 overflow-y-auto flex-1 space-y-4">
               {/* Variants Section */}
               {customizingItem.variants && customizingItem.variants.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-xs text-gray-500 uppercase tracking-wider mb-2">Quantity / Portion</h4>
-                  <div className="space-y-2">
+                  <h4 className="font-black text-[10px] text-slate-500 uppercase tracking-wider mb-2">Quantity / Portion</h4>
+                  <div className="space-y-1.5">
                     {customizingItem.variants.map((v, idx) => (
                       <label
                         key={v.name}
                         onClick={() => setSelectedVariantIdx(idx)}
-                        className={`flex justify-between items-center p-3 rounded-xl border cursor-pointer transition-all ${
+                        className={`flex justify-between items-center p-2.5 rounded-md border cursor-pointer transition-all ${
                           selectedVariantIdx === idx
-                            ? 'border-emerald-500 bg-emerald-50/50 text-gray-900 font-bold'
-                            : 'border-gray-200 text-gray-700'
+                            ? 'border-[#C3A27C] bg-[#FAF7F2] text-slate-950 font-bold shadow-2xs'
+                            : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                         }`}
                       >
                         <span className="text-xs">{v.name}</span>
-                        <span className="text-xs font-mono">₹{v.price}</span>
+                        <span className="text-xs font-mono font-bold">₹{v.price}</span>
                       </label>
                     ))}
                   </div>
@@ -939,8 +939,8 @@ export default function CustomerDigitalMenuPage() {
               {/* Addons Section */}
               {customizingItem.addons && customizingItem.addons.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-xs text-gray-500 uppercase tracking-wider mb-2">Extra Add-ons</h4>
-                  <div className="space-y-2">
+                  <h4 className="font-black text-[10px] text-slate-500 uppercase tracking-wider mb-2">Extra Add-ons</h4>
+                  <div className="space-y-1.5">
                     {customizingItem.addons.map((addon, idx) => {
                       const isChecked = selectedAddonIndices.includes(idx);
                       return (
@@ -953,17 +953,17 @@ export default function CustomerDigitalMenuPage() {
                               setSelectedAddonIndices((prev) => [...prev, idx]);
                             }
                           }}
-                          className={`flex justify-between items-center p-3 rounded-xl border cursor-pointer transition-all ${
+                          className={`flex justify-between items-center p-2.5 rounded-md border cursor-pointer transition-all ${
                             isChecked
-                              ? 'border-emerald-500 bg-emerald-50/50 text-gray-900 font-bold'
-                              : 'border-gray-200 text-gray-700'
+                              ? 'border-[#C3A27C] bg-[#FAF7F2] text-slate-950 font-bold shadow-2xs'
+                              : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           <div className="flex items-center gap-2">
-                            <input type="checkbox" checked={isChecked} readOnly className="accent-emerald-600" />
+                            <input type="checkbox" checked={isChecked} readOnly className="accent-[#C3A27C] rounded-xs" />
                             <span className="text-xs">{addon.name}</span>
                           </div>
-                          <span className="text-xs font-mono">+₹{addon.price}</span>
+                          <span className="text-xs font-mono font-bold">+₹{addon.price}</span>
                         </label>
                       );
                     })}
@@ -972,10 +972,10 @@ export default function CustomerDigitalMenuPage() {
               )}
             </div>
 
-            <div className="p-4 border-t border-gray-100 bg-white">
+            <div className="p-3.5 border-t border-slate-100 bg-white">
               <button
                 onClick={handleCustomAddConfirm}
-                className="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-md hover:bg-emerald-700 active:scale-[0.98] transition-all flex items-center justify-between px-5 text-sm"
+                className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-black py-3 rounded-md shadow-2xs active:scale-[0.98] transition-all flex items-center justify-between px-4 text-xs border border-[#B2906A] cursor-pointer"
               >
                 <span>Add Item to Cart</span>
                 <span>₹{calculatedCustomPrice}</span>
@@ -989,49 +989,49 @@ export default function CustomerDigitalMenuPage() {
       {isCartOpen && (
         <>
           <div className="fixed inset-0 bg-black/50 z-50 md:absolute" onClick={() => setIsCartOpen(false)} />
-          <div className="fixed bottom-0 left-0 right-0 md:absolute md:max-w-md md:mx-auto bg-white rounded-t-3xl shadow-2xl z-50 max-h-[85vh] flex flex-col animate-slideUp">
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 bg-gray-300 rounded-full" />
+          <div className="fixed bottom-0 left-0 right-0 md:absolute md:max-w-md md:mx-auto bg-white rounded-t-md border-t border-slate-200 shadow-2xl z-50 max-h-[85vh] flex flex-col animate-slideUp">
+            <div className="flex justify-center pt-2.5 pb-1">
+              <div className="w-8 h-1 bg-slate-300 rounded-xs" />
             </div>
 
-            <div className="px-5 pb-3 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-base text-gray-900">
+            <div className="px-4 pb-2.5 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="font-black text-sm text-slate-950">
                 Your Order ({totalItems} {totalItems === 1 ? 'item' : 'items'})
               </h3>
-              <button onClick={() => setIsCartOpen(false)} className="text-gray-400 hover:text-gray-600 text-lg">
+              <button onClick={() => setIsCartOpen(false)} className="text-slate-400 hover:text-slate-600 text-sm font-bold cursor-pointer">
                 ✕
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
               {/* Items List */}
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {Object.entries(cartMap).map(([key, ci]) => (
-                  <div key={key} className="flex items-center justify-between gap-3">
+                  <div key={key} className="flex items-center justify-between gap-2.5 bg-slate-50 p-2 rounded-md border border-slate-100">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
                         <DietIcon veg={ci.item.veg} size={12} />
-                        <span className="font-bold text-xs text-gray-900 truncate">{ci.item.name}</span>
+                        <span className="font-black text-xs text-slate-900 truncate">{ci.item.name}</span>
                       </div>
                       {ci.selectedVariant && (
-                        <p className="text-[10px] text-gray-500 pl-4">Variant: {ci.selectedVariant.name}</p>
+                        <p className="text-[10px] text-slate-500 pl-4">Variant: {ci.selectedVariant.name}</p>
                       )}
                       {ci.selectedAddons.length > 0 && (
-                        <p className="text-[10px] text-gray-500 pl-4">
+                        <p className="text-[10px] text-slate-500 pl-4">
                           + {ci.selectedAddons.map((a) => a.name).join(', ')}
                         </p>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <div className="flex items-center border border-emerald-500 rounded-lg overflow-hidden bg-emerald-50">
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center border border-[#B2906A] rounded-md overflow-hidden bg-[#FAF7F2] h-[24px]">
                         <button
                           onClick={() => decrementCartItem(key)}
-                          className="w-6 h-6 flex items-center justify-center text-emerald-700 font-bold text-sm"
+                          className="w-5 h-5 flex items-center justify-center text-slate-950 font-black text-xs hover:bg-[#C3A27C]/30"
                         >
                           −
                         </button>
-                        <span className="w-5 text-center text-xs font-bold text-emerald-800">{ci.quantity}</span>
+                        <span className="w-5 text-center text-[11px] font-black text-slate-950">{ci.quantity}</span>
                         <button
                           onClick={() =>
                             setCartMap((prev) => ({
@@ -1039,12 +1039,12 @@ export default function CustomerDigitalMenuPage() {
                               [key]: { ...ci, quantity: ci.quantity + 1 },
                             }))
                           }
-                          className="w-6 h-6 flex items-center justify-center text-emerald-700 font-bold text-sm"
+                          className="w-5 h-5 flex items-center justify-center text-slate-950 font-black text-xs hover:bg-[#C3A27C]/30"
                         >
                           +
                         </button>
                       </div>
-                      <span className="font-bold text-xs text-gray-900 w-14 text-right">
+                      <span className="font-black text-xs text-slate-950 w-12 text-right">
                         ₹{ci.unitPrice * ci.quantity}
                       </span>
                     </div>
@@ -1055,68 +1055,70 @@ export default function CustomerDigitalMenuPage() {
               {/* Add More Items link */}
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="text-emerald-600 font-bold text-xs hover:underline flex items-center gap-1 pt-1"
+                className="text-[#8C6D47] font-black text-xs hover:underline flex items-center gap-1 cursor-pointer"
               >
                 + Add more items
               </button>
-              <div className="pt-3 border-t border-gray-100">
-                <p className="font-bold text-xs text-gray-700 mb-1.5">Apply Coupon</p>
+
+              {/* Coupon */}
+              <div className="pt-2.5 border-t border-slate-100">
+                <p className="font-bold text-xs text-slate-700 mb-1">Apply Coupon</p>
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Enter code (e.g. SPICE20)"
+                    placeholder="e.g. SPICE20"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs outline-none border border-transparent focus:border-emerald-500 uppercase"
+                    className="flex-1 px-3 py-1.5 bg-slate-50 rounded-md text-xs outline-none border border-slate-200 focus:border-[#C3A27C] uppercase font-bold"
                   />
                   <button
                     onClick={handleApplyCoupon}
-                    className="px-4 py-1.5 bg-gray-900 text-white font-bold text-xs rounded-lg hover:bg-black transition-colors"
+                    className="px-3.5 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-black text-xs rounded-md border border-[#B2906A] transition-colors cursor-pointer"
                   >
                     Apply
                   </button>
                 </div>
-                {couponApplied && <p className="text-[11px] text-emerald-600 font-bold mt-1">✓ Coupon SPICE20 Applied! (₹{couponDiscount} OFF)</p>}
-                {couponError && <p className="text-[11px] text-red-500 font-medium mt-1">{couponError}</p>}
+                {couponApplied && <p className="text-[11px] text-emerald-700 font-bold mt-1">✓ Coupon applied! (₹{couponDiscount} OFF)</p>}
+                {couponError && <p className="text-[11px] text-rose-600 font-medium mt-1">{couponError}</p>}
               </div>
 
               {/* Bill Details Breakdown */}
-              <div className="bg-gray-50 rounded-xl p-3 space-y-2 border border-gray-100 text-xs">
-                <p className="font-bold text-gray-800 uppercase tracking-wider text-[10px]">Bill Summary</p>
-                <div className="flex justify-between text-gray-600">
+              <div className="bg-slate-50 rounded-md p-3 space-y-1.5 border border-slate-200 text-xs">
+                <p className="font-black text-slate-900 uppercase tracking-wider text-[10px]">Bill Summary</p>
+                <div className="flex justify-between text-slate-600 font-medium">
                   <span>Item Subtotal</span>
                   <span>₹{subtotal}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-slate-600 font-medium">
                   <span>GST Taxes (5%)</span>
                   <span>₹{gstAmount}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-slate-600 font-medium">
                   <span>Packaging Charges</span>
                   <span>₹{packagingFee}</span>
                 </div>
                 {couponDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-600 font-bold">
+                  <div className="flex justify-between text-emerald-700 font-bold">
                     <span>Coupon Discount</span>
                     <span>-₹{couponDiscount}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-gray-900 font-bold border-t border-gray-200 pt-2 text-sm">
+                <div className="flex justify-between text-slate-950 font-black border-t border-slate-200 pt-1.5 text-xs">
                   <span>To Pay</span>
                   <span>₹{grandTotal}</span>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 border-t border-gray-100 bg-white">
+            <div className="p-3.5 border-t border-slate-100 bg-white">
               <button
                 onClick={() => {
                   setIsCartOpen(false);
                   setIsCheckoutOpen(true);
                 }}
-                className="w-full bg-emerald-600 text-white rounded-xl py-3.5 flex items-center justify-between px-5 font-bold shadow-lg shadow-emerald-600/20 active:scale-[0.98] transition-transform"
+                className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md py-3 flex items-center justify-between px-4 font-black text-xs border border-[#B2906A] shadow-2xs active:scale-[0.98] transition-transform cursor-pointer"
               >
-                <span>Proceed to Confirm</span>
+                <span>Proceed to Order</span>
                 <span>₹{grandTotal}</span>
               </button>
             </div>
@@ -1164,31 +1166,31 @@ export default function CustomerDigitalMenuPage() {
       >
         {orderSuccess ? (
           <div className="py-6 text-center space-y-3">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center ring-8 ring-emerald-50 shadow-sm animate-bounce">
-              <span className="text-3xl">✓</span>
+            <div className="w-14 h-14 rounded-md bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center border border-emerald-300 shadow-2xs animate-bounce">
+              <span className="text-2xl font-black">✓</span>
             </div>
-            <h3 className="font-bold text-xl text-gray-900">Order Placed Successfully!</h3>
-            <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200">
+            <h3 className="font-black text-lg text-slate-900">Order Placed Successfully!</h3>
+            <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-md text-xs font-black border border-emerald-200">
               <span>Order #{orderId}</span>
               <span>•</span>
               <span>⏱️ Est. Wait: 12-15 mins</span>
             </div>
-            <p className="text-xs text-gray-500 max-w-xs mx-auto pt-1">
+            <p className="text-xs text-slate-500 max-w-xs mx-auto pt-1 font-medium">
               Your order has been sent directly to the kitchen display at {tableNumber}.
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <Input label="Table / Location" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)} />
-            <div className="bg-gray-50 p-3 rounded-xl space-y-1.5 text-xs">
-              <p className="font-bold text-gray-800">Order Summary ({totalItems} items)</p>
+            <div className="bg-slate-50 p-3 rounded-md space-y-1.5 text-xs border border-slate-200">
+              <p className="font-black text-slate-900 uppercase tracking-wider text-[10px]">Order Summary ({totalItems} items)</p>
               {cartItemsList.map((ci, idx) => (
-                <div key={idx} className="flex justify-between">
+                <div key={idx} className="flex justify-between font-medium text-slate-700">
                   <span>{ci.quantity}x {ci.item.name}</span>
-                  <span className="font-mono">₹{ci.unitPrice * ci.quantity}</span>
+                  <span className="font-mono font-bold">₹{ci.unitPrice * ci.quantity}</span>
                 </div>
               ))}
-              <div className="border-t border-gray-200 pt-1.5 flex justify-between font-bold text-gray-900">
+              <div className="border-t border-slate-200 pt-1.5 flex justify-between font-black text-slate-950">
                 <span>Total Amount</span>
                 <span>₹{grandTotal}</span>
               </div>
