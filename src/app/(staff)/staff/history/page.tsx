@@ -336,35 +336,68 @@ export default function StaffOrderHistoryPage() {
   return (
     <div className="flex-1 flex flex-col h-full w-full select-none font-sans bg-slate-50 overflow-hidden">
       {/* Custom Header */}
-      <header className="h-16 bg-white border-b border-[#EBEBEB] px-5 flex items-center justify-between gap-4 shrink-0 shadow-2xs z-30 sticky top-0">
+      <header className="h-16 bg-white border-b border-[#EBEBEB] px-4 flex items-center justify-between gap-3 shrink-0 shadow-2xs z-30 sticky top-0">
         {/* Left: Logo */}
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           <Link href="/staff/pos" className="flex items-center">
-            <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-8 w-auto max-w-[160px] object-contain drop-shadow-2xs" />
+            <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-8 w-auto max-w-[150px] object-contain drop-shadow-2xs" />
           </Link>
         </div>
 
-        {/* Center: Summary Badges */}
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 rounded-sm bg-slate-100 text-slate-800 border border-slate-200 text-[11px] font-bold flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[14px]">receipt_long</span>
-            {bills.length} Bills
-          </span>
-          <span className="px-2.5 py-1 rounded-sm bg-[#FAF7F2] text-slate-950 border border-[#C3A27C]/50 text-[11px] font-bold flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[14px]">payments</span>
-            ₹{todayRevenue.toLocaleString('en-IN')} Today
-          </span>
+        {/* Center: Search + 4 Date Filter Pills */}
+        <div className="flex-1 max-w-2xl flex items-center gap-2">
+          {/* Search Input */}
+          <div className="flex-1 relative">
+            <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
+            <input
+              type="text"
+              placeholder="Search by Bill ID, Table #, Phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs font-bold outline-none focus:border-[#C3A27C] transition-all"
+            />
+            {searchQuery && (
+              <button 
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <span className="material-symbols-outlined text-sm">close</span>
+              </button>
+            )}
+          </div>
+
+          {/* 4 Date Filter Pills */}
+          <div className="flex bg-slate-100 p-0.5 rounded-md border border-slate-200 gap-0.5 shrink-0">
+            {(['TODAY', 'YESTERDAY', 'WEEK', 'ALL'] as DateFilter[]).map((filter) => {
+              const active = dateFilter === filter;
+              return (
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() => setDateFilter(filter)}
+                  className={`px-2.5 py-1 text-xs font-bold rounded-sm transition-colors whitespace-nowrap ${
+                    active 
+                      ? 'bg-[#C3A27C] text-slate-950 shadow-2xs' 
+                      : 'text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {dateFilterLabels[filter]}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Right: EOD Report + POS + Menu */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => setIsReportModalOpen(true)}
             className="px-3 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold text-xs rounded-md shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5 border border-[#B2906A]"
           >
             <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-            <span>EOD Report</span>
+            <span className="hidden sm:inline">EOD Report</span>
           </button>
           <Link
             href="/staff/pos"
@@ -385,52 +418,6 @@ export default function StaffOrderHistoryPage() {
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-        {/* Controls: Search and Filters */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-white p-3 rounded-md shadow-2xs border border-slate-200">
-          <div className="flex-1 relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
-            <input
-              type="text"
-              placeholder="Search by Bill ID, Table #, Phone..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm font-semibold outline-none focus:border-[#C3A27C] focus:ring-1 focus:ring-[#C3A27C] transition-all"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
-            )}
-          </div>
-          
-          <div className="flex bg-slate-100 p-1 rounded-md border border-slate-200 gap-1 shrink-0 overflow-x-auto">
-            {(['TODAY', 'YESTERDAY', 'WEEK', 'ALL'] as DateFilter[]).map((filter) => {
-              const labels = {
-                TODAY: 'Today',
-                YESTERDAY: 'Yesterday',
-                WEEK: 'Last 7 Days',
-                ALL: 'All Time'
-              };
-              const active = dateFilter === filter;
-              return (
-                <button
-                  key={filter}
-                  onClick={() => setDateFilter(filter)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-sm transition-colors whitespace-nowrap ${
-                    active 
-                      ? 'bg-[#C3A27C] text-slate-950 shadow-2xs' 
-                      : 'text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {labels[filter]}
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

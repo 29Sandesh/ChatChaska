@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import loginShowcase from '@/../public/login-showcase.png';
 
 type PortalType = 'staff' | 'owner' | 'superadmin';
 type StaffRole = 'cashier' | 'waiter' | 'kitchen';
@@ -12,21 +14,12 @@ export default function UnifiedLoginPage() {
   const [portalType, setPortalType] = useState<PortalType>('staff');
   const [staffRole, setStaffRole] = useState<StaffRole>('cashier');
   const [pin, setPin] = useState<string>('');
-  const [showPin, setShowPin] = useState<boolean>(true); // Default to visible for easy verification
+  const [showPin, setShowPin] = useState<boolean>(true);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [loading, setLoading] = useState(false);
-
-  const [showSplash, setShowSplash] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -80,39 +73,13 @@ export default function UnifiedLoginPage() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center lg:justify-end select-none font-sans overflow-hidden bg-[#FAF7F2] text-slate-900">
-      {/* Mobile Animated Loading Splash Screen */}
-      {showSplash && (
-        <div 
-          onClick={() => setShowSplash(false)}
-          className="fixed inset-0 z-50 bg-[#FAF7F2] flex flex-col items-center justify-between p-6 animate-out fade-out duration-500 cursor-pointer"
-        >
-          <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm text-center space-y-4">
-            <img
-              src="/mobile-splash.png"
-              alt="ChatChaska"
-              className="max-h-[75vh] w-auto object-contain drop-shadow-md rounded-md animate-in zoom-in-95 duration-300"
-            />
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-600 pt-2">
-              <span className="w-3.5 h-3.5 border-2 border-[#C3A27C] border-t-transparent rounded-full animate-spin" />
-              <span>Loading ChatChaska POS Terminal...</span>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowSplash(false)}
-            className="text-[11px] font-bold text-slate-500 hover:text-slate-900 bg-white/80 px-3 py-1.5 rounded-md border border-slate-200 shadow-2xs"
-          >
-            Tap anywhere to skip →
-          </button>
-        </div>
-      )}
-
       {/* Desktop Left Showcase Artwork */}
       <div className="hidden lg:flex flex-1 items-center justify-center h-full p-8 relative pointer-events-none">
-        <img
-          src="/mobile-splash.png"
+        <Image
+          src={loginShowcase}
           alt="ChatChaska Showcase"
-          className="max-h-[90vh] w-auto object-contain drop-shadow-xl rounded-md"
+          priority
+          className="max-h-[90vh] w-auto object-contain drop-shadow-xl"
         />
       </div>
 
