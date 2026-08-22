@@ -74,23 +74,20 @@ export default function UnifiedLoginPage() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center lg:justify-end select-none font-sans overflow-hidden bg-[#FAF7F2] text-slate-900">
-      {/* Desktop Left Showcase Artwork (Zoomed & Scaled to Fit Perfectly) */}
-      <div className="hidden lg:flex flex-1 items-center justify-center h-screen p-4 xl:p-8 relative overflow-hidden pointer-events-none">
-        <div className="relative w-full h-[94vh] flex items-center justify-center">
-          <Image
-            src={loginShowcase}
-            alt="ChatChaska Showcase"
-            priority
-            fill
-            sizes="(max-width: 1200px) 60vw, 75vw"
-            className="object-contain scale-110 xl:scale-120 2xl:scale-130 drop-shadow-2xl transition-transform duration-300"
-          />
-        </div>
+      {/* Desktop Full-Screen Background Artwork (Fits Perfectly Across Laptop Screens) */}
+      <div className="hidden lg:block absolute inset-0 w-full h-full pointer-events-none">
+        <Image
+          src={loginShowcase}
+          alt="ChatChaska Showcase"
+          priority
+          fill
+          className="object-cover object-left"
+        />
       </div>
 
       {/* Right Minimalist Sign In Card */}
-      <div className="w-full lg:w-[420px] xl:w-[450px] flex items-center justify-center p-4 sm:p-6 lg:mr-8 xl:mr-14 relative z-10">
-        <div className="w-full max-w-[380px] bg-white border border-slate-200 rounded-md p-6 sm:p-7 shadow-xl space-y-5 animate-in fade-in duration-200">
+      <div className="w-full lg:w-[440px] xl:w-[480px] flex items-center justify-center p-4 sm:p-6 lg:mr-8 xl:mr-16 2xl:mr-24 relative z-10">
+        <div className="w-full max-w-[390px] bg-white border border-slate-200 rounded-md p-6 sm:p-7 shadow-2xl space-y-5 animate-in fade-in duration-200">
           {/* Header */}
           <div className="text-center space-y-1">
             <div className="flex items-center justify-center mb-2">
