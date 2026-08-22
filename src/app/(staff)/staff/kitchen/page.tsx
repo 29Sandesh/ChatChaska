@@ -190,30 +190,54 @@ export default function StaffKitchenPage() {
 
   return (
     <div className="bg-black flex-1 flex flex-col h-full w-full text-white select-none font-mono justify-between overflow-hidden">
-      {/* 1. TOP BLACK HEADER: LOGO ON LEFT | ACTIVE TICKETS BADGE IN CENTER | [ POS ] + [ ☰ ] ON RIGHT */}
-      <header className="h-16 bg-black border-b border-neutral-800 px-5 flex items-center justify-between gap-4 shrink-0 select-none sticky top-0 z-30 font-sans">
+      {/* 1. TOP BLACK HEADER: LOGO ON LEFT | STATION FILTERS IN CENTER | ACTIVE TICKETS BADGE + [ POS ] + [ ☰ ] ON RIGHT */}
+      <header className="h-16 bg-black border-b border-neutral-800 px-4 sm:px-5 flex items-center justify-between gap-3 shrink-0 select-none sticky top-0 z-30 font-sans">
         {/* Left: Brand Logo & Title */}
-        <div className="flex items-center gap-3.5 shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           <Link href="/staff/pos" className="flex items-center">
             <img
               src="/chatchaska-logo.png"
               alt="ChatChaska"
-              className="h-8 w-auto max-w-[160px] object-contain drop-shadow-2xs brightness-0 invert"
+              className="h-8 w-auto max-w-[140px] sm:max-w-[160px] object-contain drop-shadow-2xs brightness-0 invert"
             />
           </Link>
-          <div className="h-5 w-px bg-neutral-800 hidden sm:block" />
-          <div className="flex items-center gap-1.5 text-white font-black text-sm tracking-wide">
-            <span className="material-symbols-outlined text-[20px] text-amber-400">soup_kitchen</span>
-            <span className="hidden sm:inline">KITCHEN DISPLAY</span>
+          <div className="h-5 w-px bg-neutral-800 hidden md:block" />
+          <div className="hidden md:flex items-center gap-1.5 text-white font-black text-xs tracking-wide">
+            <span className="material-symbols-outlined text-[18px] text-amber-400">soup_kitchen</span>
+            <span>KITCHEN</span>
           </div>
         </div>
 
-        {/* Center: Active Tickets Counter Badge & Sound Toggle */}
-        <div className="flex items-center gap-2">
-          <span className="bg-neutral-900 border border-neutral-700 text-amber-400 text-xs font-mono font-bold px-3.5 py-1.5 rounded-md tracking-wider flex items-center gap-2 shadow-2xs">
+        {/* Center: Station Filtering Tabs in the Header! */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+          {[
+            { id: 'All Stations', label: 'All Stations', icon: 'apps' },
+            { id: 'Food / Kitchen', label: 'Food / Kitchen', icon: 'restaurant' },
+            { id: 'Drinks & Beverages', label: 'Drinks & Beverages', icon: 'local_bar' },
+            { id: 'Desserts & Bakery', label: 'Desserts & Bakery', icon: 'cake' },
+          ].map((station) => (
+            <button
+              key={station.id}
+              onClick={() => setActiveStation(station.id)}
+              className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 border shadow-2xs ${
+                activeStation === station.id
+                  ? 'bg-[#C3A27C] text-slate-950 border-[#B2906A]'
+                  : 'bg-neutral-900/80 text-neutral-400 hover:text-white border-neutral-800 hover:border-neutral-700'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[15px]">{station.icon}</span>
+              <span>{station.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Right: Active Tickets Badge + Sound Toggle + POS Quick Button + Right Navigation Drawer */}
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="bg-neutral-900 border border-neutral-700 text-amber-400 text-xs font-mono font-bold px-2.5 sm:px-3 py-1.5 rounded-md tracking-wider hidden sm:flex items-center gap-1.5 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
-            <span>{displayTickets.length} ACTIVE TICKETS</span>
+            <span>{displayTickets.length} ACTIVE</span>
           </span>
+
           <button 
             onClick={toggleSound}
             className="w-8 h-8 rounded-md hover:bg-neutral-900 flex items-center justify-center text-neutral-400 hover:text-white transition-all cursor-pointer border border-neutral-800"
@@ -223,18 +247,15 @@ export default function StaffKitchenPage() {
               {isSoundEnabled ? 'volume_up' : 'volume_off'}
             </span>
           </button>
-        </div>
 
-        {/* Right: POS Quick Button + Right Navigation Drawer Trigger */}
-        <div className="flex items-center gap-2.5 shrink-0">
           <Link
             href="/staff/pos"
-            className="px-3.5 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs border border-[#B2906A]"
+            className="px-3 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md text-xs font-bold flex items-center gap-1 transition-all shadow-2xs border border-[#B2906A]"
           >
             <span className="material-symbols-outlined text-[16px]">
               point_of_sale
             </span>
-            <span>POS</span>
+            <span className="hidden sm:inline">POS</span>
           </Link>
 
           {/* Hamburger ☰ (Opens Navigation Drawer from the RIGHT) */}
@@ -248,23 +269,6 @@ export default function StaffKitchenPage() {
           </button>
         </div>
       </header>
-
-      {/* Station Filtering Tabs */}
-      <div className="bg-[#1a1a1a] border-b border-neutral-800 px-5 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 h-12 font-sans">
-        {['All Stations', 'Food / Kitchen', 'Drinks & Beverages', 'Desserts & Bakery'].map(station => (
-          <button
-            key={station}
-            onClick={() => setActiveStation(station)}
-            className={`px-4 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-colors ${
-              activeStation === station
-                ? 'bg-[#C3A27C] text-slate-950'
-                : 'bg-transparent text-neutral-400 hover:text-white border border-neutral-700 hover:border-neutral-500'
-            }`}
-          >
-            {station}
-          </button>
-        ))}
-      </div>
 
       {/* 2. GRID OF KITCHEN TICKETS (Full Height, No Second Subheader Line!) */}
       <div className="p-3 flex-1 overflow-y-auto no-scrollbar">
