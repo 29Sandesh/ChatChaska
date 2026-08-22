@@ -65,8 +65,8 @@ function ToggleFilterButton({
   onToggle: () => void;
 }) {
   const activeClass = veg
-    ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-black shadow-2xs'
-    : 'border-rose-600 bg-rose-50 text-rose-950 font-black shadow-2xs';
+    ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-black shadow-2xs ring-1 ring-emerald-600/30'
+    : 'border-rose-600 bg-rose-50 text-rose-950 font-black shadow-2xs ring-1 ring-rose-600/30';
 
   return (
     <button
@@ -80,11 +80,6 @@ function ToggleFilterButton({
     >
       <DietIcon veg={veg} size={11} />
       <span>{label}</span>
-      <span
-        className={`w-2 h-2 rounded-full transition-colors ${
-          isActive ? (veg ? 'bg-emerald-600' : 'bg-rose-600') : 'bg-slate-300'
-        }`}
-      />
     </button>
   );
 }
@@ -560,48 +555,51 @@ export default function CustomerDigitalMenuPage() {
             </button>
           </div>
         ) : (
-          /* Filter Buttons Row (100% full width, unconstrained, not hidden) */
-          <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar w-full py-0.5">
-            {queryType !== 'non_veg' && (
-              <ToggleFilterButton
-                label="Veg"
-                veg={true}
-                isActive={vegFilter === 'veg'}
-                onToggle={() => setVegFilter(vegFilter === 'veg' ? 'all' : 'veg')}
-              />
-            )}
-            {queryType !== 'pure_veg' && (
-              <ToggleFilterButton
-                label="Non-Veg"
-                veg={false}
-                isActive={vegFilter === 'nonveg'}
-                onToggle={() => setVegFilter(vegFilter === 'nonveg' ? 'all' : 'nonveg')}
-              />
-            )}
-            {queryJain && queryType !== 'non_veg' && (
-              <button
-                type="button"
-                onClick={() => setVegFilter(vegFilter === 'jain' ? 'all' : 'jain')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs transition-all active:scale-95 whitespace-nowrap cursor-pointer ${
-                  vegFilter === 'jain'
-                    ? 'border-amber-500 bg-amber-50 text-amber-950 font-black shadow-2xs'
-                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 font-bold'
-                }`}
-              >
-                <span className="w-2.5 h-2.5 rounded-xs bg-amber-500" />
-                <span>Jain</span>
-                <span
-                  className={`w-2 h-2 rounded-full transition-colors ${
-                    vegFilter === 'jain' ? 'bg-amber-600' : 'bg-slate-300'
-                  }`}
+          /* Filter Buttons Row (Collapses smoothly on scroll) */
+          <div
+            className={`transition-all duration-300 ease-in-out overflow-hidden ${
+              isScrolled
+                ? 'max-h-0 opacity-0 pointer-events-none mt-0 py-0'
+                : 'max-h-12 opacity-100 mt-0.5 py-0.5'
+            }`}
+          >
+            <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar w-full">
+              {queryType !== 'non_veg' && (
+                <ToggleFilterButton
+                  label="Veg"
+                  veg={true}
+                  isActive={vegFilter === 'veg'}
+                  onToggle={() => setVegFilter(vegFilter === 'veg' ? 'all' : 'veg')}
                 />
-              </button>
-            )}
+              )}
+              {queryType !== 'pure_veg' && (
+                <ToggleFilterButton
+                  label="Non-Veg"
+                  veg={false}
+                  isActive={vegFilter === 'nonveg'}
+                  onToggle={() => setVegFilter(vegFilter === 'nonveg' ? 'all' : 'nonveg')}
+                />
+              )}
+              {queryJain && queryType !== 'non_veg' && (
+                <button
+                  type="button"
+                  onClick={() => setVegFilter(vegFilter === 'jain' ? 'all' : 'jain')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs transition-all active:scale-95 whitespace-nowrap cursor-pointer ${
+                    vegFilter === 'jain'
+                      ? 'border-amber-500 bg-amber-50 text-amber-950 font-black shadow-2xs ring-1 ring-amber-500/30'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 font-bold'
+                  }`}
+                >
+                  <span className="w-2.5 h-2.5 rounded-xs bg-amber-500" />
+                  <span>Jain</span>
+                </button>
+              )}
+            </div>
           </div>
         )}
 
         {/* ── RESTAURANT CATEGORIES SCROLLING BAR (ROUNDED-MD) ── */}
-        <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar pt-2 pb-1 border-t border-slate-100 mt-2">
+        <div className={`flex items-center gap-1.5 overflow-x-auto hide-scrollbar pt-1.5 pb-1 ${isScrolled ? '' : 'border-t border-slate-100 mt-1'}`}>
           <button
             onClick={() => {
               setActiveCategory('all');
@@ -643,7 +641,7 @@ export default function CustomerDigitalMenuPage() {
         </div>
       </div>
 
-      {/* ── TOP PICKS (ALIGNED 2-COLUMN GRID) ─────────────── */}
+      {/* ── TOP PICKS (ALIGNED 2-COLUMN WIDE RECTANGLES) ─────────────── */}
       {!searchQuery && vegFilter === 'all' && (
         <section className="py-3 px-4">
           <h2 className="font-black text-sm text-slate-900 mb-2">Top Picks</h2>
@@ -652,7 +650,7 @@ export default function CustomerDigitalMenuPage() {
               <div
                 key={item.id}
                 onClick={() => setDetailItem(item)}
-                className="relative w-full h-[145px] rounded-md overflow-hidden shadow-2xs border border-slate-200 group cursor-pointer"
+                className="relative w-full h-[96px] rounded-md overflow-hidden shadow-2xs border border-slate-200 group cursor-pointer"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -661,18 +659,18 @@ export default function CustomerDigitalMenuPage() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
 
-                <div className="absolute top-2 left-2">
-                  <DietIcon veg={item.veg} size={14} />
+                <div className="absolute top-1.5 left-1.5">
+                  <DietIcon veg={item.veg} size={12} />
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 p-2 flex items-end justify-between">
-                  <div className="min-w-0 pr-1.5">
-                    <h3 className="text-white font-bold text-[11px] leading-tight truncate drop-shadow-md">
+                <div className="absolute bottom-0 left-0 right-0 p-1.5 flex items-end justify-between">
+                  <div className="min-w-0 pr-1">
+                    <h3 className="text-white font-bold text-[10px] leading-tight truncate drop-shadow-md">
                       {item.name}
                     </h3>
-                    <span className="text-[#C3A27C] font-black text-xs drop-shadow-md">₹{item.price}</span>
+                    <span className="text-[#C3A27C] font-black text-[11px] drop-shadow-md">₹{item.price}</span>
                   </div>
                   <AddButton item={item} />
                 </div>
