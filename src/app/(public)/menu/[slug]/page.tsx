@@ -431,23 +431,23 @@ export default function CustomerDigitalMenuPage() {
     if (qty > 0) {
       const cartKey = Object.keys(cartMap).find((k) => cartMap[k].item.id === item.id);
       return (
-        <div className="flex items-center border border-[#B2906A] bg-[#FAF7F2] rounded-md overflow-hidden h-[25px] px-1.5 shadow-2xs">
+        <div className="flex items-center border border-[#B2906A] bg-[#FAF7F2] rounded-xs overflow-hidden h-[26px] shadow-2xs">
           <button
             onClick={(e) => {
               e.stopPropagation();
               if (cartKey) decrementCartItem(cartKey);
             }}
-            className="text-slate-950 font-black text-xs w-4 h-4 flex items-center justify-center hover:bg-[#C3A27C]/30 rounded-xs transition-colors"
+            className="w-5 h-full flex items-center justify-center text-slate-950 font-black text-xs hover:bg-[#C3A27C]/30 border-r border-[#B2906A]/30 active:bg-[#C3A27C] transition-colors cursor-pointer"
           >
             −
           </button>
-          <span className="font-black text-slate-950 text-[11px] px-1.5">{qty}</span>
+          <span className="font-black text-slate-950 text-xs px-2 text-center select-none min-w-[20px]">{qty}</span>
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleItemAddClick(item);
             }}
-            className="text-slate-950 font-black text-xs w-4 h-4 flex items-center justify-center hover:bg-[#C3A27C]/30 rounded-xs transition-colors"
+            className="w-5 h-full flex items-center justify-center text-slate-950 font-black text-xs hover:bg-[#C3A27C]/30 border-l border-[#B2906A]/30 active:bg-[#C3A27C] transition-colors cursor-pointer"
           >
             +
           </button>
@@ -461,7 +461,7 @@ export default function CustomerDigitalMenuPage() {
           e.stopPropagation();
           handleItemAddClick(item);
         }}
-        className="px-3.5 h-[25px] border border-[#B2906A]/70 text-slate-950 font-black text-[11px] rounded-md hover:bg-[#C3A27C] hover:text-slate-950 active:scale-95 transition-all shadow-2xs bg-[#FAF7F2] text-center flex items-center justify-center"
+        className="px-3.5 h-[26px] border border-[#B2906A] text-slate-950 font-black text-xs rounded-xs hover:bg-[#C3A27C] active:scale-95 transition-all shadow-2xs bg-[#FAF7F2] text-center flex items-center justify-center cursor-pointer"
       >
         ADD
       </button>
@@ -790,31 +790,16 @@ export default function CustomerDigitalMenuPage() {
         )}
       </main>
 
-      {/* ── STICKY BOTTOM CART BAR (LONG BAR) ─────────────── */}
+      {/* ── STICKY BOTTOM CART BAR (SIMPLE GO TO CART BAR) ─────────────── */}
       {totalItems > 0 && !isCartOpen && (
         <div className="fixed bottom-3 left-3 right-3 md:absolute md:bottom-3 md:left-3 md:right-3 z-40 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="w-full bg-slate-950 text-white rounded-md p-3 px-4 shadow-2xl border border-slate-800 flex items-center justify-between active:scale-[0.99] transition-all cursor-pointer group"
+            className="w-full bg-slate-950 hover:bg-slate-900 text-white rounded-md py-3 px-4 shadow-2xl border border-slate-800 flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer font-black text-xs"
           >
-            <div className="flex items-center gap-2.5">
-              <span className="w-6 h-6 rounded-xs bg-[#C3A27C] text-slate-950 font-black text-xs flex items-center justify-center">
-                {totalItems}
-              </span>
-              <div className="text-left">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none">
-                  {totalItems === 1 ? '1 Item' : `${totalItems} Items`} Added
-                </p>
-                <p className="text-sm font-black text-white leading-tight mt-0.5">
-                  ₹{grandTotal}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-[#C3A27C] font-black text-xs group-hover:translate-x-0.5 transition-transform">
-              <span>View Cart</span>
-              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-            </div>
+            <span>Go to Cart</span>
+            <span className="text-[#C3A27C] font-black">({totalItems})</span>
+            <span className="material-symbols-outlined text-[16px] text-[#C3A27C]">arrow_forward</span>
           </button>
         </div>
       )}
@@ -841,32 +826,36 @@ export default function CustomerDigitalMenuPage() {
 
             {/* Content */}
             <div className="p-4 overflow-y-auto flex-1 space-y-2.5">
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="font-black text-base text-slate-900">{detailItem.name}</h2>
+                  <h3 className="font-black text-base text-slate-950">{detailItem.name}</h3>
                   <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
                     {detailItem.rating && <span className="text-amber-500 font-bold">★ {detailItem.rating}</span>}
                     {detailItem.badge && <span className="text-[#8C6D47] font-bold">• {detailItem.badge}</span>}
                   </div>
                 </div>
-                <span className="font-black text-base text-slate-950">₹{detailItem.price}</span>
+                <span className="text-base font-black text-slate-950 font-mono">₹{detailItem.price}</span>
               </div>
 
               <p className="text-xs text-slate-600 leading-relaxed">{detailItem.description}</p>
             </div>
 
-            {/* CTA */}
-            <div className="p-3.5 border-t border-slate-100 bg-white">
+            {/* Bottom Actions */}
+            <div className="p-3.5 border-t border-slate-100 flex items-center justify-between gap-3 bg-white">
               <button
                 onClick={() => {
-                  handleItemAddClick(detailItem);
-                  setDetailItem(null);
+                  setReviewItem(detailItem);
+                  setRating(5);
+                  setReviewComment('');
+                  setIsReviewOpen(true);
                 }}
-                className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-black py-3 rounded-md shadow-2xs active:scale-[0.98] transition-all flex items-center justify-between px-4 text-xs border border-[#B2906A] cursor-pointer"
+                className="text-xs text-slate-500 hover:text-slate-800 font-bold flex items-center gap-1 cursor-pointer"
               >
-                <span>Add Item to Order</span>
-                <span>₹{detailItem.price}</span>
+                ⭐ Rate Dish
               </button>
+              <div className="flex items-center gap-2">
+                <AddButton item={detailItem} />
+              </div>
             </div>
           </div>
         </>
@@ -960,29 +949,33 @@ export default function CustomerDigitalMenuPage() {
         </>
       )}
 
-      {/* ── CART BOTTOM SHEET WITH BILL BREAKDOWN ── */}
+      {/* ── FULL SCREEN CART PAGE VIEW ── */}
       {isCartOpen && (
         <>
+          {/* Backdrop (clicking outside area removes cart) */}
           <div className="fixed inset-0 bg-black/50 z-50 md:absolute" onClick={() => setIsCartOpen(false)} />
-          <div className="fixed bottom-0 left-0 right-0 md:absolute md:max-w-md md:mx-auto bg-white rounded-t-md border-t border-slate-200 shadow-2xl z-50 max-h-[85vh] flex flex-col animate-slideUp">
-            <div className="flex justify-center pt-2.5 pb-1">
-              <div className="w-8 h-1 bg-slate-300 rounded-xs" />
-            </div>
-
-            <div className="px-4 pb-2.5 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-black text-sm text-slate-950">
-                Your Order ({totalItems} {totalItems === 1 ? 'item' : 'items'})
-              </h3>
-              <button onClick={() => setIsCartOpen(false)} className="text-slate-400 hover:text-slate-600 text-sm font-bold cursor-pointer">
-                ✕
+          
+          {/* Full Screen Cart Container */}
+          <div className="fixed inset-0 md:absolute bg-white z-50 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200">
+            {/* Top Navigation Header (No Cross, Back to Menu link) */}
+            <div className="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between bg-white shrink-0">
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="flex items-center gap-1.5 text-xs font-black text-slate-950 hover:text-[#8C6D47] transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                <span>Back to Menu</span>
               </button>
+              <h2 className="font-black text-sm text-slate-950">
+                Your Cart ({totalItems})
+              </h2>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
               {/* Items List */}
               <div className="space-y-2.5">
                 {Object.entries(cartMap).map(([key, ci]) => (
-                  <div key={key} className="flex items-center justify-between gap-2.5 bg-slate-50 p-2 rounded-md border border-slate-100">
+                  <div key={key} className="flex items-center justify-between gap-2.5 bg-slate-50 p-2.5 rounded-md border border-slate-200 shadow-2xs">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
                         <DietIcon veg={ci.item.veg} size={12} />
@@ -998,15 +991,15 @@ export default function CustomerDigitalMenuPage() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <div className="flex items-center border border-[#B2906A] rounded-md overflow-hidden bg-[#FAF7F2] h-[24px]">
+                    <div className="flex items-center gap-2.5 flex-shrink-0">
+                      <div className="flex items-center border border-[#B2906A] rounded-xs overflow-hidden bg-[#FAF7F2] h-[26px]">
                         <button
                           onClick={() => decrementCartItem(key)}
-                          className="w-5 h-5 flex items-center justify-center text-slate-950 font-black text-xs hover:bg-[#C3A27C]/30"
+                          className="w-5 h-full flex items-center justify-center text-slate-950 font-black text-xs hover:bg-[#C3A27C]/30 border-r border-[#B2906A]/30 cursor-pointer"
                         >
                           −
                         </button>
-                        <span className="w-5 text-center text-[11px] font-black text-slate-950">{ci.quantity}</span>
+                        <span className="w-6 text-center text-xs font-black text-slate-950 select-none">{ci.quantity}</span>
                         <button
                           onClick={() =>
                             setCartMap((prev) => ({
@@ -1014,7 +1007,7 @@ export default function CustomerDigitalMenuPage() {
                               [key]: { ...ci, quantity: ci.quantity + 1 },
                             }))
                           }
-                          className="w-5 h-5 flex items-center justify-center text-slate-950 font-black text-xs hover:bg-[#C3A27C]/30"
+                          className="w-5 h-full flex items-center justify-center text-slate-950 font-black text-xs hover:bg-[#C3A27C]/30 border-l border-[#B2906A]/30 cursor-pointer"
                         >
                           +
                         </button>
@@ -1030,13 +1023,13 @@ export default function CustomerDigitalMenuPage() {
               {/* Add More Items link */}
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="text-[#8C6D47] font-black text-xs hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-[#8C6D47] font-black text-xs hover:underline flex items-center gap-1 cursor-pointer pt-1"
               >
-                + Add more items
+                + Add more dishes
               </button>
 
               {/* Coupon */}
-              <div className="pt-2.5 border-t border-slate-100">
+              <div className="pt-3 border-t border-slate-100">
                 <p className="font-bold text-xs text-slate-700 mb-1">Apply Coupon</p>
                 <div className="flex gap-2">
                   <input
@@ -1044,11 +1037,11 @@ export default function CustomerDigitalMenuPage() {
                     placeholder="e.g. SPICE20"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 px-3 py-1.5 bg-slate-50 rounded-md text-xs outline-none border border-slate-200 focus:border-[#C3A27C] uppercase font-bold"
+                    className="flex-1 px-3 py-2 bg-slate-50 rounded-md text-xs outline-none border border-slate-200 focus:border-[#C3A27C] uppercase font-bold"
                   />
                   <button
                     onClick={handleApplyCoupon}
-                    className="px-3.5 py-1.5 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-black text-xs rounded-md border border-[#B2906A] transition-colors cursor-pointer"
+                    className="px-4 py-2 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-black text-xs rounded-md border border-[#B2906A] transition-colors cursor-pointer"
                   >
                     Apply
                   </button>
@@ -1058,7 +1051,7 @@ export default function CustomerDigitalMenuPage() {
               </div>
 
               {/* Bill Details Breakdown */}
-              <div className="bg-slate-50 rounded-md p-3 space-y-1.5 border border-slate-200 text-xs">
+              <div className="bg-slate-50 rounded-md p-3.5 space-y-2 border border-slate-200 text-xs">
                 <p className="font-black text-slate-900 uppercase tracking-wider text-[10px]">Bill Summary</p>
                 <div className="flex justify-between text-slate-600 font-medium">
                   <span>Item Subtotal</span>
@@ -1078,23 +1071,23 @@ export default function CustomerDigitalMenuPage() {
                     <span>-₹{couponDiscount}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-slate-950 font-black border-t border-slate-200 pt-1.5 text-xs">
+                <div className="flex justify-between text-slate-950 font-black border-t border-slate-200 pt-2 text-xs">
                   <span>To Pay</span>
                   <span>₹{grandTotal}</span>
                 </div>
               </div>
             </div>
 
-            <div className="p-3.5 border-t border-slate-100 bg-white">
+            <div className="p-4 border-t border-slate-200 bg-white shrink-0">
               <button
                 onClick={() => {
                   setIsCartOpen(false);
                   setIsCheckoutOpen(true);
                 }}
-                className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md py-3 flex items-center justify-between px-4 font-black text-xs border border-[#B2906A] shadow-2xs active:scale-[0.98] transition-transform cursor-pointer"
+                className="w-full bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 rounded-md py-3.5 flex items-center justify-center gap-1.5 font-black text-xs border border-[#B2906A] shadow-2xs active:scale-[0.98] transition-transform cursor-pointer"
               >
                 <span>Proceed to Order</span>
-                <span>₹{grandTotal}</span>
+                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
               </button>
             </div>
           </div>
