@@ -59,7 +59,7 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 select-none font-sans">
+    <div className="fixed inset-0 z-50 select-none font-sans text-slate-900">
       {/* Backdrop Overlay */}
       <div
         onClick={onClose}
@@ -67,7 +67,7 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
       />
 
       {/* Full-Height RIGHT Slide Drawer */}
-      <aside className="fixed top-0 right-0 bottom-0 w-[310px] max-w-[85vw] bg-white shadow-2xl z-50 flex flex-col justify-between animate-in slide-in-from-right duration-300 border-l border-[#C3A27C]/30">
+      <aside className="fixed top-0 right-0 bottom-0 w-[310px] max-w-[85vw] bg-white text-slate-900 shadow-2xl z-50 flex flex-col justify-between animate-in slide-in-from-right duration-300 border-l border-[#C3A27C]/30">
         <div>
           {/* Header */}
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-[#FAF7F2]">
@@ -114,8 +114,8 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[20px]">point_of_sale</span>
-                  <span className="text-xs font-bold">POS Billing Terminal</span>
+                  <span className={`material-symbols-outlined text-[20px] ${pathname === '/staff/pos' ? 'text-slate-950' : 'text-slate-600'}`}>point_of_sale</span>
+                  <span className={`text-xs font-bold ${pathname === '/staff/pos' ? 'text-slate-950' : 'text-slate-800'}`}>POS Billing Terminal</span>
                 </div>
               </Link>
 
@@ -129,8 +129,8 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[20px]">receipt_long</span>
-                  <span className="text-xs font-bold">Orders Queue</span>
+                  <span className={`material-symbols-outlined text-[20px] ${pathname === '/staff/orders' ? 'text-slate-950' : 'text-slate-600'}`}>receipt_long</span>
+                  <span className={`text-xs font-bold ${pathname === '/staff/orders' ? 'text-slate-950' : 'text-slate-800'}`}>Orders Queue</span>
                 </div>
                 {pendingCount > 0 && (
                   <span className="px-2 py-0.5 rounded-sm bg-amber-500 text-white font-black text-[11px] shadow-2xs">
@@ -155,8 +155,8 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[20px]">soup_kitchen</span>
-                  <span className="text-xs font-bold">Kitchen Display (KDS)</span>
+                  <span className={`material-symbols-outlined text-[20px] ${pathname === '/staff/kitchen' ? 'text-slate-950' : 'text-slate-600'}`}>soup_kitchen</span>
+                  <span className={`text-xs font-bold ${pathname === '/staff/kitchen' ? 'text-slate-950' : 'text-slate-800'}`}>Kitchen Display (KDS)</span>
                 </div>
                 {kitchenCount > 0 && (
                   <span className="px-2 py-0.5 rounded-sm bg-slate-900 text-white font-black text-[11px]">
@@ -175,8 +175,8 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[20px]">grid_view</span>
-                  <span className="text-xs font-bold">Tables Floor Map</span>
+                  <span className={`material-symbols-outlined text-[20px] ${pathname === '/staff/tables' ? 'text-slate-950' : 'text-slate-600'}`}>grid_view</span>
+                  <span className={`text-xs font-bold ${pathname === '/staff/tables' ? 'text-slate-950' : 'text-slate-800'}`}>Tables Floor Map</span>
                 </div>
                 {totalTables > 0 && (
                   <span className="px-2 py-0.5 rounded-sm bg-slate-100 text-slate-800 border border-slate-200 font-bold text-[11px]">
@@ -195,8 +195,8 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[20px]">history</span>
-                  <span className="text-xs font-bold">Bill History & Sales</span>
+                  <span className={`material-symbols-outlined text-[20px] ${pathname === '/staff/history' ? 'text-slate-950' : 'text-slate-600'}`}>history</span>
+                  <span className={`text-xs font-bold ${pathname === '/staff/history' ? 'text-slate-950' : 'text-slate-800'}`}>Bill History & Sales</span>
                 </div>
               </Link>
 
@@ -210,8 +210,8 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[20px]">point_of_sale</span>
-                  <span className="text-xs font-bold">Shift & Cash Drawer</span>
+                  <span className={`material-symbols-outlined text-[20px] ${pathname === '/staff/shift' ? 'text-slate-950' : 'text-slate-600'}`}>point_of_sale</span>
+                  <span className={`text-xs font-bold ${pathname === '/staff/shift' ? 'text-slate-950' : 'text-slate-800'}`}>Shift & Cash Drawer</span>
                 </div>
                 <span
                   className={`px-2 py-0.5 rounded-sm text-[10px] font-bold ${
@@ -230,8 +230,8 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                 className="flex items-center justify-between p-2.5 rounded-md text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 transition-all border border-transparent"
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[20px]">settings</span>
-                  <span className="text-xs font-bold">Cafe Admin Console</span>
+                  <span className="material-symbols-outlined text-[20px] text-slate-600">settings</span>
+                  <span className="text-xs font-bold text-slate-800">Cafe Admin Console</span>
                 </div>
               </Link>
             </div>
@@ -239,14 +239,14 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
         </div>
 
         {/* Bottom Exit */}
-        <div className="p-3 border-t border-slate-100 bg-[#FAF7F2]">
+        <div className="p-3 border-t border-slate-200 bg-[#FAF7F2]">
           <Link
             href="/login?logout=true"
             onClick={onClose}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-98"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md bg-white hover:bg-rose-50 border border-rose-300 text-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-98"
           >
-            <span className="material-symbols-outlined text-[18px]">logout</span>
-            <span>Exit Terminal / Logout</span>
+            <span className="material-symbols-outlined text-[18px] text-rose-600">logout</span>
+            <span className="text-rose-600 font-bold">Exit Terminal / Logout</span>
           </Link>
         </div>
       </aside>
