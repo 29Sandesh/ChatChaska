@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import loginShowcaseClean from '@/../public/login-showcase-clean.png';
+import loginShowcase from '@/../public/login-showcase.png';
 import chatchaskaLogo from '@/../public/chatchaska-logo.png';
 
 type PortalType = 'staff' | 'owner';
@@ -73,19 +73,20 @@ export default function UnifiedLoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row items-center justify-between bg-white text-slate-900 select-none font-sans p-4 sm:p-6 lg:p-8 xl:p-12 overflow-hidden">
-      {/* Desktop Left Showcase Artwork (Crisp, Perfectly Scaled, Zero Clipping) */}
-      <div className="hidden lg:flex flex-1 items-center justify-center h-screen p-4 xl:p-8 pointer-events-none">
+    <div className="relative min-h-screen w-full flex items-center justify-center lg:justify-end bg-white text-slate-900 select-none font-sans overflow-hidden">
+      {/* Original Full Artwork (100% Uncropped, Object-Contain Object-Left) */}
+      <div className="hidden lg:block absolute inset-0 w-full h-full pointer-events-none">
         <Image
-          src={loginShowcaseClean}
+          src={loginShowcase}
           alt="ChatChaska Showcase"
           priority
-          className="h-[88vh] w-auto max-w-full object-contain drop-shadow-xl"
+          fill
+          className="object-contain object-left"
         />
       </div>
 
       {/* Right Minimalist Sign In Card */}
-      <div className="w-full lg:w-[410px] xl:w-[450px] shrink-0 flex items-center justify-center p-4 sm:p-6 lg:mr-8 xl:mr-16 relative z-10">
+      <div className="w-full lg:w-auto flex items-center justify-center p-4 sm:p-6 lg:mr-8 xl:mr-16 2xl:mr-24 relative z-10">
         <div className="w-full max-w-[380px] bg-white border border-slate-200 rounded-md p-6 sm:p-7 shadow-xl space-y-5 animate-in fade-in duration-200">
           {/* Header */}
           <div className="text-center space-y-1">
