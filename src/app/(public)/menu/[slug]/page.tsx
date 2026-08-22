@@ -480,24 +480,24 @@ export default function CustomerDigitalMenuPage() {
     <div className="bg-white text-slate-900 font-sans antialiased md:max-w-md md:mx-auto md:shadow-xl md:min-h-screen relative pb-32">
 
       {/* ── HEADER WITH CHATCHASKA BRANDING & RESTAURANT LOGO ── */}
-      <header className="relative w-full bg-[#FAF7F2] border-b border-[#EBEBEB] p-4 flex-shrink-0">
+      <header className="relative w-full bg-white border-b border-slate-100 p-4 flex-shrink-0">
         {/* Top Branding & Table Badge Row */}
         <div className="flex justify-between items-center mb-3">
           {/* Table Badge: Clean box with subtle round edge */}
-          <div className="bg-white border border-slate-200 shadow-2xs px-2.5 py-1 rounded-md text-xs font-black text-slate-900 flex items-center gap-1.5">
+          <div className="bg-slate-50 border border-slate-200 shadow-2xs px-2.5 py-1 rounded-md text-xs font-black text-slate-900 flex items-center gap-1.5">
             <span>📍</span>
             <span>{tableNumber}</span>
           </div>
 
           {/* ChatChaska Top Brand Badge */}
-          <div className="flex items-center gap-1 bg-white border border-slate-200 shadow-2xs px-2 py-0.5 rounded-md">
+          <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 shadow-2xs px-2 py-0.5 rounded-md">
             <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-3.5 w-auto object-contain" />
           </div>
         </div>
 
         {/* Restaurant Identity Row */}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-md bg-white border border-[#B2906A]/40 text-slate-950 shadow-2xs flex items-center justify-center font-black text-lg shrink-0 overflow-hidden">
+          <div className="w-12 h-12 rounded-md bg-slate-50 border border-slate-200 text-slate-950 shadow-2xs flex items-center justify-center font-black text-lg shrink-0 overflow-hidden">
             {cafeInfo.logoUrl ? (
               <img src={cafeInfo.logoUrl} alt={cafeInfo.name} className="w-full h-full object-cover" />
             ) : (
@@ -522,23 +522,23 @@ export default function CustomerDigitalMenuPage() {
         <div className="px-4 pt-2.5 flex gap-2">
           <button
             onClick={handleCallWaiter}
-            className="flex-1 py-2 bg-[#FAF7F2] rounded-md border border-[#B2906A]/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-950 hover:bg-[#C3A27C]/20 active:scale-[0.98] transition-all shadow-2xs"
+            className="flex-1 py-2 bg-slate-50 rounded-md border border-slate-200 flex items-center justify-center gap-1.5 text-xs font-black text-slate-950 hover:bg-[#C3A27C]/20 active:scale-[0.98] transition-all shadow-2xs"
           >
             🔔 {waiterCalled ? 'Notified!' : 'Call Waiter'}
           </button>
           <button
             onClick={handleCallWaiter}
-            className="flex-1 py-2 bg-[#FAF7F2] rounded-md border border-[#B2906A]/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-950 hover:bg-[#C3A27C]/20 active:scale-[0.98] transition-all shadow-2xs"
+            className="flex-1 py-2 bg-slate-50 rounded-md border border-slate-200 flex items-center justify-center gap-1.5 text-xs font-black text-slate-950 hover:bg-[#C3A27C]/20 active:scale-[0.98] transition-all shadow-2xs"
           >
             🧾 Request Bill
           </button>
         </div>
       )}
 
-      {/* ── STICKY HEADER (Filters Row + Small Search Icon Button) ─────────────────────── */}
+      {/* ── STICKY HEADER (Filters Row & Categories) ─────────────────────── */}
       <div className="sticky top-0 z-50 bg-white border-b border-slate-200 px-4 py-2 shadow-2xs transition-all duration-300">
         {isSearchExpanded ? (
-          /* Clean Compact Search Input (No Voice Icon, Easy Close) */
+          /* Clean Full-width Search Input */
           <div className="w-full bg-slate-50 rounded-md px-3 py-1.5 flex items-center gap-2 border border-slate-200 shadow-2xs animate-in fade-in duration-200">
             <span className="material-symbols-outlined text-[16px] text-slate-400">search</span>
             <input
@@ -560,54 +560,43 @@ export default function CustomerDigitalMenuPage() {
             </button>
           </div>
         ) : (
-          /* Filter Buttons Row + Small Search Icon on the Right */
-          <div className="flex items-center justify-between gap-1.5">
-            <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar flex-1 min-w-0">
-              {queryType !== 'non_veg' && (
-                <ToggleFilterButton
-                  label="Veg"
-                  veg={true}
-                  isActive={vegFilter === 'veg'}
-                  onToggle={() => setVegFilter(vegFilter === 'veg' ? 'all' : 'veg')}
-                />
-              )}
-              {queryType !== 'pure_veg' && (
-                <ToggleFilterButton
-                  label="Non-Veg"
-                  veg={false}
-                  isActive={vegFilter === 'nonveg'}
-                  onToggle={() => setVegFilter(vegFilter === 'nonveg' ? 'all' : 'nonveg')}
-                />
-              )}
-              {queryJain && queryType !== 'non_veg' && (
-                <button
-                  type="button"
-                  onClick={() => setVegFilter(vegFilter === 'jain' ? 'all' : 'jain')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs transition-all active:scale-95 whitespace-nowrap cursor-pointer ${
-                    vegFilter === 'jain'
-                      ? 'border-amber-500 bg-amber-50 text-amber-950 font-black shadow-2xs'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 font-bold'
+          /* Filter Buttons Row (100% full width, unconstrained, not hidden) */
+          <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar w-full py-0.5">
+            {queryType !== 'non_veg' && (
+              <ToggleFilterButton
+                label="Veg"
+                veg={true}
+                isActive={vegFilter === 'veg'}
+                onToggle={() => setVegFilter(vegFilter === 'veg' ? 'all' : 'veg')}
+              />
+            )}
+            {queryType !== 'pure_veg' && (
+              <ToggleFilterButton
+                label="Non-Veg"
+                veg={false}
+                isActive={vegFilter === 'nonveg'}
+                onToggle={() => setVegFilter(vegFilter === 'nonveg' ? 'all' : 'nonveg')}
+              />
+            )}
+            {queryJain && queryType !== 'non_veg' && (
+              <button
+                type="button"
+                onClick={() => setVegFilter(vegFilter === 'jain' ? 'all' : 'jain')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs transition-all active:scale-95 whitespace-nowrap cursor-pointer ${
+                  vegFilter === 'jain'
+                    ? 'border-amber-500 bg-amber-50 text-amber-950 font-black shadow-2xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 font-bold'
+                }`}
+              >
+                <span className="w-2.5 h-2.5 rounded-xs bg-amber-500" />
+                <span>Jain</span>
+                <span
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    vegFilter === 'jain' ? 'bg-amber-600' : 'bg-slate-300'
                   }`}
-                >
-                  <span className="w-2.5 h-2.5 rounded-xs bg-amber-500" />
-                  <span>Jain</span>
-                  <span
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      vegFilter === 'jain' ? 'bg-amber-600' : 'bg-slate-300'
-                    }`}
-                  />
-                </button>
-              )}
-            </div>
-
-            {/* Small Search Icon Button */}
-            <button
-              onClick={() => setIsSearchExpanded(true)}
-              className="w-8 h-8 rounded-md bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center shrink-0 shadow-2xs active:scale-95 transition-all cursor-pointer"
-              title="Search menu"
-            >
-              <span className="material-symbols-outlined text-[17px]">search</span>
-            </button>
+                />
+              </button>
+            )}
           </div>
         )}
 
@@ -654,16 +643,16 @@ export default function CustomerDigitalMenuPage() {
         </div>
       </div>
 
-      {/* ── TOP PICKS CAROUSEL (BOX CARDS) ─────────────── */}
+      {/* ── TOP PICKS (ALIGNED 2-COLUMN GRID) ─────────────── */}
       {!searchQuery && vegFilter === 'all' && (
-        <section className="py-4">
-          <h2 className="px-4 font-black text-sm text-slate-900 mb-2">Top Picks</h2>
-          <div className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory hide-scrollbar">
-            {topPicks.map((item) => (
+        <section className="py-3 px-4">
+          <h2 className="font-black text-sm text-slate-900 mb-2">Top Picks</h2>
+          <div className="grid grid-cols-2 gap-2.5">
+            {topPicks.slice(0, 2).map((item) => (
               <div
                 key={item.id}
                 onClick={() => setDetailItem(item)}
-                className="relative flex-shrink-0 w-[220px] h-[150px] rounded-md overflow-hidden shadow-2xs border border-slate-200 snap-start group cursor-pointer"
+                className="relative w-full h-[145px] rounded-md overflow-hidden shadow-2xs border border-slate-200 group cursor-pointer"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -672,15 +661,15 @@ export default function CustomerDigitalMenuPage() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
                 <div className="absolute top-2 left-2">
-                  <DietIcon veg={item.veg} size={15} />
+                  <DietIcon veg={item.veg} size={14} />
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 p-2.5 flex items-end justify-between">
-                  <div className="min-w-0 pr-2">
-                    <h3 className="text-white font-bold text-xs leading-tight truncate drop-shadow-md">
+                <div className="absolute bottom-0 left-0 right-0 p-2 flex items-end justify-between">
+                  <div className="min-w-0 pr-1.5">
+                    <h3 className="text-white font-bold text-[11px] leading-tight truncate drop-shadow-md">
                       {item.name}
                     </h3>
                     <span className="text-[#C3A27C] font-black text-xs drop-shadow-md">₹{item.price}</span>
@@ -790,6 +779,22 @@ export default function CustomerDigitalMenuPage() {
           </div>
         )}
       </main>
+
+      {/* ── FLOATING SEARCH BUTTON (BOTTOM RIGHT CIRCULAR) ── */}
+      {!isSearchExpanded && (
+        <button
+          onClick={() => {
+            setIsSearchExpanded(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className={`fixed md:absolute w-11 h-11 bg-white text-slate-900 rounded-full border border-slate-200 shadow-lg flex items-center justify-center active:scale-90 transition-all z-40 cursor-pointer hover:bg-slate-50 ${
+            totalItems > 0 && !isCartOpen ? 'bottom-20 right-6 md:bottom-20 md:right-6' : 'bottom-6 right-6 md:bottom-6 md:right-6'
+          }`}
+          title="Search menu"
+        >
+          <span className="material-symbols-outlined text-[19px] text-slate-800">search</span>
+        </button>
+      )}
 
       {/* ── FLOATING ITEMS FAB (ROUNDED-MD BOX) ─────────────── */}
       {totalItems > 0 && !isCartOpen && (
