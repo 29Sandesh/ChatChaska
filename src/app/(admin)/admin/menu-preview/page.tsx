@@ -9,12 +9,9 @@ export default function AdminMenuPreviewPage() {
   // Dietary Settings
   const [restaurantType, setRestaurantType] = useState<'both' | 'pure_veg' | 'non_veg'>('both');
   const [showJain, setShowJain] = useState(true);
-  const [showSpice, setShowSpice] = useState(true);
   const [allowSelfOrder, setAllowSelfOrder] = useState(true);
   const [allowCallWaiter, setAllowCallWaiter] = useState(true);
   
-  // Table Simulator
-  const [previewTable, setPreviewTable] = useState('Table 1');
   const [copied, setCopied] = useState(false);
   const [savedToast, setSavedToast] = useState(false);
 
@@ -59,11 +56,6 @@ export default function AdminMenuPreviewPage() {
         fetch('/api/settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key: 'show_spice_indicator', value: String(showSpice) }),
-        }),
-        fetch('/api/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ key: 'allow_self_order', value: String(allowSelfOrder) }),
         }),
       ]);
@@ -74,7 +66,7 @@ export default function AdminMenuPreviewPage() {
     }
   };
 
-  const previewUrl = `/menu/${cafeSlug}?table=${encodeURIComponent(previewTable)}&type=${restaurantType}&jain=${showJain ? '1' : '0'}`;
+  const previewUrl = `/menu/${cafeSlug}?table=Table%201&type=${restaurantType}&jain=${showJain ? '1' : '0'}`;
 
   const handleCopyLink = () => {
     const fullUrl = `${window.location.origin}${previewUrl}`;
@@ -234,59 +226,26 @@ export default function AdminMenuPreviewPage() {
                   className="w-4 h-4 rounded-md accent-[#C3A27C] cursor-pointer"
                 />
               </label>
-
-              {/* Spice Indicator Toggle */}
-              <label className="flex items-center justify-between p-3 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors cursor-pointer">
-                <div className="space-y-0.5 pr-4">
-                  <span className="text-xs font-bold text-slate-900">Show Spicy Level Indicators (🌶️)</span>
-                  <p className="text-[11px] text-slate-500">
-                    Displays spicy icons on hot items to guide customer taste preferences.
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={showSpice}
-                  onChange={(e) => setShowSpice(e.target.checked)}
-                  className="w-4 h-4 rounded-md accent-[#C3A27C] cursor-pointer"
-                />
-              </label>
             </div>
           </div>
 
-          {/* Card 3: Table & Ordering Simulator */}
+          {/* Card 3: Service & Ordering Options */}
           <div className="bg-white border border-slate-200 rounded-md p-5 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-              <span className="material-symbols-outlined text-slate-900 text-[18px]">table_restaurant</span>
+              <span className="material-symbols-outlined text-slate-900 text-[18px]">touch_app</span>
               <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-                Table & Service Simulator
+                Customer Ordering & Service
               </h2>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Simulate QR Scan from Table:
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {['Table 1', 'Table 2', 'Table 4', 'VIP 1', 'Takeaway'].map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setPreviewTable(t)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                      previewTable === t
-                        ? 'bg-[#C3A27C] text-slate-950 border border-[#B2906A] shadow-2xs'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 space-y-2">
-              <label className="flex items-center justify-between p-2.5 rounded-md bg-slate-50 border border-slate-200 cursor-pointer">
-                <span className="text-xs font-bold text-slate-900">Allow Self-Ordering from Phone (Instant POS sync)</span>
+            <div className="space-y-2">
+              <label className="flex items-center justify-between p-3 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors cursor-pointer">
+                <div className="space-y-0.5 pr-4">
+                  <span className="text-xs font-bold text-slate-900">Allow Self-Ordering from Phone (Instant POS sync)</span>
+                  <p className="text-[11px] text-slate-500">
+                    Customers can browse and place direct table orders to the POS and kitchen.
+                  </p>
+                </div>
                 <input
                   type="checkbox"
                   checked={allowSelfOrder}
@@ -295,8 +254,13 @@ export default function AdminMenuPreviewPage() {
                 />
               </label>
 
-              <label className="flex items-center justify-between p-2.5 rounded-md bg-slate-50 border border-slate-200 cursor-pointer">
-                <span className="text-xs font-bold text-slate-900">Enable &quot;Call Waiter&quot; and &quot;Request Bill&quot; Buttons</span>
+              <label className="flex items-center justify-between p-3 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors cursor-pointer">
+                <div className="space-y-0.5 pr-4">
+                  <span className="text-xs font-bold text-slate-900">Enable &quot;Call Waiter&quot; and &quot;Request Bill&quot; Buttons</span>
+                  <p className="text-[11px] text-slate-500">
+                    Allows guests to request physical assistance or their payment bill from their phone.
+                  </p>
+                </div>
                 <input
                   type="checkbox"
                   checked={allowCallWaiter}
