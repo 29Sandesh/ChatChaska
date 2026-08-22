@@ -600,6 +600,22 @@ export default function CustomerDigitalMenuPage() {
 
         {/* ── RESTAURANT CATEGORIES SCROLLING BAR (ROUNDED-MD) ── */}
         <div className={`flex items-center gap-1.5 overflow-x-auto hide-scrollbar pt-1.5 pb-1 ${isScrolled ? '' : 'border-t border-slate-100 mt-1'}`}>
+          {/* Search Icon Button before All */}
+          <button
+            onClick={() => {
+              setIsSearchExpanded((prev) => !prev);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all border shrink-0 flex items-center justify-center cursor-pointer ${
+              isSearchExpanded
+                ? 'bg-slate-950 text-white border-slate-900 shadow-2xs'
+                : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
+            }`}
+            title="Search dishes"
+          >
+            <span className="material-symbols-outlined text-[15px]">search</span>
+          </button>
+
           <button
             onClick={() => {
               setActiveCategory('all');
@@ -611,10 +627,9 @@ export default function CustomerDigitalMenuPage() {
                 : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            All ({DEMO_CATEGORIES.reduce((sum: number, c: { id: string }) => sum + getItemsByCategory(c.id).length, 0)})
+            All
           </button>
           {DEMO_CATEGORIES.map((cat: { id: string; name: string }) => {
-            const count = getItemsByCategory(cat.id).length;
             const cleanName = cat.name.replace(/[\p{Emoji}\u200d]+/gu, '').trim() || cat.name;
             return (
               <button
@@ -634,7 +649,7 @@ export default function CustomerDigitalMenuPage() {
                     : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                {cleanName} ({count})
+                {cleanName}
               </button>
             );
           })}
@@ -694,8 +709,7 @@ export default function CustomerDigitalMenuPage() {
                 className="w-full flex items-center justify-between py-2.5 border-b border-slate-200 cursor-pointer"
               >
                 <h2 className="font-black text-base text-slate-900">
-                  {cleanSectionName}{' '}
-                  <span className="text-slate-400 font-medium text-xs">({catSection.items.length})</span>
+                  {cleanSectionName}
                 </h2>
                 <span
                   className={`text-slate-400 text-lg transition-transform duration-200 ${
@@ -738,12 +752,10 @@ export default function CustomerDigitalMenuPage() {
                         </div>
                       </div>
 
-                      {/* Dish Name */}
-                      <div className="h-7 flex items-start mb-1">
-                        <h3 className="font-bold text-xs text-slate-900 leading-tight line-clamp-2 group-hover:text-[#8C6D47] transition-colors">
-                          {item.name}
-                        </h3>
-                      </div>
+                      {/* Item Info */}
+                      <h3 className="font-bold text-xs text-slate-900 line-clamp-1 leading-snug">
+                        {item.name}
+                      </h3>
 
                       {/* Bottom Row: Price + ADD Button */}
                       <div className="flex items-center justify-between mt-auto pt-1">
@@ -778,34 +790,33 @@ export default function CustomerDigitalMenuPage() {
         )}
       </main>
 
-      {/* ── FLOATING SEARCH BUTTON (BOTTOM RIGHT CIRCULAR) ── */}
-      {!isSearchExpanded && (
-        <button
-          onClick={() => {
-            setIsSearchExpanded(true);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-          className={`fixed md:absolute w-11 h-11 bg-white text-slate-900 rounded-full border border-slate-200 shadow-lg flex items-center justify-center active:scale-90 transition-all z-40 cursor-pointer hover:bg-slate-50 ${
-            totalItems > 0 && !isCartOpen ? 'bottom-20 right-6 md:bottom-20 md:right-6' : 'bottom-6 right-6 md:bottom-6 md:right-6'
-          }`}
-          title="Search menu"
-        >
-          <span className="material-symbols-outlined text-[19px] text-slate-800">search</span>
-        </button>
-      )}
-
-      {/* ── FLOATING ITEMS FAB (ROUNDED-MD BOX) ─────────────── */}
+      {/* ── STICKY BOTTOM CART BAR (LONG BAR) ─────────────── */}
       {totalItems > 0 && !isCartOpen && (
-        <button
-          onClick={() => setIsCartOpen(true)}
-          className="fixed bottom-6 right-6 md:absolute md:bottom-6 md:right-6 w-14 h-14 bg-slate-950 text-white rounded-md border border-slate-800 shadow-2xl flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform z-50 cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[20px] text-[#C3A27C]">receipt_long</span>
-          <span className="text-[9px] font-black uppercase tracking-wider">Cart</span>
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#C3A27C] text-slate-950 text-[10px] font-black rounded-xs flex items-center justify-center shadow">
-            {totalItems}
-          </span>
-        </button>
+        <div className="fixed bottom-3 left-3 right-3 md:absolute md:bottom-3 md:left-3 md:right-3 z-40 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="w-full bg-slate-950 text-white rounded-md p-3 px-4 shadow-2xl border border-slate-800 flex items-center justify-between active:scale-[0.99] transition-all cursor-pointer group"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-xs bg-[#C3A27C] text-slate-950 font-black text-xs flex items-center justify-center">
+                {totalItems}
+              </span>
+              <div className="text-left">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none">
+                  {totalItems === 1 ? '1 Item' : `${totalItems} Items`} Added
+                </p>
+                <p className="text-sm font-black text-white leading-tight mt-0.5">
+                  ₹{grandTotal}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-[#C3A27C] font-black text-xs group-hover:translate-x-0.5 transition-transform">
+              <span>View Cart</span>
+              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </div>
+          </button>
+        </div>
       )}
 
       {/* ── ITEM DETAIL BOTTOM SHEET ───────── */}
