@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import QRCode from 'qrcode';
 
 export default function AdminMenuPreviewPage() {
   const [cafeSlug, setCafeSlug] = useState('chatchaska-cafe');
@@ -9,9 +10,9 @@ export default function AdminMenuPreviewPage() {
   // Dietary Settings
   const [restaurantType, setRestaurantType] = useState<'both' | 'pure_veg' | 'non_veg'>('both');
   const [showJain, setShowJain] = useState(true);
-  const [allowSelfOrder, setAllowSelfOrder] = useState(true);
   const [allowCallWaiter, setAllowCallWaiter] = useState(true);
   
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [savedToast, setSavedToast] = useState(false);
 
@@ -40,6 +41,25 @@ export default function AdminMenuPreviewPage() {
       .catch(() => {});
   }, []);
 
+  const previewUrl = `/menu/${cafeSlug}?table=Table%201&type=${restaurantType}&jain=${showJain ? '1' : '0'}`;
+
+  // Generate QR Code dynamically
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const fullUrl = `${window.location.origin}${previewUrl}`;
+      QRCode.toDataURL(fullUrl, {
+        width: 240,
+        margin: 1,
+        color: {
+          dark: '#020617',
+          light: '#ffffff',
+        },
+      })
+        .then((url) => setQrCodeUrl(url))
+        .catch((err) => console.error('Failed to generate QR:', err));
+    }
+  }, [previewUrl]);
+
   const handleSaveSettings = async () => {
     try {
       await Promise.all([
@@ -56,7 +76,7 @@ export default function AdminMenuPreviewPage() {
         fetch('/api/settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key: 'allow_self_order', value: String(allowSelfOrder) }),
+          body: JSON.stringify({ key: 'allow_call_waiter', value: String(allowCallWaiter) }),
         }),
       ]);
       setSavedToast(true);
@@ -66,13 +86,19 @@ export default function AdminMenuPreviewPage() {
     }
   };
 
-  const previewUrl = `/menu/${cafeSlug}?table=Table%201&type=${restaurantType}&jain=${showJain ? '1' : '0'}`;
-
   const handleCopyLink = () => {
     const fullUrl = `${window.location.origin}${previewUrl}`;
     navigator.clipboard.writeText(fullUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadQr = () => {
+    if (!qrCodeUrl) return;
+    const a = document.createElement('a');
+    a.href = qrCodeUrl;
+    a.download = `${cafeSlug}-menu-qr.png`;
+    a.click();
   };
 
   return (
@@ -140,7 +166,7 @@ export default function AdminMenuPreviewPage() {
 
           <p className="text-[11px] text-slate-400 font-medium text-center mt-3 flex items-center gap-1">
             <span className="material-symbols-outlined text-[14px]">touch_app</span>
-            Interactive live preview — click and test ordering inside the phone.
+            Interactive live preview — click and scroll inside the phone.
           </p>
         </div>
 
@@ -164,19 +190,16 @@ export default function AdminMenuPreviewPage() {
                   id: 'both',
                   title: 'Both Veg & Non-Veg',
                   desc: 'Standard mixed menu with both veg & non-veg options',
-                  badge: 'Mixed Kitchen',
                 },
                 {
                   id: 'pure_veg',
                   title: '🟢 Pure Veg Only',
                   desc: '100% vegetarian outlet; hides all non-veg filters',
-                  badge: 'Pure Veg',
                 },
                 {
                   id: 'non_veg',
                   title: '🔴 Non-Veg Kitchen',
                   desc: 'Specialty non-veg & meat-focused kitchen',
-                  badge: 'Non-Veg',
                 },
               ].map((opt) => {
                 const isSelected = restaurantType === opt.id;
@@ -202,102 +225,107 @@ export default function AdminMenuPreviewPage() {
             </div>
           </div>
 
-          {/* Card 2: Special Dietary & Filter Toggles */}
-          <div className="bg-white border border-slate-200 rounded-md p-5 shadow-2xs space-y-3.5">
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-              <span className="material-symbols-outlined text-slate-900 text-[18px]">tune</span>
-              <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-                Customer Dietary Filters & Badges
-              </h2>
-            </div>
-
-            <div className="space-y-3">
-              {/* Jain Option Toggle */}
-              <label className="flex items-center justify-between p-3 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors cursor-pointer">
-                <div className="space-y-0.5 pr-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-900">Show Jain Food Option (🟡 Jain)</span>
-                    <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded-sm">Recommended</span>
-                  </div>
-                  <p className="text-[11px] text-slate-500">
-                    Adds a &quot;Jain Friendly&quot; filter pill on your customer menu for dishes prepared without onion and garlic.
-                  </p>
+          {/* Half-Length Split: Left = Jain & Service Buttons, Right = QR Code */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+            {/* LEFT HALF: Jain Filter & Service Buttons */}
+            <div className="space-y-4 flex flex-col justify-between">
+              {/* Jain Option Toggle Card */}
+              <div className="bg-white border border-slate-200 rounded-md p-4 shadow-2xs space-y-2 flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px] text-amber-600">eco</span>
+                    Jain Food Filter
+                  </span>
+                  <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded-sm">
+                    Recommended
+                  </span>
                 </div>
-                <input
-                  type="checkbox"
-                  checked={showJain}
-                  onChange={(e) => setShowJain(e.target.checked)}
-                  className="w-4 h-4 rounded-md accent-[#C3A27C] cursor-pointer"
-                />
-              </label>
-            </div>
-          </div>
-
-          {/* Card 3: Service & Ordering Options */}
-          <div className="bg-white border border-slate-200 rounded-md p-5 shadow-2xs space-y-3.5">
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-              <span className="material-symbols-outlined text-slate-900 text-[18px]">touch_app</span>
-              <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-                Customer Ordering & Service
-              </h2>
-            </div>
-
-            <div className="space-y-2">
-              <label className="flex items-center justify-between p-3 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors cursor-pointer">
-                <div className="space-y-0.5 pr-4">
-                  <span className="text-xs font-bold text-slate-900">Allow Self-Ordering from Phone (Instant POS sync)</span>
-                  <p className="text-[11px] text-slate-500">
-                    Customers can browse and place direct table orders to the POS and kitchen.
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={allowSelfOrder}
-                  onChange={(e) => setAllowSelfOrder(e.target.checked)}
-                  className="w-4 h-4 rounded-md accent-[#C3A27C] cursor-pointer"
-                />
-              </label>
-
-              <label className="flex items-center justify-between p-3 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors cursor-pointer">
-                <div className="space-y-0.5 pr-4">
-                  <span className="text-xs font-bold text-slate-900">Enable &quot;Call Waiter&quot; and &quot;Request Bill&quot; Buttons</span>
-                  <p className="text-[11px] text-slate-500">
-                    Allows guests to request physical assistance or their payment bill from their phone.
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={allowCallWaiter}
-                  onChange={(e) => setAllowCallWaiter(e.target.checked)}
-                  className="w-4 h-4 rounded-md accent-[#C3A27C] cursor-pointer"
-                />
-              </label>
-            </div>
-          </div>
-
-          {/* Card 4: Quick Share & QR Link */}
-          <div className="bg-slate-50 border border-slate-200 rounded-md p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="space-y-0.5 text-left w-full sm:w-auto">
-              <div className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">qr_code_scanner</span>
-                <span>Live Menu Direct URL</span>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Adds a &quot;Jain Friendly&quot; filter pill on your customer menu for dishes prepared without onion and garlic.
+                </p>
+                <label className="flex items-center justify-between p-2.5 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors cursor-pointer mt-2">
+                  <span className="text-xs font-bold text-slate-900">Show Jain Option (🟡 Jain)</span>
+                  <input
+                    type="checkbox"
+                    checked={showJain}
+                    onChange={(e) => setShowJain(e.target.checked)}
+                    className="w-4 h-4 rounded-md accent-[#C3A27C] cursor-pointer"
+                  />
+                </label>
               </div>
-              <p className="text-[11px] text-slate-500 font-mono break-all">
-                {typeof window !== 'undefined' ? window.location.origin : ''}{previewUrl}
-              </p>
+
+              {/* Call Waiter & Request Bill Card */}
+              <div className="bg-white border border-slate-200 rounded-md p-4 shadow-2xs space-y-2 flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px] text-slate-900">room_service</span>
+                    Customer Service
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Allows guests to request physical waiter assistance or request their payment bill from their phone.
+                </p>
+                <label className="flex items-center justify-between p-2.5 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors cursor-pointer mt-2">
+                  <span className="text-xs font-bold text-slate-900">Call Waiter & Bill Buttons</span>
+                  <input
+                    type="checkbox"
+                    checked={allowCallWaiter}
+                    onChange={(e) => setAllowCallWaiter(e.target.checked)}
+                    className="w-4 h-4 rounded-md accent-[#C3A27C] cursor-pointer"
+                  />
+                </label>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className="bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 font-bold px-3 py-1.5 rounded-md text-xs flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
-              >
-                <span className="material-symbols-outlined text-[14px]">
-                  {copied ? 'check' : 'content_copy'}
-                </span>
-                <span>{copied ? 'Copied!' : 'Copy Link'}</span>
-              </button>
+            {/* RIGHT HALF: Real-Time Scannable QR Code */}
+            <div className="bg-white border border-slate-200 rounded-md p-5 shadow-2xs flex flex-col items-center justify-between text-center space-y-3">
+              <div>
+                <div className="flex items-center justify-center gap-1.5 text-xs font-black text-slate-900 uppercase tracking-wider">
+                  <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
+                  <span>Scan to Test on Phone</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Point your phone camera to test live on mobile
+                </p>
+              </div>
+
+              {/* QR Image Box */}
+              <div className="p-2.5 bg-white border-2 border-slate-200 rounded-md shadow-inner flex items-center justify-center">
+                {qrCodeUrl ? (
+                  <img
+                    src={qrCodeUrl}
+                    alt="Menu QR Code"
+                    className="w-36 h-36 object-contain rounded-sm"
+                  />
+                ) : (
+                  <div className="w-36 h-36 bg-slate-100 animate-pulse rounded-sm flex items-center justify-center text-xs text-slate-400">
+                    Generating QR...
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 w-full pt-1">
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-900 border border-slate-200 font-bold py-2 px-2.5 rounded-md text-xs flex items-center justify-center gap-1 cursor-pointer transition-all"
+                >
+                  <span className="material-symbols-outlined text-[14px]">
+                    {copied ? 'check' : 'content_copy'}
+                  </span>
+                  <span>{copied ? 'Copied' : 'Copy Link'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDownloadQr}
+                  className="flex-1 bg-[#FAF7F2] hover:bg-[#C3A27C]/20 text-slate-900 border border-[#C3A27C]/50 font-bold py-2 px-2.5 rounded-md text-xs flex items-center justify-center gap-1 cursor-pointer transition-all"
+                >
+                  <span className="material-symbols-outlined text-[14px]">download</span>
+                  <span>Save QR</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
