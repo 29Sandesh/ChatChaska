@@ -130,7 +130,11 @@ export default function AdminMenuPreviewPage() {
               key={previewUrl}
               src={previewUrl}
               title="Live Customer QR Menu"
-              className="w-full h-full rounded-[36px] bg-white border-0 overflow-hidden"
+              className="w-full h-full rounded-[36px] bg-white border-0 overflow-y-auto hide-scrollbar no-scrollbar"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
             />
           </div>
 
