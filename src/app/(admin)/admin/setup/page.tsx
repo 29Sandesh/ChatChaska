@@ -199,18 +199,13 @@ export default function SetupWizardPage() {
           </div>
         </div>
 
-        {/* Main Form Card (Compact & Shifted Up) */}
+        {/* Main Form Card (Ultra-Clean & Minimal) */}
         <div className="bg-white rounded-md border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
           {/* STEP 1: OWNER (PRIVATE) & CAFE (PUBLIC) DETAILS */}
           {step === 1 && (
             <div className="space-y-4 animate-in fade-in">
-              <div className="border-b border-slate-100 pb-2">
-                <h2 className="text-lg font-black text-slate-900">Owner & Cafe Profile</h2>
-                <p className="text-xs text-slate-500">Separate sections for owner account credentials and public customer outlet details.</p>
-              </div>
-
               {/* Section 1: Owner Details (Private) */}
-              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3.5">
+              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-slate-900 text-[18px]">person</span>
@@ -221,7 +216,7 @@ export default function SetupWizardPage() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">Owner Full Name *</label>
                     <input
@@ -229,7 +224,7 @@ export default function SetupWizardPage() {
                       value={ownerName}
                       onChange={(e) => setOwnerName(e.target.value)}
                       placeholder="e.g. Sandesh Agrawal"
-                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
                       required
                     />
                   </div>
@@ -241,10 +236,10 @@ export default function SetupWizardPage() {
                       value={ownerPhone}
                       onChange={(e) => setOwnerPhone(e.target.value)}
                       placeholder="e.g. 9876543210"
-                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
                       required
                     />
-                    <p className="text-[10px] text-slate-400 mt-1">Kept private for account recovery & system support.</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Kept private for account recovery & system support.</p>
                   </div>
                 </div>
 
@@ -255,13 +250,13 @@ export default function SetupWizardPage() {
                     value={ownerEmail}
                     onChange={(e) => setOwnerEmail(e.target.value)}
                     placeholder="e.g. owner@gmail.com"
-                    className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                    className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
                   />
                 </div>
               </div>
 
               {/* Section 2: Cafe Outlet Details (Public) */}
-              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3.5">
+              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-slate-900 text-[18px]">storefront</span>
@@ -272,7 +267,7 @@ export default function SetupWizardPage() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">Cafe Business Name *</label>
                     <input
@@ -280,7 +275,7 @@ export default function SetupWizardPage() {
                       value={cafeName}
                       onChange={(e) => setCafeName(e.target.value)}
                       placeholder="e.g. ChatChaska Cafe"
-                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
                       required
                     />
                   </div>
@@ -292,13 +287,13 @@ export default function SetupWizardPage() {
                       value={cafePhone}
                       onChange={(e) => setCafePhone(e.target.value)}
                       placeholder="e.g. 020-12345678 or 9876543210"
-                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
                     />
-                    <p className="text-[10px] text-slate-400 mt-1">Printed on receipts, invoices, and customer menus.</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Printed on receipts, invoices, and customer menus.</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">City</label>
                     <input
@@ -306,7 +301,7 @@ export default function SetupWizardPage() {
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       placeholder="e.g. Pune"
-                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
                     />
                   </div>
 
@@ -317,7 +312,7 @@ export default function SetupWizardPage() {
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       placeholder="Shop No. 4, Main Market, MG Road..."
-                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2.5 text-xs font-semibold text-slate-900 outline-none"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
                     />
                   </div>
                 </div>
@@ -327,69 +322,76 @@ export default function SetupWizardPage() {
 
           {/* STEP 2: TAXES & UPI PAYMENTS */}
           {step === 2 && (
-            <div className="space-y-5 animate-in fade-in">
-              <div className="border-b border-slate-100 pb-3">
-                <h2 className="text-xl font-black text-slate-900">Taxes & UPI Payments</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Configure your UPI ID for direct QR payments and tax rates.</p>
-              </div>
+            <div className="space-y-4 animate-in fade-in">
+              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-slate-900 text-[18px]">account_balance_wallet</span>
+                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">UPI Merchant Payment Settings</h3>
+                </div>
 
-              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">UPI Merchant VPA / ID</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">UPI Merchant VPA / ID</label>
                   <input
                     type="text"
                     value={upiId}
                     onChange={(e) => setUpiId(e.target.value)}
                     placeholder="e.g. yourcafe@okaxis or 9876543210@paytm"
-                    className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-3 text-sm text-slate-900 font-semibold outline-none transition-colors"
+                    className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
                   />
-                  <p className="text-xs text-slate-400 mt-1">This UPI ID is used when generating table QR pay codes for instant 0% commission direct settlements.</p>
+                  <p className="text-[10px] text-slate-400 mt-1">Used for customer table QR payments (0% platform commission, direct to bank).</p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-slate-900 text-[18px]">receipt_long</span>
+                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Tax Registrations & Rates</h3>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">GSTIN Number (Optional)</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">GSTIN Number (Optional)</label>
                     <input
                       type="text"
                       value={gstin}
                       onChange={(e) => setGstin(e.target.value.toUpperCase())}
                       placeholder="27AABCM1234A1Z5"
-                      className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-3 text-sm text-slate-900 uppercase font-mono font-bold outline-none transition-colors"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-mono font-bold text-slate-900 uppercase outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">FSSAI License (Optional)</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">FSSAI License (Optional)</label>
                     <input
                       type="text"
                       value={fssai}
                       onChange={(e) => setFssai(e.target.value)}
                       placeholder="11521001000123"
-                      className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-3 text-sm text-slate-900 font-mono font-semibold outline-none transition-colors"
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-mono font-semibold text-slate-900 outline-none"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-1">
-                  <div className="bg-slate-50 p-3.5 rounded-md border border-slate-200">
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5">CGST Rate (%)</label>
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div className="bg-white p-3 rounded-md border border-slate-200">
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">CGST Rate (%)</label>
                     <input
                       type="number"
                       step="0.1"
                       value={cgstRate}
                       onChange={(e) => setCgstRate(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm font-bold text-slate-900 outline-none"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs font-black text-slate-900 outline-none"
                     />
                   </div>
 
-                  <div className="bg-slate-50 p-3.5 rounded-md border border-slate-200">
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5">SGST Rate (%)</label>
+                  <div className="bg-white p-3 rounded-md border border-slate-200">
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">SGST Rate (%)</label>
                     <input
                       type="number"
                       step="0.1"
                       value={sgstRate}
                       onChange={(e) => setSgstRate(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm font-bold text-slate-900 outline-none"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-md px-2.5 py-1.5 text-xs font-black text-slate-900 outline-none"
                     />
                   </div>
                 </div>
@@ -399,128 +401,118 @@ export default function SetupWizardPage() {
 
           {/* STEP 3: TABLES & VIP CONFIGURATION */}
           {step === 3 && (
-            <div className="space-y-5 animate-in fade-in">
-              <div className="border-b border-slate-100 pb-3">
-                <h2 className="text-xl font-black text-slate-900">Dining Tables & Sections</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Configure Main Dining Tables and optional VIP Lounge area with direct numeric inputs.</p>
-              </div>
+            <div className="space-y-4 animate-in fade-in">
+              {/* 1. Main Tables Configuration */}
+              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-slate-900 text-[18px]">table_restaurant</span>
+                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Main Dining Tables</h3>
+                </div>
 
-              <div className="space-y-4">
-                {/* 1. Main Tables Configuration */}
-                <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-slate-900 text-[20px]">table_restaurant</span>
-                    <span className="text-xs font-black text-slate-900 uppercase tracking-wider">Main Dining Tables</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Number of Main Tables</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={mainTableCount}
+                      onChange={(e) => setMainTableCount(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-black text-slate-900 outline-none"
+                    />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Seats Per Main Table</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={20}
+                      value={mainSeats}
+                      onChange={(e) => setMainSeats(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-black text-slate-900 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. VIP Section Toggle & Config */}
+              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[#8C6D47] text-[18px]">hotel_class</span>
+                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">VIP Section</h3>
+                  </div>
+
+                  {/* VIP Choice Buttons */}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setHasVip(false)}
+                      className={`px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                        !hasVip
+                          ? 'bg-[#C3A27C] text-slate-950 shadow-2xs border border-[#B2906A]'
+                          : 'bg-white border border-slate-200 text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      No VIP
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHasVip(true)}
+                      className={`px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                        hasVip
+                          ? 'bg-[#C3A27C] text-slate-950 shadow-2xs border border-[#B2906A]'
+                          : 'bg-white border border-slate-200 text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      Yes, Have VIP
+                    </button>
+                  </div>
+                </div>
+
+                {hasVip && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2.5 border-t border-slate-200 animate-in fade-in duration-150">
                     <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1.5">Number of Main Tables</label>
+                      <label className="block text-xs font-bold text-slate-600 mb-1">Number of VIP Tables</label>
                       <input
                         type="number"
                         min={1}
-                        max={100}
-                        value={mainTableCount}
-                        onChange={(e) => setMainTableCount(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                        className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-2.5 text-sm font-black text-slate-900 outline-none"
+                        max={50}
+                        value={vipTableCount}
+                        onChange={(e) => setVipTableCount(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                        className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-black text-slate-900 outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1.5">Seats Per Main Table</label>
+                      <label className="block text-xs font-bold text-slate-600 mb-1">Seats Per VIP Table</label>
                       <input
                         type="number"
                         min={1}
                         max={20}
-                        value={mainSeats}
-                        onChange={(e) => setMainSeats(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                        className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-2.5 text-sm font-black text-slate-900 outline-none"
+                        value={vipSeats}
+                        onChange={(e) => setVipSeats(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                        className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-black text-slate-900 outline-none"
                       />
                     </div>
                   </div>
+                )}
+              </div>
+
+              {/* Table Summary */}
+              <div className="p-3 bg-[#FAF7F2] border border-[#C3A27C]/40 rounded-md flex items-center justify-between text-xs font-bold text-slate-900">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#8C6D47] text-[18px]">domain_verification</span>
+                  <span>Total Capacity</span>
                 </div>
-
-                {/* 2. VIP Section Toggle & Config */}
-                <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#8C6D47] text-[20px]">hotel_class</span>
-                      <div>
-                        <span className="text-xs font-black text-slate-900 uppercase tracking-wider block">VIP Section</span>
-                        <span className="text-[11px] text-slate-500 font-normal">Separate private lounge / cabin tables</span>
-                      </div>
-                    </div>
-
-                    {/* VIP Choice Buttons */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setHasVip(false)}
-                        className={`px-4 py-2 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                          !hasVip
-                            ? 'bg-[#C3A27C] text-slate-950 shadow-2xs border border-[#B2906A]'
-                            : 'bg-white border border-slate-200 text-slate-500 hover:text-slate-800'
-                        }`}
-                      >
-                        No VIP Section
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setHasVip(true)}
-                        className={`px-4 py-2 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                          hasVip
-                            ? 'bg-[#C3A27C] text-slate-950 shadow-2xs border border-[#B2906A]'
-                            : 'bg-white border border-slate-200 text-slate-500 hover:text-slate-800'
-                        }`}
-                      >
-                        Yes, Have VIP
-                      </button>
-                    </div>
-                  </div>
-
-                  {hasVip && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-200 animate-in fade-in duration-150">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-1.5">Number of VIP Tables</label>
-                        <input
-                          type="number"
-                          min={1}
-                          max={50}
-                          value={vipTableCount}
-                          onChange={(e) => setVipTableCount(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                          className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-2.5 text-sm font-black text-slate-900 outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-1.5">Seats Per VIP Table</label>
-                        <input
-                          type="number"
-                          min={1}
-                          max={20}
-                          value={vipSeats}
-                          onChange={(e) => setVipSeats(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                          className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-2.5 text-sm font-black text-slate-900 outline-none"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Table Summary */}
-                <div className="p-3.5 bg-[#FAF7F2] border border-[#C3A27C]/40 rounded-md flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-bold text-slate-900">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[#8C6D47] text-[20px]">domain_verification</span>
-                    <span>Total Configured Dining Capacity</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="bg-[#C3A27C] text-slate-950 px-2.5 py-1 rounded-md font-black">
-                      {totalTables} Tables
-                    </span>
-                    <span className="text-xs text-slate-600 font-medium">
-                      ({mainTableCount} Main ({mainSeats} seats){hasVip ? ` + ${vipTableCount} VIP (${vipSeats} seats)` : ''})
-                    </span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-[#C3A27C] text-slate-950 px-2 py-0.5 rounded-md font-black">
+                    {totalTables} Tables
+                  </span>
+                  <span className="text-[11px] text-slate-600 font-medium">
+                    ({mainTableCount} Main{hasVip ? ` + ${vipTableCount} VIP` : ''})
+                  </span>
                 </div>
               </div>
             </div>
@@ -528,70 +520,63 @@ export default function SetupWizardPage() {
 
           {/* STEP 4: MENU SETUP */}
           {step === 4 && (
-            <div className="space-y-5 animate-in fade-in">
-              <div className="border-b border-slate-100 pb-3">
-                <h2 className="text-xl font-black text-slate-900">Menu Setup</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Upload a photo of your paper menu or manage dishes in the admin dashboard.</p>
-              </div>
+            <div className="space-y-4 animate-in fade-in">
+              {/* AI Scanner Upload Box */}
+              <div className="border-2 border-dashed border-[#C3A27C]/60 bg-[#FAF7F2] rounded-md p-5 text-center space-y-2.5">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleMenuPhotoUpload}
+                  className="hidden"
+                  id="setup-menu-photo-upload"
+                  disabled={isScanning}
+                />
 
-              <div className="space-y-4">
-                {/* AI Scanner Upload Box */}
-                <div className="border-2 border-dashed border-[#C3A27C]/60 bg-[#FAF7F2] rounded-md p-6 text-center space-y-3">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handleMenuPhotoUpload}
-                    className="hidden"
-                    id="setup-menu-photo-upload"
-                    disabled={isScanning}
-                  />
-
-                  <div className="w-12 h-12 rounded-full bg-[#C3A27C]/20 border border-[#C3A27C]/40 flex items-center justify-center mx-auto text-[#8C6D47]">
-                    <span className="material-symbols-outlined text-2xl">document_scanner</span>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold text-sm text-slate-900">Scan Menu Card with AI</h3>
-                    <p className="text-xs text-slate-500 max-w-md mx-auto mt-0.5">
-                      Upload a photo of your menu; AI will automatically extract dish names, prices, and categories into your catalog.
-                    </p>
-                  </div>
-
-                  <label
-                    htmlFor="setup-menu-photo-upload"
-                    className={`inline-flex items-center gap-2 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-5 py-2.5 rounded-md text-xs border border-[#B2906A] shadow-2xs transition-all cursor-pointer ${
-                      isScanning ? 'opacity-50 pointer-events-none' : ''
-                    }`}
-                  >
-                    {isScanning ? (
-                      <>
-                        <span className="animate-spin text-xs">⏳</span>
-                        <span>Extracting dishes with AI...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="material-symbols-outlined text-[18px]">photo_camera</span>
-                        <span>Upload Menu Photo</span>
-                      </>
-                    )}
-                  </label>
-
-                  {menuUploadedCount !== null && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-md text-xs font-bold animate-in fade-in">
-                      ✅ {menuUploadedCount} dishes successfully imported and categorized!
-                    </div>
-                  )}
+                <div className="w-10 h-10 rounded-full bg-[#C3A27C]/20 border border-[#C3A27C]/40 flex items-center justify-center mx-auto text-[#8C6D47]">
+                  <span className="material-symbols-outlined text-xl">document_scanner</span>
                 </div>
 
-                {/* Dashboard Manual Info */}
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-md flex items-start gap-3 text-xs">
-                  <span className="material-symbols-outlined text-slate-500 text-[20px] shrink-0 mt-0.5">info</span>
-                  <div className="text-slate-600 space-y-0.5">
-                    <p className="font-bold text-slate-800">Don&apos;t have a paper menu photo right now?</p>
-                    <p>You can skip this step and manually add items, categories, and prices at any time in the <strong>Menu & Dishes</strong> admin tab.</p>
+                <div>
+                  <h3 className="font-bold text-xs text-slate-900">Scan Menu Card with AI Vision</h3>
+                  <p className="text-[11px] text-slate-500 max-w-sm mx-auto mt-0.5">
+                    Upload a photo of your paper menu; AI will automatically extract dish names, prices, and categories into your catalog.
+                  </p>
+                </div>
+
+                <label
+                  htmlFor="setup-menu-photo-upload"
+                  className={`inline-flex items-center gap-2 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-4 py-2 rounded-md text-xs border border-[#B2906A] shadow-2xs transition-all cursor-pointer ${
+                    isScanning ? 'opacity-50 pointer-events-none' : ''
+                  }`}
+                >
+                  {isScanning ? (
+                    <>
+                      <span className="animate-spin text-xs">⏳</span>
+                      <span>Extracting dishes with AI...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-[16px]">photo_camera</span>
+                      <span>Upload Menu Photo</span>
+                    </>
+                  )}
+                </label>
+
+                {menuUploadedCount !== null && (
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-md text-xs font-bold animate-in fade-in">
+                    ✅ {menuUploadedCount} dishes successfully imported and categorized!
                   </div>
+                )}
+              </div>
+
+              {/* Dashboard Manual Info */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-md flex items-start gap-2.5 text-xs">
+                <span className="material-symbols-outlined text-slate-500 text-[18px] shrink-0 mt-0.5">info</span>
+                <div className="text-slate-600 space-y-0.5">
+                  <p className="font-bold text-slate-800">Don&apos;t have a paper menu photo right now?</p>
+                  <p className="text-[11px]">You can skip this step and manually add items, categories, and prices at any time in the <strong>Menu & Dishes</strong> admin tab.</p>
                 </div>
               </div>
             </div>
@@ -599,54 +584,53 @@ export default function SetupWizardPage() {
 
           {/* STEP 5: STAFF PINS */}
           {step === 5 && (
-            <div className="space-y-5 animate-in fade-in">
-              <div className="border-b border-slate-100 pb-3">
-                <h2 className="text-xl font-black text-slate-900">Staff Terminal PINs</h2>
-                <p className="text-xs text-slate-500 mt-0.5">4-digit access codes for POS terminals and manager overrides.</p>
+            <div className="space-y-3.5 animate-in fade-in">
+              <div className="p-3.5 rounded-md border border-slate-200 bg-slate-50 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-slate-900 text-[18px]">admin_panel_settings</span>
+                    <span className="font-bold text-xs text-slate-900">Owner Manager PIN</span>
+                  </div>
+                  <span className="text-[10px] font-black text-slate-900 bg-slate-200 px-2 py-0.5 rounded-md">
+                    ADMIN
+                  </span>
+                </div>
+                <input
+                  type="password"
+                  maxLength={4}
+                  value={ownerPin}
+                  onChange={(e) => setOwnerPin(e.target.value.replace(/\D/g, ''))}
+                  placeholder="4-digit PIN (default 1234)"
+                  className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-center tracking-widest font-mono text-base font-bold text-slate-900 outline-none"
+                />
               </div>
 
-              <div className="space-y-4">
-                <div className="p-4 rounded-md border border-slate-200 bg-slate-50 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-slate-800">Owner Manager PIN</span>
-                    <span className="text-[10px] font-black text-slate-900 bg-slate-200 px-2 py-0.5 rounded-md">
-                      ADMIN
-                    </span>
+              <div className="p-3.5 rounded-md border border-slate-200 bg-slate-50 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-slate-900 text-[18px]">badge</span>
+                    <span className="font-bold text-xs text-slate-900">Counter Cashier PIN</span>
                   </div>
+                  <span className="text-[10px] font-black text-slate-900 bg-slate-200 px-2 py-0.5 rounded-md">
+                    CASHIER
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <input
+                    type="text"
+                    value={cashierName}
+                    onChange={(e) => setCashierName(e.target.value)}
+                    placeholder="Cashier Name"
+                    className="bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-bold text-slate-900 outline-none"
+                  />
                   <input
                     type="password"
                     maxLength={4}
-                    value={ownerPin}
-                    onChange={(e) => setOwnerPin(e.target.value.replace(/\D/g, ''))}
-                    placeholder="4-digit PIN (default 1234)"
-                    className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-4 py-2.5 text-center tracking-widest font-mono text-base font-bold text-slate-900 outline-none"
+                    value={cashierPin}
+                    onChange={(e) => setCashierPin(e.target.value.replace(/\D/g, ''))}
+                    placeholder="4-digit PIN (1111)"
+                    className="bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-center tracking-widest font-mono text-base font-bold text-slate-900 outline-none"
                   />
-                </div>
-
-                <div className="p-4 rounded-md border border-slate-200 bg-slate-50 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-slate-800">Counter Cashier PIN</span>
-                    <span className="text-[10px] font-black text-slate-900 bg-slate-200 px-2 py-0.5 rounded-md">
-                      CASHIER
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input
-                      type="text"
-                      value={cashierName}
-                      onChange={(e) => setCashierName(e.target.value)}
-                      placeholder="Cashier Name"
-                      className="bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3 py-2.5 text-xs font-bold text-slate-900 outline-none"
-                    />
-                    <input
-                      type="password"
-                      maxLength={4}
-                      value={cashierPin}
-                      onChange={(e) => setCashierPin(e.target.value.replace(/\D/g, ''))}
-                      placeholder="4-digit PIN (1111)"
-                      className="bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3 py-2.5 text-center tracking-widest font-mono text-base font-bold text-slate-900 outline-none"
-                    />
-                  </div>
                 </div>
               </div>
             </div>
@@ -654,52 +638,47 @@ export default function SetupWizardPage() {
 
           {/* STEP 6: TERMS & CONDITIONS & FINAL LAUNCH */}
           {step === 6 && (
-            <div className="space-y-5 animate-in fade-in">
-              <div className="border-b border-slate-100 pb-3">
-                <h2 className="text-xl font-black text-slate-900">Terms of Service & Usage Policy</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Please review the fair usage terms and privacy agreement for your ChatChaska account.</p>
-              </div>
-
-              <div className="bg-slate-50 border border-slate-200 rounded-md p-5 space-y-4 text-xs text-slate-700 max-h-[300px] overflow-y-auto">
-                <div className="space-y-1">
+            <div className="space-y-4 animate-in fade-in">
+              <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3 text-xs text-slate-700 max-h-[260px] overflow-y-auto">
+                <div className="space-y-0.5">
                   <h4 className="font-black text-slate-900 flex items-center gap-1.5">
                     <span className="text-[#8C6D47]">✓</span> 1. 100% Free Forever for Small Cafes
                   </h4>
-                  <p className="text-slate-600 leading-relaxed pl-5">
-                    ChatChaska operates on a fair usage policy. Outlets processing under 100 bills per day enjoy permanent free access to all core POS features with zero subscription fees.
+                  <p className="text-slate-600 leading-relaxed pl-5 text-[11px]">
+                    Outlets processing under 100 bills per day enjoy permanent free access to all core POS features with zero subscription fees.
                   </p>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <h4 className="font-black text-slate-900 flex items-center gap-1.5">
                     <span className="text-[#8C6D47]">✓</span> 2. Local Data Privacy & Sovereignty
                   </h4>
-                  <p className="text-slate-600 leading-relaxed pl-5">
-                    All customer order history, bills, and menu items are stored locally in your offline-first SQLite database. Your confidential sales records are not sold or monetized.
+                  <p className="text-slate-600 leading-relaxed pl-5 text-[11px]">
+                    All customer orders, bills, and catalog data reside locally in your offline SQLite database.
                   </p>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <h4 className="font-black text-slate-900 flex items-center gap-1.5">
                     <span className="text-[#8C6D47]">✓</span> 3. Direct UPI QR Settlements
                   </h4>
-                  <p className="text-slate-600 leading-relaxed pl-5">
-                    All QR code customer payments settle directly into your linked UPI Merchant VPA at 0% platform commission without middleman delays or wallet deductions.
+                  <p className="text-slate-600 leading-relaxed pl-5 text-[11px]">
+                    Customer QR payments settle directly into your linked UPI VPA with 0% platform commission.
                   </p>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <h4 className="font-black text-slate-900 flex items-center gap-1.5">
                     <span className="text-[#8C6D47]">✓</span> 4. Owner Contact Confidentiality
                   </h4>
-                  <p className="text-slate-600 leading-relaxed pl-5">
-                    The Owner Personal Phone number provided is kept strictly confidential for system security, account recovery, and critical platform notifications.
+                  <p className="text-slate-600 leading-relaxed pl-5 text-[11px]">
+                    Owner personal contact number is kept private for platform security and support.
                   </p>
                 </div>
               </div>
 
               {/* Agreement Checkbox */}
-              <label className="flex items-start gap-3 p-3.5 bg-[#FAF7F2] border border-[#C3A27C]/40 rounded-md cursor-pointer">
+              <label className="flex items-start gap-2.5 p-3 bg-[#FAF7F2] border border-[#C3A27C]/40 rounded-md cursor-pointer">
                 <input
                   type="checkbox"
                   checked={agreedToTerms}
@@ -707,19 +686,19 @@ export default function SetupWizardPage() {
                   className="mt-0.5 w-4 h-4 rounded-md accent-[#C3A27C] cursor-pointer"
                 />
                 <span className="text-xs font-bold text-slate-900">
-                  I have read and agree to ChatChaska&apos;s Fair Usage Policy, Data Privacy Agreement, and Terms of Service.
+                  I agree to ChatChaska&apos;s Fair Usage Policy, Data Privacy Agreement, and Terms of Service.
                 </span>
               </label>
             </div>
           )}
 
           {/* Navigation Controls */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+          <div className="flex items-center justify-between pt-3 border-t border-slate-200">
             {step > 1 ? (
               <button
                 type="button"
                 onClick={handleBack}
-                className="px-5 py-2.5 rounded-md border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-md border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 ← Back
               </button>
@@ -729,7 +708,7 @@ export default function SetupWizardPage() {
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-7 py-3 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                className="px-6 py-2.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-bold transition-all shadow-2xs cursor-pointer"
               >
                 Continue →
               </button>
@@ -738,7 +717,7 @@ export default function SetupWizardPage() {
                 type="button"
                 disabled={submitting || !agreedToTerms}
                 onClick={handleCompleteSetup}
-                className="px-8 py-3.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-black transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-7 py-2.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-black transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {submitting ? (
                   <span>Saving Configuration...</span>
