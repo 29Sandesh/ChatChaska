@@ -9,17 +9,18 @@ interface Cafe {
   owner: string;
   city: string;
   plan: string;
-  status: "Active" | "Trial" | "Suspended" | "Expired";
+  status: "Free" | "Growing" | "Active" | "Suspended";
+  todayBills: number;
   devices: number;
   lastActive: string;
 }
 
 const mockCafes: Cafe[] = [
-  { id: "1", name: "Chai Point Express", owner: "Rahul Sharma", city: "Mumbai", plan: "Pro", status: "Active", devices: 3, lastActive: "10 mins ago" },
-  { id: "2", name: "Spice Garden Cafe", owner: "Priya Patel", city: "Delhi", plan: "Trial", status: "Trial", devices: 2, lastActive: "1 hour ago" },
-  { id: "3", name: "The Breakfast Club", owner: "Amit Kumar", city: "Bangalore", plan: "Basic", status: "Active", devices: 1, lastActive: "5 mins ago" },
-  { id: "4", name: "Midnight Kitchen", owner: "Sneha Reddy", city: "Pune", plan: "Trial", status: "Suspended", devices: 2, lastActive: "2 days ago" },
-  { id: "5", name: "Royal Dhaba", owner: "Vikram Singh", city: "Indore", plan: "Enterprise", status: "Active", devices: 5, lastActive: "Just now" },
+  { id: "1", name: "Chai Point Express", owner: "Rahul Sharma", city: "Mumbai", plan: "Growth Pro", status: "Active", todayBills: 142, devices: 3, lastActive: "10 mins ago" },
+  { id: "2", name: "Spice Garden Cafe", owner: "Priya Patel", city: "Delhi", plan: "Free Forever", status: "Growing", todayBills: 118, devices: 2, lastActive: "1 hour ago" },
+  { id: "3", name: "The Breakfast Club", owner: "Amit Kumar", city: "Bangalore", plan: "Free Forever", status: "Free", todayBills: 34, devices: 1, lastActive: "5 mins ago" },
+  { id: "4", name: "Midnight Kitchen", owner: "Sneha Reddy", city: "Pune", plan: "Starter", status: "Suspended", todayBills: 0, devices: 2, lastActive: "2 days ago" },
+  { id: "5", name: "Royal Dhaba", owner: "Vikram Singh", city: "Indore", plan: "Enterprise", status: "Active", todayBills: 210, devices: 5, lastActive: "Just now" },
 ];
 
 export default function CafesPage() {
@@ -29,7 +30,7 @@ export default function CafesPage() {
   const [newCafeName, setNewCafeName] = useState("");
   const [newCafeCity, setNewCafeCity] = useState("");
   const [newCafeOwner, setNewCafeOwner] = useState("");
-  const [newCafePlan, setNewCafePlan] = useState("Trial");
+  const [newCafePlan, setNewCafePlan] = useState("Free Forever");
 
   useEffect(() => {
     setCafes(mockCafes);
@@ -37,18 +38,25 @@ export default function CafesPage() {
 
   const getStatusBadge = (status: Cafe["status"]) => {
     switch (status) {
-      case "Active":
+      case "Free":
         return (
           <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-xs font-bold flex items-center gap-1.5 w-fit">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            Active
+            Free Tier (&lt;100/day)
           </span>
         );
-      case "Trial":
+      case "Growing":
         return (
-          <span className="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-xs font-bold flex items-center gap-1.5 w-fit">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-            Trial (5 days left)
+          <span className="px-2.5 py-1 bg-[#FAF7F2] text-slate-950 border border-[#C3A27C]/60 rounded-md text-xs font-bold flex items-center gap-1.5 w-fit">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C3A27C] animate-pulse"></span>
+            Growing (&gt;100/day)
+          </span>
+        );
+      case "Active":
+        return (
+          <span className="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-xs font-bold flex items-center gap-1.5 w-fit">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+            Active Paid
           </span>
         );
       case "Suspended":
@@ -56,13 +64,6 @@ export default function CafesPage() {
           <span className="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-md text-xs font-bold flex items-center gap-1.5 w-fit">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
             Suspended
-          </span>
-        );
-      case "Expired":
-        return (
-          <span className="px-2.5 py-1 bg-slate-100 text-slate-500 border border-slate-200 rounded-md text-xs font-bold flex items-center gap-1.5 w-fit">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-            Expired
           </span>
         );
     }
@@ -77,7 +78,8 @@ export default function CafesPage() {
       owner: newCafeOwner || "Owner",
       city: newCafeCity || "India",
       plan: newCafePlan,
-      status: newCafePlan === "Trial" ? "Trial" : "Active",
+      status: newCafePlan === "Free Forever" ? "Free" : "Active",
+      todayBills: 0,
       devices: 1,
       lastActive: "Just now",
     };
@@ -98,84 +100,95 @@ export default function CafesPage() {
     <div className="space-y-6 select-none font-sans">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900">Cafes</h1>
-          <p className="text-slate-500 mt-1">Manage all registered cafes on the ChatChaska platform.</p>
+          <h1 className="text-3xl font-black text-slate-900">Cafes & Outlets</h1>
+          <p className="text-slate-500 mt-1 font-medium">Manage registered outlets, usage volume, and billing tier assignments.</p>
         </div>
         <button
-          id="add-cafe-btn"
           onClick={() => setShowAddModal(true)}
-          className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-5 py-2.5 rounded-md border border-[#B2906A] transition-colors flex items-center gap-2 shadow-2xs active:scale-95"
+          className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-4 py-2 rounded-md border border-[#B2906A] flex items-center gap-2 transition-colors shadow-2xs cursor-pointer active:scale-95"
         >
           <span className="material-symbols-outlined text-[20px]">add</span>
-          Add New Cafe
+          Onboard New Cafe
         </button>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-md shadow-2xs overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex items-center gap-4">
-          <div className="relative flex-1 max-w-md">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">
-              search
-            </span>
-            <input
-              type="text"
-              placeholder="Search by cafe name or city..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-md pl-10 pr-4 py-2.5 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#C3A27C] transition-colors"
-            />
-          </div>
+      {/* Search & Filter Bar */}
+      <div className="bg-white border border-slate-200 rounded-md shadow-2xs p-4 flex gap-4">
+        <div className="relative flex-1">
+          <span className="material-symbols-outlined absolute left-3 top-3 text-slate-400 text-[20px]">
+            search
+          </span>
+          <input
+            type="text"
+            placeholder="Search cafe name, city, or owner..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 rounded-md pl-10 pr-4 py-2 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#C3A27C] transition-colors"
+          />
         </div>
+      </div>
 
+      {/* Cafes Table */}
+      <div className="bg-white border border-slate-200 rounded-md shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="p-4 text-xs uppercase font-bold text-slate-500">Cafe Name</th>
-                <th className="p-4 text-xs uppercase font-bold text-slate-500">Owner</th>
-                <th className="p-4 text-xs uppercase font-bold text-slate-500">Location</th>
-                <th className="p-4 text-xs uppercase font-bold text-slate-500">Plan</th>
-                <th className="p-4 text-xs uppercase font-bold text-slate-500">Status</th>
-                <th className="p-4 text-xs uppercase font-bold text-slate-500">Devices</th>
-                <th className="p-4 text-xs uppercase font-bold text-slate-500 text-right">Actions</th>
+              <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 text-xs uppercase font-bold tracking-wider">
+                <th className="p-4">Cafe Details</th>
+                <th className="p-4">City</th>
+                <th className="p-4">Billing Plan</th>
+                <th className="p-4">Usage Status</th>
+                <th className="p-4">Today Bills</th>
+                <th className="p-4">Devices</th>
+                <th className="p-4">Last Active</th>
+                <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 text-sm">
               {filteredCafes.map((cafe) => (
                 <tr key={cafe.id} className="hover:bg-slate-50/80 transition-colors">
                   <td className="p-4">
-                    <Link
-                      href={`/superadmin/cafes/cafe-${cafe.id}`}
-                      className="font-bold text-slate-900 hover:text-[#C3A27C] transition-colors"
-                    >
-                      {cafe.name}
-                    </Link>
-                    <p className="text-xs text-slate-500 mt-0.5">Last active: {cafe.lastActive}</p>
+                    <p className="font-bold text-slate-900">{cafe.name}</p>
+                    <p className="text-xs text-slate-500 font-medium">Owner: {cafe.owner}</p>
                   </td>
-                  <td className="p-4 text-sm font-medium text-slate-900">{cafe.owner}</td>
-                  <td className="p-4 text-sm font-medium text-slate-900">{cafe.city}</td>
+                  <td className="p-4 text-slate-700 font-medium">{cafe.city}</td>
                   <td className="p-4">
-                    <span className="bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md text-xs font-bold text-slate-700">
-                      {cafe.plan}
-                    </span>
+                    <span className="font-bold text-slate-900">{cafe.plan}</span>
                   </td>
                   <td className="p-4">{getStatusBadge(cafe.status)}</td>
-                  <td className="p-4 text-sm font-medium text-slate-900">{cafe.devices}</td>
-                  <td className="p-4 text-right space-x-2 whitespace-nowrap">
-                    <Link
-                      href={`/superadmin/cafes/cafe-${cafe.id}`}
-                      className="inline-flex p-2 text-slate-500 hover:text-slate-900 transition-colors rounded-md hover:bg-slate-100"
-                      title="View Details & Metrics"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">visibility</span>
-                    </Link>
-                    <Link
-                      href={`/superadmin/cafes/cafe-${cafe.id}`}
-                      className="inline-flex p-2 text-slate-500 hover:text-slate-900 transition-colors rounded-md hover:bg-slate-100"
-                      title="Edit Plan & Charges"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">edit_document</span>
-                    </Link>
+                  <td className="p-4">
+                    <span className={`font-mono font-bold text-xs px-2 py-0.5 rounded-sm ${
+                      cafe.todayBills >= 100 
+                        ? 'bg-amber-50 text-amber-900 border border-amber-300 font-black' 
+                        : 'bg-slate-100 text-slate-700'
+                    }`}>
+                      {cafe.todayBills} / 100
+                    </span>
+                  </td>
+                  <td className="p-4 text-slate-700 font-medium">
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm text-slate-400">devices</span>
+                      {cafe.devices}
+                    </span>
+                  </td>
+                  <td className="p-4 text-xs text-slate-500 font-medium">{cafe.lastActive}</td>
+                  <td className="p-4 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Link
+                        href={`/superadmin/cafes/cafe-${cafe.id}`}
+                        className="p-1.5 text-slate-400 hover:text-slate-900 rounded-md hover:bg-slate-100 transition-colors inline-block"
+                        title="View Cafe Details"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">visibility</span>
+                      </Link>
+                      <Link
+                        href={`/superadmin/cafes/cafe-${cafe.id}`}
+                        className="p-1.5 text-slate-400 hover:text-slate-900 rounded-md hover:bg-slate-100 transition-colors inline-block"
+                        title="Change Plan Tier"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">tune</span>
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -184,17 +197,20 @@ export default function CafesPage() {
         </div>
       </div>
 
-      {/* Add Cafe Modal */}
+      {/* Onboard Cafe Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-md p-6 max-w-md w-full space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <h3 className="text-lg font-black text-slate-900">Onboard New Cafe</h3>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200 rounded-md shadow-2xl max-w-md w-full p-6 space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="font-black text-lg text-slate-900">Onboard New Cafe</h3>
+                <p className="text-xs text-slate-500 font-medium">Register a new cafe outlet</p>
+              </div>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="text-slate-500 hover:text-slate-900 transition-colors"
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-md hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
 
@@ -234,48 +250,33 @@ export default function CafesPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Initial Plan</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Initial Plan Tier</label>
                 <select
                   value={newCafePlan}
                   onChange={(e) => setNewCafePlan(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-md p-3 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#C3A27C] transition-colors"
                 >
-                  <option value="Trial">Free Trial Mode</option>
-                  <option value="Basic">Basic Plan (₹999/mo)</option>
-                  <option value="Pro">Pro Plan (₹2,499/mo)</option>
-                  <option value="Enterprise">Enterprise Plan (₹4,999/mo)</option>
+                  <option value="Free Forever">Free Forever (&lt; 100 bills/day — ₹0)</option>
+                  <option value="Starter">Starter Plan (100–500 bills/day — ₹999/mo)</option>
+                  <option value="Growth Pro">Growth Pro Plan (500–1500 bills/day — ₹2,499/mo)</option>
+                  <option value="Enterprise">Enterprise Plan (Unlimited — ₹4,999/mo)</option>
                 </select>
+                <p className="text-[11px] text-slate-500 font-medium mt-1">
+                  Default: Free Forever. Small cafes pay nothing until they scale past 100 bills/day.
+                </p>
               </div>
-
-              {newCafePlan === "Trial" && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Trial Period Duration</label>
-                  <select
-                    id="new-cafe-trial-days"
-                    defaultValue="90"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-md p-3 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#C3A27C] transition-colors"
-                  >
-                    <option value="0">0 Days (No Trial - Immediate Payment)</option>
-                    <option value="7">7 Days (1 Week)</option>
-                    <option value="14">14 Days (2 Weeks)</option>
-                    <option value="30">30 Days (1 Month)</option>
-                    <option value="60">60 Days (2 Months)</option>
-                    <option value="90">90 Days (Standard)</option>
-                  </select>
-                </div>
-              )}
 
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold px-4 py-2.5 rounded-md text-xs transition-colors"
+                  className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold px-4 py-2.5 rounded-md text-xs transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-5 py-2.5 rounded-md text-xs border border-[#B2906A] shadow-2xs active:scale-95 transition-colors"
+                  className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-5 py-2.5 rounded-md text-xs border border-[#B2906A] shadow-2xs active:scale-95 transition-colors cursor-pointer"
                 >
                   Create Cafe Account
                 </button>

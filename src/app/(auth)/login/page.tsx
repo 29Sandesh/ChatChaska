@@ -319,7 +319,7 @@ export default function UnifiedLoginPage() {
               href="/signup"
               className="text-xs font-bold text-slate-900 hover:underline"
             >
-              Start 3-Month Free Trial →
+              Start Free — Zero Fees for Small Cafes →
             </Link>
           </div>
         </div>

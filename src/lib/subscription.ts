@@ -1,22 +1,19 @@
 /**
- * ChatChaska Subscription & Trial Engine
+ * ChatChaska Subscription & Usage-Based Pricing Engine
  *
- * Manages cafe subscription lifecycle:
- * - Free trial with configurable duration
- * - Plan tiers (trial → basic → pro → enterprise)
- * - Grace period after trial/payment expiry
- * - Kill switch for suspended cafes
+ * Business Model:
+ * - Free Forever: Small cafes (< 100 bills/day) stay 100% free with NO countdown and NO lockouts.
+ * - Growth Detection: High-volume cafes exceeding 100 bills/day on 3+ days are prompted to upgrade.
+ * - Paid Tiers (Basic, Pro, Enterprise) for scaling operations.
+ * - Suspension: Instant kill-switch if manually disabled by Super Admin.
  */
 
-export type PlanTier = 'trial' | 'basic' | 'pro' | 'enterprise';
-export type PaymentStatus = 'trial' | 'active' | 'overdue' | 'suspended' | 'expired';
+export type PlanTier = 'free' | 'trial' | 'basic' | 'pro' | 'enterprise';
+export type PaymentStatus = 'free' | 'trial' | 'active' | 'overdue' | 'suspended' | 'expired';
 
 export interface CafeSubscription {
   cafeId: string;
   plan: PlanTier;
-  trialStartedAt: string | null;
-  trialDays: number;
-  trialExpiresAt: string | null;
   subscriptionAmount: number;
   billingCycle: 'monthly' | 'quarterly' | 'yearly';
   lastPaymentAt: string | null;
@@ -24,6 +21,10 @@ export interface CafeSubscription {
   paymentStatus: PaymentStatus;
   isActive: boolean;
   suspendedReason: string | null;
+  // Legacy fields preserved for backward compatibility
+  trialStartedAt?: string | null;
+  trialDays?: number;
+  trialExpiresAt?: string | null;
 }
 
 export interface AccessCheckResult {
@@ -39,16 +40,16 @@ const GRACE_PERIOD_DAYS = 3;
 
 /**
  * Check if a cafe has access to the POS system.
- * Returns detailed access status including warnings.
+ * Free tier cafes are ALWAYS allowed access (no trial countdown, no time-based expiration).
  */
 export function checkCafeAccess(subscription: CafeSubscription): AccessCheckResult {
   const now = new Date();
 
-  // ── Manually Suspended ──────────────────────────────────
-  if (!subscription.isActive) {
+  // ── Manually Suspended by Super Admin ────────────────────
+  if (!subscription.isActive || subscription.paymentStatus === 'suspended') {
     return {
       allowed: false,
-      reason: subscription.suspendedReason || 'Your account has been suspended. Contact ChatChaska support.',
+      reason: subscription.suspendedReason || 'Your account has been suspended by Platform Administration.',
       daysLeft: 0,
       status: 'suspended',
       showWarning: false,
@@ -56,84 +57,19 @@ export function checkCafeAccess(subscription: CafeSubscription): AccessCheckResu
     };
   }
 
-  // ── Trial Plan ──────────────────────────────────────────
-  if (subscription.plan === 'trial') {
-    // 0 Days Trial = No trial granted, immediate payment required
-    if (subscription.trialDays === 0) {
-      return {
-        allowed: false,
-        reason: 'No free trial is active for this cafe. Please activate a paid subscription to access the POS.',
-        daysLeft: 0,
-        status: 'expired',
-        showWarning: false,
-        warningMessage: null,
-      };
-    }
-
-    if (!subscription.trialExpiresAt) {
-      return {
-        allowed: true,
-        reason: 'Free trial active',
-        daysLeft: subscription.trialDays,
-        status: 'trial',
-        showWarning: false,
-        warningMessage: null,
-      };
-    }
-
-    const expiresAt = new Date(subscription.trialExpiresAt);
-    const diffMs = expiresAt.getTime() - now.getTime();
-    const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-    // Trial active
-    if (daysLeft > 3) {
-      return {
-        allowed: true,
-        reason: 'Free trial active',
-        daysLeft,
-        status: 'trial',
-        showWarning: false,
-        warningMessage: null,
-      };
-    }
-
-    // Trial expiring soon (≤ 3 days)
-    if (daysLeft > 0) {
-      return {
-        allowed: true,
-        reason: 'Free trial active',
-        daysLeft,
-        status: 'trial',
-        showWarning: true,
-        warningMessage: `Your free trial expires in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Contact ChatChaska to upgrade.`,
-      };
-    }
-
-    // Trial expired — grace period
-    const graceDaysLeft = GRACE_PERIOD_DAYS + daysLeft; // daysLeft is negative here
-    if (graceDaysLeft > 0) {
-      return {
-        allowed: true,
-        reason: 'Trial expired — grace period',
-        daysLeft: 0,
-        status: 'expired',
-        showWarning: true,
-        warningMessage: `Your trial has expired. You have ${graceDaysLeft} grace day${graceDaysLeft === 1 ? '' : 's'} remaining. Contact ChatChaska to activate your subscription.`,
-      };
-    }
-
-    // Trial + grace period fully expired
+  // ── Free Tier / Legacy Trial (Free Forever for small businesses) ──
+  if (subscription.plan === 'free' || subscription.plan === 'trial') {
     return {
-      allowed: false,
-      reason: 'Your free trial has expired. Please contact ChatChaska to activate your subscription and continue using the POS.',
-      daysLeft: 0,
-      status: 'expired',
+      allowed: true,
+      reason: 'Free tier active (Free for cafes < 100 bills/day)',
+      daysLeft: 999,
+      status: 'free',
       showWarning: false,
       warningMessage: null,
     };
   }
 
-  // ── Paid Plans ──────────────────────────────────────────
+  // ── Paid Plans (Basic / Pro / Enterprise) ────────────────
   if (!subscription.nextPaymentDue) {
     return {
       allowed: true,
@@ -173,7 +109,7 @@ export function checkCafeAccess(subscription: CafeSubscription): AccessCheckResu
     };
   }
 
-  // Payment overdue — grace period
+  // Payment overdue — grace period (3 days)
   const overdueGraceDays = GRACE_PERIOD_DAYS + paymentDaysLeft;
   if (overdueGraceDays > 0) {
     return {
@@ -198,30 +134,32 @@ export function checkCafeAccess(subscription: CafeSubscription): AccessCheckResu
 }
 
 /**
- * Calculate trial expiry date from start date and trial days.
+ * Helper to calculate arbitrary future expiry date.
  */
-export function calculateTrialExpiry(startDate: Date, trialDays: number): Date {
+export function calculateTrialExpiry(startDate: Date, days: number): Date {
   const expiry = new Date(startDate);
-  expiry.setDate(expiry.getDate() + trialDays);
+  expiry.setDate(expiry.getDate() + days);
   return expiry;
 }
 
 /**
- * Get pricing for a plan tier.
+ * Plan pricing tiers
  */
 export const PLAN_PRICING: Record<PlanTier, { monthly: number; quarterly: number; yearly: number; label: string }> = {
-  trial: { monthly: 0, quarterly: 0, yearly: 0, label: 'Free Trial' },
-  basic: { monthly: 999, quarterly: 2697, yearly: 9588, label: 'Basic' },
-  pro: { monthly: 2499, quarterly: 6747, yearly: 23988, label: 'Pro' },
-  enterprise: { monthly: 4999, quarterly: 13497, yearly: 47988, label: 'Enterprise' },
+  free: { monthly: 0, quarterly: 0, yearly: 0, label: 'Free Forever (< 100 bills/day)' },
+  trial: { monthly: 0, quarterly: 0, yearly: 0, label: 'Free Forever (< 100 bills/day)' },
+  basic: { monthly: 999, quarterly: 2697, yearly: 9588, label: 'Starter (₹999/mo)' },
+  pro: { monthly: 2499, quarterly: 6747, yearly: 23988, label: 'Growth Pro (₹2,499/mo)' },
+  enterprise: { monthly: 4999, quarterly: 13497, yearly: 47988, label: 'Enterprise (₹4,999/mo)' },
 };
 
 /**
- * Get feature limits for a plan tier.
+ * Feature limits per plan tier
  */
-export const PLAN_LIMITS: Record<PlanTier, { maxDevices: number; maxStaff: number; maxMenuItems: number }> = {
-  trial: { maxDevices: 1, maxStaff: 3, maxMenuItems: 50 },
-  basic: { maxDevices: 2, maxStaff: 5, maxMenuItems: 200 },
-  pro: { maxDevices: 5, maxStaff: 15, maxMenuItems: 500 },
-  enterprise: { maxDevices: 99, maxStaff: 99, maxMenuItems: 9999 },
+export const PLAN_LIMITS: Record<PlanTier, { maxDevices: number; maxStaff: number; maxMenuItems: number; dailyBillThreshold: number }> = {
+  free: { maxDevices: 2, maxStaff: 5, maxMenuItems: 200, dailyBillThreshold: 100 },
+  trial: { maxDevices: 2, maxStaff: 5, maxMenuItems: 200, dailyBillThreshold: 100 },
+  basic: { maxDevices: 2, maxStaff: 5, maxMenuItems: 200, dailyBillThreshold: 500 },
+  pro: { maxDevices: 5, maxStaff: 15, maxMenuItems: 500, dailyBillThreshold: 1500 },
+  enterprise: { maxDevices: 99, maxStaff: 99, maxMenuItems: 9999, dailyBillThreshold: 999999 },
 };
