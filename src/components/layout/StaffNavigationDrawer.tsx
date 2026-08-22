@@ -79,19 +79,8 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
             </button>
           </div>
 
-          {/* Staff Info Banner */}
-          <div className="px-4 py-3 bg-[#FAF7F2] border-b border-[#C3A27C]/20 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-md bg-black text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0">
-              CC
-            </div>
-            <div className="min-w-0">
-              <h4 className="text-xs font-bold text-slate-900 truncate">Staff Terminal</h4>
-              <p className="text-[11px] text-slate-500 font-medium truncate">ChatChaska POS</p>
-            </div>
-          </div>
-
           {/* Navigation Links with Sections */}
-          <nav className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-220px)] no-scrollbar">
+          <nav className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)] no-scrollbar">
             {/* ESSENTIAL */}
             <div className="space-y-1">
               <div className="px-2 pb-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
@@ -126,7 +115,7 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                   <span className={`text-xs font-bold ${pathname === '/staff/orders' ? 'text-slate-950' : 'text-slate-800'}`}>Orders Queue</span>
                 </div>
                 {pendingCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-sm bg-amber-500 text-white font-black text-[11px] shadow-2xs">
+                  <span className="w-5 h-5 rounded-sm bg-amber-500 text-slate-950 text-[10px] font-black flex items-center justify-center shadow-xs">
                     {pendingCount}
                   </span>
                 )}
@@ -152,7 +141,7 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                   <span className={`text-xs font-bold ${pathname === '/staff/kitchen' ? 'text-slate-950' : 'text-slate-800'}`}>Kitchen Display (KDS)</span>
                 </div>
                 {kitchenCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-sm bg-slate-900 text-white font-black text-[11px]">
+                  <span className="w-5 h-5 rounded-sm bg-black text-white text-[10px] font-black flex items-center justify-center shadow-xs">
                     {kitchenCount}
                   </span>
                 )}
@@ -172,7 +161,7 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                   <span className={`text-xs font-bold ${pathname === '/staff/tables' ? 'text-slate-950' : 'text-slate-800'}`}>Tables Floor Map</span>
                 </div>
                 {totalTables > 0 && (
-                  <span className="px-2 py-0.5 rounded-sm bg-slate-100 text-slate-800 border border-slate-200 font-bold text-[11px]">
+                  <span className="px-1.5 py-0.5 rounded-sm bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-bold">
                     {occupiedTables}/{totalTables}
                   </span>
                 )}
@@ -190,17 +179,6 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                 <div className="flex items-center gap-2.5">
                   <span className={`material-symbols-outlined text-[20px] ${pathname === '/staff/history' ? 'text-slate-950' : 'text-slate-600'}`}>history</span>
                   <span className={`text-xs font-bold ${pathname === '/staff/history' ? 'text-slate-950' : 'text-slate-800'}`}>Bill History & Sales</span>
-                </div>
-              </Link>
-
-              <Link
-                href="/admin"
-                onClick={onClose}
-                className="flex items-center justify-between p-2.5 rounded-md text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 transition-all border border-transparent"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[20px] text-slate-600">settings</span>
-                  <span className="text-xs font-bold text-slate-800">Cafe Admin Console</span>
                 </div>
               </Link>
             </div>
