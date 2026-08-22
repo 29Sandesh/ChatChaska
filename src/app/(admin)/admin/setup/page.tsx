@@ -4,16 +4,23 @@ import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/Toast';
 
+interface StaffItem {
+  id: string;
+  name: string;
+  role: 'cashier' | 'waiter' | 'kitchen' | 'manager';
+  pin: string;
+  showPin: boolean;
+}
+
 export default function SetupWizardPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
 
-  // Step 1: Owner (Private) & Cafe (Public) Info
+  // Step 1: Owner (Private) & Cafe (Public) Info (No Email)
   const [ownerName, setOwnerName] = useState('');
   const [ownerPhone, setOwnerPhone] = useState('');
-  const [ownerEmail, setOwnerEmail] = useState('');
   const [cafeName, setCafeName] = useState('');
   const [cafePhone, setCafePhone] = useState('');
   const [city, setCity] = useState('');
@@ -26,22 +33,22 @@ export default function SetupWizardPage() {
   const [cgstRate, setCgstRate] = useState(2.5);
   const [sgstRate, setSgstRate] = useState(2.5);
 
-  // Step 3: Tables (Main & VIP)
+  // Step 3: Tables (Main & VIP - No seats)
   const [mainTableCount, setMainTableCount] = useState<number>(8);
-  const [mainSeats, setMainSeats] = useState<number>(4);
   const [hasVip, setHasVip] = useState<boolean>(false);
   const [vipTableCount, setVipTableCount] = useState<number>(2);
-  const [vipSeats, setVipSeats] = useState<number>(6);
 
-  // Step 4: Menu Setup
+  // Step 4: Menu Setup (Multi-image AI upload)
   const [isScanning, setIsScanning] = useState(false);
   const [menuUploadedCount, setMenuUploadedCount] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Step 5: Staff Credentials
+  // Step 5: Staff PINs & Dynamic Staff Accounts
   const [ownerPin, setOwnerPin] = useState('1234');
-  const [cashierName, setCashierName] = useState('Counter Cashier');
-  const [cashierPin, setCashierPin] = useState('1111');
+  const [showOwnerPin, setShowOwnerPin] = useState(false);
+  const [staffList, setStaffList] = useState<StaffItem[]>([
+    { id: '1', name: 'Counter Cashier', role: 'cashier', pin: '1111', showPin: false },
+  ]);
 
   // Step 6: Terms & Agreement
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -68,28 +75,55 @@ export default function SetupWizardPage() {
     setStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handleMenuPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleAddStaff = () => {
+    const newId = String(Date.now());
+    setStaffList((prev) => [
+      ...prev,
+      { id: newId, name: '', role: 'waiter', pin: '1234', showPin: false },
+    ]);
+  };
+
+  const handleRemoveStaff = (id: string) => {
+    setStaffList((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  const handleUpdateStaff = (id: string, field: keyof StaffItem, val: any) => {
+    setStaffList((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, [field]: val } : s))
+    );
+  };
+
+  const handleMenuPhotosUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setIsScanning(true);
-    const formData = new FormData();
-    formData.append('file', file);
+    let totalAdded = 0;
 
     try {
-      const res = await fetch('/api/ai/extract-menu', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-      if (res.ok && data.itemsAdded > 0) {
-        setMenuUploadedCount(data.itemsAdded);
-        toast.success(`🎉 Vision AI added ${data.itemsAdded} dishes to your menu!`);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await fetch('/api/ai/extract-menu', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (res.ok && data.itemsAdded > 0) {
+          totalAdded += data.itemsAdded;
+        }
+      }
+
+      if (totalAdded > 0) {
+        setMenuUploadedCount(totalAdded);
+        toast.success(`🎉 Vision AI added ${totalAdded} dishes from your menu photos!`);
       } else {
-        toast.error(data.error || 'Could not extract menu items from photo');
+        toast.error('Could not extract dishes from the uploaded photo(s)');
       }
     } catch {
-      toast.error('Network error during menu photo scanning');
+      toast.error('Network error during menu photo extraction');
     } finally {
       setIsScanning(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -110,7 +144,6 @@ export default function SetupWizardPage() {
         body: JSON.stringify({
           ownerName,
           ownerPhone,
-          ownerEmail,
           cafeName,
           cafePhone: cafePhone || ownerPhone,
           address,
@@ -121,13 +154,14 @@ export default function SetupWizardPage() {
           cgstRate,
           sgstRate,
           mainTableCount,
-          mainSeats,
           hasVip,
           vipTableCount: hasVip ? vipTableCount : 0,
-          vipSeats: hasVip ? vipSeats : 0,
           ownerPin,
-          cashierName,
-          cashierPin,
+          staffMembers: staffList.map((s) => ({
+            name: s.name || 'Staff',
+            role: s.role,
+            pin: s.pin || '1111',
+          })),
         }),
       });
 
@@ -175,7 +209,7 @@ export default function SetupWizardPage() {
               { num: 2, label: 'Taxes & UPI' },
               { num: 3, label: 'Tables' },
               { num: 4, label: 'Menu' },
-              { num: 5, label: 'PINs' },
+              { num: 5, label: 'Staff PINs' },
               { num: 6, label: 'Terms' },
             ].map((s) => {
               const isCurrent = step === s.num;
@@ -199,9 +233,9 @@ export default function SetupWizardPage() {
           </div>
         </div>
 
-        {/* Main Form Card (Ultra-Clean & Minimal) */}
+        {/* Main Form Card */}
         <div className="bg-white rounded-md border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
-          {/* STEP 1: OWNER (PRIVATE) & CAFE (PUBLIC) DETAILS */}
+          {/* STEP 1: OWNER (PRIVATE) & CAFE (PUBLIC) DETAILS - NO EMAIL */}
           {step === 1 && (
             <div className="space-y-4 animate-in fade-in">
               {/* Section 1: Owner Details (Private) */}
@@ -241,17 +275,6 @@ export default function SetupWizardPage() {
                     />
                     <p className="text-[10px] text-slate-400 mt-0.5">Kept private for account recovery & system support.</p>
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Owner Email (Optional)</label>
-                  <input
-                    type="email"
-                    value={ownerEmail}
-                    onChange={(e) => setOwnerEmail(e.target.value)}
-                    placeholder="e.g. owner@gmail.com"
-                    className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-semibold text-slate-900 outline-none"
-                  />
                 </div>
               </div>
 
@@ -399,7 +422,7 @@ export default function SetupWizardPage() {
             </div>
           )}
 
-          {/* STEP 3: TABLES & VIP CONFIGURATION */}
+          {/* STEP 3: TABLES & VIP CONFIGURATION (NO SEATS PER TABLE) */}
           {step === 3 && (
             <div className="space-y-4 animate-in fade-in">
               {/* 1. Main Tables Configuration */}
@@ -409,30 +432,16 @@ export default function SetupWizardPage() {
                   <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Main Dining Tables</h3>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1">Number of Main Tables</label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={100}
-                      value={mainTableCount}
-                      onChange={(e) => setMainTableCount(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-black text-slate-900 outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1">Seats Per Main Table</label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={20}
-                      value={mainSeats}
-                      onChange={(e) => setMainSeats(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-black text-slate-900 outline-none"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1">Number of Main Tables</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={mainTableCount}
+                    onChange={(e) => setMainTableCount(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                    className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-black text-slate-900 outline-none"
+                  />
                 </div>
               </div>
 
@@ -472,30 +481,16 @@ export default function SetupWizardPage() {
                 </div>
 
                 {hasVip && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2.5 border-t border-slate-200 animate-in fade-in duration-150">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1">Number of VIP Tables</label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={50}
-                        value={vipTableCount}
-                        onChange={(e) => setVipTableCount(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                        className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-black text-slate-900 outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1">Seats Per VIP Table</label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={20}
-                        value={vipSeats}
-                        onChange={(e) => setVipSeats(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                        className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-black text-slate-900 outline-none"
-                      />
-                    </div>
+                  <div className="pt-2.5 border-t border-slate-200 animate-in fade-in duration-150">
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Number of VIP Tables</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={50}
+                      value={vipTableCount}
+                      onChange={(e) => setVipTableCount(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                      className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-black text-slate-900 outline-none"
+                    />
                   </div>
                 )}
               </div>
@@ -504,7 +499,7 @@ export default function SetupWizardPage() {
               <div className="p-3 bg-[#FAF7F2] border border-[#C3A27C]/40 rounded-md flex items-center justify-between text-xs font-bold text-slate-900">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#8C6D47] text-[18px]">domain_verification</span>
-                  <span>Total Capacity</span>
+                  <span>Total Configured Tables</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="bg-[#C3A27C] text-slate-950 px-2 py-0.5 rounded-md font-black">
@@ -518,73 +513,65 @@ export default function SetupWizardPage() {
             </div>
           )}
 
-          {/* STEP 4: MENU SETUP */}
+          {/* STEP 4: MENU SETUP (MULTI-IMAGE AI VISION & SKIP) */}
           {step === 4 && (
             <div className="space-y-4 animate-in fade-in">
-              {/* AI Scanner Upload Box */}
-              <div className="border-2 border-dashed border-[#C3A27C]/60 bg-[#FAF7F2] rounded-md p-5 text-center space-y-2.5">
+              <div className="border-2 border-dashed border-[#C3A27C]/60 bg-[#FAF7F2] rounded-md p-6 text-center space-y-3">
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
+                  multiple
                   capture="environment"
-                  onChange={handleMenuPhotoUpload}
+                  onChange={handleMenuPhotosUpload}
                   className="hidden"
                   id="setup-menu-photo-upload"
                   disabled={isScanning}
                 />
 
-                <div className="w-10 h-10 rounded-full bg-[#C3A27C]/20 border border-[#C3A27C]/40 flex items-center justify-center mx-auto text-[#8C6D47]">
-                  <span className="material-symbols-outlined text-xl">document_scanner</span>
+                <div className="w-12 h-12 rounded-full bg-[#C3A27C]/20 border border-[#C3A27C]/40 flex items-center justify-center mx-auto text-[#8C6D47]">
+                  <span className="material-symbols-outlined text-2xl">document_scanner</span>
                 </div>
 
-                <div>
-                  <h3 className="font-bold text-xs text-slate-900">Scan Menu Card with AI Vision</h3>
-                  <p className="text-[11px] text-slate-500 max-w-sm mx-auto mt-0.5">
-                    Upload a photo of your paper menu; AI will automatically extract dish names, prices, and categories into your catalog.
+                <div className="space-y-1">
+                  <h3 className="font-bold text-sm text-slate-900">Upload or Click Pictures of Your Menu</h3>
+                  <p className="text-xs text-slate-600 max-w-md mx-auto">
+                    Select one or more photos of your menu card. Our Vision AI will automatically extract all dish names, prices, and categories.
                   </p>
                 </div>
 
                 <label
                   htmlFor="setup-menu-photo-upload"
-                  className={`inline-flex items-center gap-2 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-4 py-2 rounded-md text-xs border border-[#B2906A] shadow-2xs transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-2 bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-5 py-2.5 rounded-md text-xs border border-[#B2906A] shadow-2xs transition-all cursor-pointer ${
                     isScanning ? 'opacity-50 pointer-events-none' : ''
                   }`}
                 >
                   {isScanning ? (
                     <>
                       <span className="animate-spin text-xs">⏳</span>
-                      <span>Extracting dishes with AI...</span>
+                      <span>Processing menu photos with AI...</span>
                     </>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined text-[16px]">photo_camera</span>
-                      <span>Upload Menu Photo</span>
+                      <span className="material-symbols-outlined text-[18px]">add_a_photo</span>
+                      <span>Upload Menu Photos</span>
                     </>
                   )}
                 </label>
 
                 {menuUploadedCount !== null && (
-                  <div className="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-md text-xs font-bold animate-in fade-in">
-                    ✅ {menuUploadedCount} dishes successfully imported and categorized!
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-md text-xs font-bold animate-in fade-in">
+                    ✅ Vision AI imported {menuUploadedCount} dishes to your menu catalog!
                   </div>
                 )}
-              </div>
-
-              {/* Dashboard Manual Info */}
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-md flex items-start gap-2.5 text-xs">
-                <span className="material-symbols-outlined text-slate-500 text-[18px] shrink-0 mt-0.5">info</span>
-                <div className="text-slate-600 space-y-0.5">
-                  <p className="font-bold text-slate-800">Don&apos;t have a paper menu photo right now?</p>
-                  <p className="text-[11px]">You can skip this step and manually add items, categories, and prices at any time in the <strong>Menu & Dishes</strong> admin tab.</p>
-                </div>
               </div>
             </div>
           )}
 
-          {/* STEP 5: STAFF PINS */}
+          {/* STEP 5: STAFF ACCOUNTS & PINS WITH VISIBILITY TOGGLE */}
           {step === 5 && (
-            <div className="space-y-3.5 animate-in fade-in">
+            <div className="space-y-4 animate-in fade-in">
+              {/* Owner Manager PIN */}
               <div className="p-3.5 rounded-md border border-slate-200 bg-slate-50 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -595,42 +582,116 @@ export default function SetupWizardPage() {
                     ADMIN
                   </span>
                 </div>
-                <input
-                  type="password"
-                  maxLength={4}
-                  value={ownerPin}
-                  onChange={(e) => setOwnerPin(e.target.value.replace(/\D/g, ''))}
-                  placeholder="4-digit PIN (default 1234)"
-                  className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-center tracking-widest font-mono text-base font-bold text-slate-900 outline-none"
-                />
+                <div className="relative">
+                  <input
+                    type={showOwnerPin ? 'text' : 'password'}
+                    maxLength={4}
+                    value={ownerPin}
+                    onChange={(e) => setOwnerPin(e.target.value.replace(/\D/g, ''))}
+                    placeholder="4-digit PIN (default 1234)"
+                    className="w-full bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-center tracking-widest font-mono text-base font-bold text-slate-900 outline-none pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOwnerPin(!showOwnerPin)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showOwnerPin ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
+                </div>
               </div>
 
-              <div className="p-3.5 rounded-md border border-slate-200 bg-slate-50 space-y-2">
+              {/* Dynamic Staff Accounts List */}
+              <div className="p-3.5 rounded-md border border-slate-200 bg-slate-50 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-slate-900 text-[18px]">badge</span>
-                    <span className="font-bold text-xs text-slate-900">Counter Cashier PIN</span>
+                    <span className="font-bold text-xs text-slate-900">Staff Accounts & Access PINs</span>
                   </div>
-                  <span className="text-[10px] font-black text-slate-900 bg-slate-200 px-2 py-0.5 rounded-md">
-                    CASHIER
-                  </span>
+                  <button
+                    type="button"
+                    onClick={handleAddStaff}
+                    className="flex items-center gap-1 bg-white border border-slate-300 hover:border-slate-400 text-slate-800 px-2.5 py-1 rounded-md text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">add</span>
+                    <span>Add Staff</span>
+                  </button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <input
-                    type="text"
-                    value={cashierName}
-                    onChange={(e) => setCashierName(e.target.value)}
-                    placeholder="Cashier Name"
-                    className="bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-xs font-bold text-slate-900 outline-none"
-                  />
-                  <input
-                    type="password"
-                    maxLength={4}
-                    value={cashierPin}
-                    onChange={(e) => setCashierPin(e.target.value.replace(/\D/g, ''))}
-                    placeholder="4-digit PIN (1111)"
-                    className="bg-white border border-slate-300 focus:border-[#C3A27C] rounded-md px-3.5 py-2 text-center tracking-widest font-mono text-base font-bold text-slate-900 outline-none"
-                  />
+
+                <div className="space-y-2.5">
+                  {staffList.map((staff, idx) => (
+                    <div
+                      key={staff.id}
+                      className="p-2.5 bg-white border border-slate-200 rounded-md grid grid-cols-1 sm:grid-cols-12 gap-2 items-center"
+                    >
+                      <div className="sm:col-span-5">
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Staff Name</label>
+                        <input
+                          type="text"
+                          value={staff.name}
+                          onChange={(e) => handleUpdateStaff(staff.id, 'name', e.target.value)}
+                          placeholder={`Staff #${idx + 1} Name`}
+                          className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-2.5 py-1.5 text-xs font-semibold text-slate-900 outline-none"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Role</label>
+                        <select
+                          value={staff.role}
+                          onChange={(e) => handleUpdateStaff(staff.id, 'role', e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-2 py-1.5 text-xs font-bold text-slate-800 outline-none"
+                        >
+                          <option value="cashier">Cashier</option>
+                          <option value="waiter">Waiter</option>
+                          <option value="kitchen">Kitchen</option>
+                          <option value="manager">Manager</option>
+                        </select>
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">4-Digit PIN</label>
+                        <div className="relative">
+                          <input
+                            type={staff.showPin ? 'text' : 'password'}
+                            maxLength={4}
+                            value={staff.pin}
+                            onChange={(e) => handleUpdateStaff(staff.id, 'pin', e.target.value.replace(/\D/g, ''))}
+                            placeholder="PIN"
+                            className="w-full bg-slate-50 border border-slate-300 focus:border-[#C3A27C] rounded-md px-2.5 py-1.5 text-xs font-mono font-bold text-slate-900 outline-none pr-8 text-center"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateStaff(staff.id, 'showPin', !staff.showPin)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">
+                              {staff.showPin ? 'visibility_off' : 'visibility'}
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="sm:col-span-1 flex justify-end pt-3 sm:pt-0">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveStaff(staff.id)}
+                          className="text-slate-400 hover:text-rose-600 p-1 rounded-md transition-colors cursor-pointer"
+                          title="Remove staff"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {staffList.length === 0 && (
+                    <div className="p-3 text-center text-xs text-slate-400 bg-white border border-dashed border-slate-200 rounded-md">
+                      No staff accounts added yet. Click &quot;Add Staff&quot; above to create cashier or waiter logins.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -704,31 +765,45 @@ export default function SetupWizardPage() {
               </button>
             ) : <div />}
 
-            {step < 6 ? (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="px-6 py-2.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-bold transition-all shadow-2xs cursor-pointer"
-              >
-                Continue →
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled={submitting || !agreedToTerms}
-                onClick={handleCompleteSetup}
-                className="px-7 py-2.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-black transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {submitting ? (
-                  <span>Saving Configuration...</span>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined text-base">rocket_launch</span>
-                    <span>Launch My Cafe Workspace</span>
-                  </>
-                )}
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {/* Skip button for Step 4 (Menu) */}
+              {step === 4 && (
+                <button
+                  type="button"
+                  onClick={() => setStep(5)}
+                  className="px-4 py-2.5 rounded-md border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  Skip for now
+                </button>
+              )}
+
+              {step < 6 ? (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={step === 4 && (menuUploadedCount === null || menuUploadedCount === 0)}
+                  className="px-6 py-2.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Continue →
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={submitting || !agreedToTerms}
+                  onClick={handleCompleteSetup}
+                  className="px-7 py-2.5 rounded-md bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 border border-[#B2906A] text-xs font-black transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {submitting ? (
+                    <span>Saving Configuration...</span>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-base">rocket_launch</span>
+                      <span>Launch My Cafe Workspace</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

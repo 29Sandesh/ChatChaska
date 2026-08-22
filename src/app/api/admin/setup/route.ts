@@ -2,14 +2,20 @@ import { NextResponse } from 'next/server';
 import { saveSetting, getDb } from '@/lib/database';
 import bcrypt from 'bcryptjs';
 
+interface StaffMemberPayload {
+  name: string;
+  role: string;
+  pin: string;
+}
+
 /**
  * POST /api/admin/setup
  * Saves all steps of first-time onboarding wizard in one atomic transaction:
- * - Owner private info (ownerName, ownerPhone, ownerEmail)
+ * - Owner info (ownerName, ownerPhone)
  * - Public cafe info (cafeName, cafePhone, address, city, whatsapp)
  * - Tax & payment settings (gstin, fssai, upi_id, cgst_rate, sgst_rate)
  * - Main & VIP Tables generation
- * - Staff PIN creation
+ * - Dynamic Staff accounts with hashed PINs
  * - Terms acceptance record
  * - Marks setup_completed = true
  */
@@ -20,7 +26,6 @@ export async function POST(req: Request) {
     const {
       ownerName,
       ownerPhone,
-      ownerEmail,
       cafeName,
       cafePhone,
       address,
@@ -32,11 +37,10 @@ export async function POST(req: Request) {
       cgstRate,
       sgstRate,
       mainTableCount,
-      mainSeats,
       hasVip,
       vipTableCount,
-      vipSeats,
       ownerPin,
+      staffMembers,
       cashierName,
       cashierPin,
     } = body;
@@ -44,7 +48,6 @@ export async function POST(req: Request) {
     // 1. Save Owner Private Details
     if (ownerName) saveSetting('owner_name', ownerName);
     if (ownerPhone) saveSetting('owner_phone', ownerPhone);
-    if (ownerEmail) saveSetting('owner_email', ownerEmail);
 
     // 2. Save Public Cafe Settings
     if (cafeName) saveSetting('cafe_name', cafeName);
@@ -60,12 +63,10 @@ export async function POST(req: Request) {
     saveSetting('terms_accepted_at', new Date().toISOString());
     saveSetting('setup_completed', 'true');
 
-    // 3. Generate Main and VIP Tables
+    // 3. Generate Main and VIP Tables (without seats constraint)
     const mainCount = Math.max(1, parseInt(String(mainTableCount || 8), 10));
-    const mainSeatsPerTable = Math.max(1, parseInt(String(mainSeats || 4), 10));
     const isVipEnabled = Boolean(hasVip);
     const vipCount = isVipEnabled ? Math.max(1, parseInt(String(vipTableCount || 2), 10)) : 0;
-    const vipSeatsPerTable = Math.max(1, parseInt(String(vipSeats || 6), 10));
 
     try {
       // Clear existing tables and floors
@@ -79,28 +80,31 @@ export async function POST(req: Request) {
 
       const insertTableStmt = db.prepare(`
         INSERT INTO tables (id, name, floor_id, seats, status)
-        VALUES (?, ?, ?, ?, 'blank')
+        VALUES (?, ?, ?, 4, 'blank')
       `);
 
       // Insert Main Floor
       insertFloorStmt.run('floor-main', 'Main Area', 0);
       for (let i = 1; i <= mainCount; i++) {
-        insertTableStmt.run(`table-${i}`, `Table ${i}`, 'floor-main', mainSeatsPerTable);
+        insertTableStmt.run(`table-${i}`, `Table ${i}`, 'floor-main');
       }
 
       // Insert VIP Floor if enabled
       if (isVipEnabled && vipCount > 0) {
         insertFloorStmt.run('floor-vip', 'VIP Section', 1);
         for (let j = 1; j <= vipCount; j++) {
-          insertTableStmt.run(`vip-table-${j}`, `VIP ${j}`, 'floor-vip', vipSeatsPerTable);
+          insertTableStmt.run(`vip-table-${j}`, `VIP ${j}`, 'floor-vip');
         }
       }
     } catch (tblErr) {
       console.warn('Table initialization warning:', tblErr);
     }
 
-    // 4. Create or update owner and cashier in staff table with hashed PINs
+    // 4. Create or update owner and dynamic staff in staff table with hashed PINs
     try {
+      // Clear old staff to re-seed cleanly
+      db.prepare('DELETE FROM staff').run();
+
       const insertStaffStmt = db.prepare(`
         INSERT OR REPLACE INTO staff (id, name, role, pin, phone, status)
         VALUES (?, ?, ?, ?, ?, 'active')
@@ -111,7 +115,15 @@ export async function POST(req: Request) {
         insertStaffStmt.run('staff-owner', ownerName || 'Owner', 'manager', hashedOwnerPin, ownerPhone || '');
       }
 
-      if (cashierName && cashierPin) {
+      if (Array.isArray(staffMembers) && staffMembers.length > 0) {
+        for (let idx = 0; idx < staffMembers.length; idx++) {
+          const s = staffMembers[idx] as StaffMemberPayload;
+          if (s.name && s.pin) {
+            const hashed = await bcrypt.hash(s.pin, 10);
+            insertStaffStmt.run(`staff-${idx + 1}`, s.name, s.role || 'cashier', hashed, '');
+          }
+        }
+      } else if (cashierName && cashierPin) {
         const hashedCashierPin = await bcrypt.hash(cashierPin, 10);
         insertStaffStmt.run('staff-cashier-1', cashierName, 'cashier', hashedCashierPin, '');
       }
