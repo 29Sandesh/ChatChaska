@@ -8,7 +8,6 @@ import type { NextRequest } from 'next/server';
  * Reads the session cookie and redirects unauthorized users.
  *
  * Route protection matrix:
- *   /superadmin/*  → requires role: super_admin
  *   /admin/*       → requires role: cafe_owner OR super_admin
  *   /staff/*       → requires role: cashier | waiter | kitchen | cafe_owner | super_admin
  *   /dashboard/*   → requires any authenticated user
@@ -116,25 +115,12 @@ export function middleware(request: NextRequest) {
 
   const userRole = session.user.role;
 
-  // ── Super Admin Routes ──────────────────────────────────
-  if (pathname.startsWith('/superadmin')) {
-    if (userRole !== 'super_admin') {
-      if (pathname.startsWith('/api/')) {
-        return NextResponse.json(
-          { error: 'Super Admin access required', code: 'FORBIDDEN' },
-          { status: 403 }
-        );
-      }
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-  }
-
   // ── Admin Routes (Cafe Owner Panel) ─────────────────────
   if (pathname.startsWith('/admin')) {
     if (userRole !== 'cafe_owner' && userRole !== 'super_admin') {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json(
-          { error: 'Cafe Owner or Super Admin access required', code: 'FORBIDDEN' },
+          { error: 'Cafe Owner access required', code: 'FORBIDDEN' },
           { status: 403 }
         );
       }
@@ -147,16 +133,6 @@ export function middleware(request: NextRequest) {
     const staffRoles = ['cashier', 'waiter', 'kitchen', 'cafe_owner', 'super_admin'];
     if (!staffRoles.includes(userRole)) {
       return NextResponse.redirect(new URL('/login', request.url));
-    }
-  }
-
-  // ── API Routes (non-auth) ───────────────────────────────
-  if (pathname.startsWith('/api/superadmin')) {
-    if (userRole !== 'super_admin') {
-      return NextResponse.json(
-        { error: 'Super Admin access required', code: 'FORBIDDEN' },
-        { status: 403 }
-      );
     }
   }
 

@@ -58,39 +58,13 @@ async function handleEmailLogin(
     );
   }
 
-  // Check for Super Admin (hardcoded in env for now)
+  // Super Admin check: redirected to dedicated Webapp
   const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@chatchaska.com';
-  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || 'ChatChaska@2026';
-
-  if (email.toLowerCase() === superAdminEmail.toLowerCase()) {
-    if (password === superAdminPassword) {
-      resetRateLimit(rateLimitKey);
-
-      await createSession({
-        id: 'super-admin-001',
-        email: superAdminEmail,
-        name: 'Platform Admin',
-        role: 'super_admin',
-      });
-
-      logAuditEvent({
-        userId: 'super-admin-001',
-        action: 'login',
-        details: { method: 'email', role: 'super_admin' },
-        ipAddress: ip,
-      });
-
-      return NextResponse.json({
-        success: true,
-        user: { name: 'Platform Admin', role: 'super_admin' },
-        redirect: '/superadmin',
-      });
-    } else {
-      return NextResponse.json(
-        { error: 'Invalid password', remainingAttempts: rateCheck.remainingAttempts },
-        { status: 401 }
-      );
-    }
+  if (email.toLowerCase() === superAdminEmail.toLowerCase() || email.toLowerCase() === '29sandesh.agrawal@gmail.com') {
+    return NextResponse.json(
+      { error: 'Super Admin panel is separated for security. Please use the SuperAdmin Webapp at http://localhost:5679' },
+      { status: 403 }
+    );
   }
 
   // Check for Cafe Owner default & local DB accounts

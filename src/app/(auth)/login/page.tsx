@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import loginShowcase from '@/../public/login-showcase.png';
 
-type PortalType = 'staff' | 'owner' | 'superadmin';
+type PortalType = 'staff' | 'owner';
 type StaffRole = 'cashier' | 'waiter' | 'kitchen';
 
 export default function UnifiedLoginPage() {
@@ -29,7 +29,7 @@ export default function UnifiedLoginPage() {
     try {
       let body: Record<string, string>;
 
-      if (portalType === 'superadmin' || portalType === 'owner') {
+      if (portalType === 'owner') {
         if (!email || !password) {
           setErrorMsg('Email and password are required');
           setLoading(false);
@@ -63,7 +63,7 @@ export default function UnifiedLoginPage() {
       if (data.redirect) {
         router.push(data.redirect);
       } else {
-        router.push(portalType === 'staff' ? '/staff/pos' : portalType === 'owner' ? '/admin' : '/superadmin');
+        router.push(portalType === 'staff' ? '/staff/pos' : '/admin');
       }
     } catch {
       setErrorMsg('Connection error. Please try again.');
@@ -101,8 +101,8 @@ export default function UnifiedLoginPage() {
             </p>
           </div>
 
-          {/* 3 Main Portal Tabs: Staff | Owner | Super Admin */}
-          <div className="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-md border border-slate-200">
+          {/* 2 Main Portal Tabs: Staff | Owner */}
+          <div className="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-md border border-slate-200">
             <button
               type="button"
               onClick={() => {
@@ -110,14 +110,14 @@ export default function UnifiedLoginPage() {
                 setErrorMsg('');
                 setPin('');
               }}
-              className={`py-2 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+              className={`py-2 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 portalType === 'staff'
                   ? 'bg-[#C3A27C] text-slate-950 shadow-2xs border border-[#B2906A]'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <span className="material-symbols-outlined text-sm">badge</span>
-              <span>Staff</span>
+              <span>Staff Terminal</span>
             </button>
 
             <button
@@ -128,32 +128,14 @@ export default function UnifiedLoginPage() {
                 setEmail('owner@cafe.com');
                 setPassword('password');
               }}
-              className={`py-2 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+              className={`py-2 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 portalType === 'owner'
                   ? 'bg-[#C3A27C] text-slate-950 shadow-2xs border border-[#B2906A]'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <span className="material-symbols-outlined text-sm">storefront</span>
-              <span>Owner</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setPortalType('superadmin');
-                setErrorMsg('');
-                setEmail('29sandesh.agrawal@gmail.com');
-                setPassword('Sejal_2912');
-              }}
-              className={`py-2 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
-                portalType === 'superadmin'
-                  ? 'bg-black text-white shadow-2xs border border-slate-800'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <span className="material-symbols-outlined text-sm">shield</span>
-              <span>Admin</span>
+              <span>Cafe Owner</span>
             </button>
           </div>
 
@@ -194,18 +176,18 @@ export default function UnifiedLoginPage() {
           )}
 
           <form onSubmit={handleLogin} className="space-y-3.5">
-            {/* Email & Password for Owner and Super Admin */}
-            {(portalType === 'owner' || portalType === 'superadmin') && (
+            {/* Email & Password for Cafe Owner */}
+            {portalType === 'owner' && (
               <div className="space-y-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {portalType === 'superadmin' ? 'Master Admin Email' : 'Owner Email'}
+                    Owner Email Address
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={portalType === 'superadmin' ? '29sandesh.agrawal@gmail.com' : 'owner@cafe.com'}
+                    placeholder="owner@cafe.com"
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-md text-xs font-medium text-slate-900 focus:outline-none focus:border-[#C3A27C] focus:bg-white transition-all"
                     required
                   />
@@ -300,9 +282,7 @@ export default function UnifiedLoginPage() {
                 <>
                   <span>
                     Unlock{' '}
-                    {portalType === 'superadmin'
-                      ? 'Super Admin Control'
-                      : portalType === 'owner'
+                    {portalType === 'owner'
                       ? 'Cafe Admin Console'
                       : `${staffRole.toUpperCase()} Terminal`}
                   </span>
