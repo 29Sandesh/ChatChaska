@@ -149,26 +149,26 @@ export default function SetupWizardPage() {
   const totalTables = mainTableCount + (hasVip ? vipTableCount : 0);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between p-4 sm:p-8 lg:p-12 font-sans select-none">
-      <div className="max-w-3xl mx-auto w-full space-y-6 pt-2 sm:pt-4">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col p-3 sm:p-5 lg:p-6 font-sans select-none">
+      <div className="max-w-3xl mx-auto w-full space-y-3.5 pt-0">
         {/* Top Bar with Back to Login */}
         <div className="flex items-center justify-between pb-2 border-b border-slate-200">
           <button
             type="button"
             onClick={() => router.push('/login')}
-            className="flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-950 bg-white border border-slate-200 hover:border-slate-300 px-4 py-2 rounded-md shadow-2xs transition-all cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-950 bg-white border border-slate-200 hover:border-slate-300 px-3.5 py-1.5 rounded-md shadow-2xs transition-all cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             <span>Back to Login</span>
           </button>
 
-          <div className="flex items-center gap-3">
-            <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-7 w-auto object-contain" />
+          <div className="flex items-center gap-2">
+            <img src="/chatchaska-logo.png" alt="ChatChaska" className="h-6 w-auto object-contain" />
           </div>
         </div>
 
         {/* Step Progress Indicators */}
-        <div className="bg-white p-3.5 rounded-md border border-slate-200 shadow-2xs">
+        <div className="bg-white p-2.5 rounded-md border border-slate-200 shadow-2xs">
           <div className="grid grid-cols-6 gap-1.5">
             {[
               { num: 1, label: 'Profile' },
@@ -183,7 +183,7 @@ export default function SetupWizardPage() {
               return (
                 <div
                   key={s.num}
-                  className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-bold transition-all ${
+                  className={`flex items-center justify-center gap-1.5 py-1.5 px-1 rounded-md text-xs font-bold transition-all ${
                     isCurrent
                       ? 'bg-[#FAF7F2] text-slate-950 border-2 border-[#C3A27C]'
                       : isDone
@@ -199,14 +199,14 @@ export default function SetupWizardPage() {
           </div>
         </div>
 
-        {/* Main Form Card (Spacious & Clean) */}
-        <div className="bg-white rounded-md border border-slate-200 p-6 sm:p-8 md:p-10 shadow-sm space-y-6">
+        {/* Main Form Card (Compact & Shifted Up) */}
+        <div className="bg-white rounded-md border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
           {/* STEP 1: OWNER (PRIVATE) & CAFE (PUBLIC) DETAILS */}
           {step === 1 && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="border-b border-slate-100 pb-3">
-                <h2 className="text-xl font-black text-slate-900">Owner & Cafe Profile</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Separate sections for owner account credentials and public customer outlet details.</p>
+            <div className="space-y-4 animate-in fade-in">
+              <div className="border-b border-slate-100 pb-2">
+                <h2 className="text-lg font-black text-slate-900">Owner & Cafe Profile</h2>
+                <p className="text-xs text-slate-500">Separate sections for owner account credentials and public customer outlet details.</p>
               </div>
 
               {/* Section 1: Owner Details (Private) */}
