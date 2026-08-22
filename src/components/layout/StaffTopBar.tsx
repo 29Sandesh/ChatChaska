@@ -14,12 +14,10 @@ interface StaffNavItem {
 
 const staffNavItems: StaffNavItem[] = [
   { id: 'pos', label: 'POS Billing', href: '/staff/pos', icon: 'restaurant_menu' },
-  { id: 'orders', label: 'Waiter Order Pad', href: '/staff/orders', icon: 'tablet_mac' },
+  { id: 'orders', label: 'Orders Queue', href: '/staff/orders', icon: 'receipt_long' },
   { id: 'kitchen', label: 'Kitchen Display', href: '/staff/kitchen', icon: 'soup_kitchen' },
   { id: 'tables', label: 'Table Map', href: '/staff/tables', icon: 'grid_view' },
-  { id: 'live', label: 'Live Orders', href: '/staff/live', icon: 'visibility' },
-  { id: 'history', label: 'Order History', href: '/staff/history', icon: 'receipt_long' },
-  { id: 'shift', label: 'Shift Register', href: '/staff/shift', icon: 'point_of_sale' },
+  { id: 'history', label: 'Order History', href: '/staff/history', icon: 'history' },
 ];
 
 export function StaffTopBar() {

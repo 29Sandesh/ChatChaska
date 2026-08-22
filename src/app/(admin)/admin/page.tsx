@@ -45,31 +45,21 @@ export default function OwnerDashboardPage() {
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [tableStats, setTableStats] = useState<{ occupied: number; total: number }>({ occupied: 0, total: 0 });
   const [setupCompleted, setSetupCompleted] = useState(true);
-  
-  const [activeShift, setActiveShift] = useState<any>(null);
-  const [isShiftLoaded, setIsShiftLoaded] = useState(false);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [repRes, billsRes, tablesRes, settingRes, shiftRes] = await Promise.all([
+        const [repRes, billsRes, tablesRes, settingRes] = await Promise.all([
           fetch('/api/reports?timeframe=today'),
           fetch('/api/bills'),
           fetch('/api/tables'),
           fetch('/api/settings?key=setup_completed'),
-          fetch('/api/shifts'),
         ]);
 
         const repData = await repRes.json();
         const billsData = await billsRes.json();
         const tablesData = await tablesRes.json();
         const settingData = await settingRes.json();
-        
-        if (shiftRes.ok) {
-           const shiftData = await shiftRes.json();
-           if (shiftData.activeShift) setActiveShift(shiftData.activeShift);
-        }
-        setIsShiftLoaded(true);
 
         if (repData.summary) setMetrics(repData.summary);
         if (repData.paymentBreakdown) setPaymentBreakdown(repData.paymentBreakdown);
@@ -165,42 +155,6 @@ export default function OwnerDashboardPage() {
           <span className="text-base leading-none">⚡</span> Open Billing POS
         </Link>
       </div>
-
-      {/* Active Shift Status Widget */}
-      {isShiftLoaded && (
-        <div className="bg-white border border-slate-200/80 rounded-md p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-md bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-slate-600">storefront</span>
-            </div>
-            <div>
-              <h3 className="font-bold text-sm text-slate-900">Active Shift Status</h3>
-              {activeShift ? (
-                <div className="flex items-center flex-wrap gap-2 text-xs text-slate-500 mt-0.5">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <span>Cashier: <strong className="text-slate-700">{activeShift.cashier_name}</strong></span>
-                  <span>•</span>
-                  <span>Opening Cash: ₹{activeShift.opening_cash}</span>
-                  <span className="text-emerald-600 font-bold ml-1 bg-emerald-50 px-1.5 py-0.5 rounded-sm">Cashier on duty</span>
-                </div>
-              ) : (
-                <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-rose-500" />
-                  No active shift open. POS functions are locked.
-                </div>
-              )}
-            </div>
-          </div>
-          {!activeShift && (
-            <Link href="/staff/shift" className="bg-[#C3A27C] hover:bg-[#B3926C] text-slate-950 font-bold px-4 py-2 rounded-md text-xs transition-all shadow-sm whitespace-nowrap">
-              Open Shift →
-            </Link>
-          )}
-        </div>
-      )}
 
       {/* Setup Wizard Incomplete Banner */}
       {!setupCompleted && (

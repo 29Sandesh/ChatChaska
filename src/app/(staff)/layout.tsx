@@ -44,10 +44,6 @@ export default function StaffLayout({
             e.preventDefault();
             router.push('/staff/history');
             break;
-          case '6':
-            e.preventDefault();
-            router.push('/staff/shift');
-            break;
         }
       }
     };

@@ -15,17 +15,15 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
   const [kitchenCount, setKitchenCount] = useState(0);
   const [occupiedTables, setOccupiedTables] = useState(0);
   const [totalTables, setTotalTables] = useState(0);
-  const [hasActiveShift, setHasActiveShift] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
 
     async function fetchBadges() {
       try {
-        const [ordersRes, tablesRes, shiftsRes] = await Promise.all([
+        const [ordersRes, tablesRes] = await Promise.all([
           fetch("/api/orders").catch(() => null),
           fetch("/api/tables").catch(() => null),
-          fetch("/api/shifts").catch(() => null),
         ]);
 
         if (ordersRes?.ok) {
@@ -42,11 +40,6 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
           const list = Array.isArray(tablesData) ? tablesData : tablesData.tables || [];
           setTotalTables(list.length);
           setOccupiedTables(list.filter((t: any) => t.status === "occupied").length);
-        }
-
-        if (shiftsRes?.ok) {
-          const shiftsData = await shiftsRes.json();
-          setHasActiveShift(Boolean(shiftsData.activeShift));
         }
       } catch (err) {
         console.error("Failed to fetch badges", err);
@@ -198,30 +191,6 @@ export function StaffNavigationDrawer({ isOpen, onClose }: StaffNavigationDrawer
                   <span className={`material-symbols-outlined text-[20px] ${pathname === '/staff/history' ? 'text-slate-950' : 'text-slate-600'}`}>history</span>
                   <span className={`text-xs font-bold ${pathname === '/staff/history' ? 'text-slate-950' : 'text-slate-800'}`}>Bill History & Sales</span>
                 </div>
-              </Link>
-
-              <Link
-                href="/staff/shift"
-                onClick={onClose}
-                className={`flex items-center justify-between p-2.5 rounded-md transition-all cursor-pointer ${
-                  pathname === "/staff/shift"
-                    ? "bg-[#C3A27C] text-slate-950 font-bold shadow-2xs border border-[#B2906A]"
-                    : "text-slate-700 hover:bg-[#FAF7F2] hover:text-slate-950 border border-transparent"
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className={`material-symbols-outlined text-[20px] ${pathname === '/staff/shift' ? 'text-slate-950' : 'text-slate-600'}`}>point_of_sale</span>
-                  <span className={`text-xs font-bold ${pathname === '/staff/shift' ? 'text-slate-950' : 'text-slate-800'}`}>Shift & Cash Drawer</span>
-                </div>
-                <span
-                  className={`px-2 py-0.5 rounded-sm text-[10px] font-bold ${
-                    hasActiveShift
-                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                      : "bg-slate-100 text-slate-600 border border-slate-200"
-                  }`}
-                >
-                  {hasActiveShift ? "Active" : "No Shift"}
-                </span>
               </Link>
 
               <Link

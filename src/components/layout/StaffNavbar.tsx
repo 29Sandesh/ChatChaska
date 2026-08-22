@@ -15,8 +15,7 @@ export function StaffNavbar() {
     pathname === '/staff/orders' ||
     pathname === '/staff/kitchen' ||
     pathname === '/staff/tables' ||
-    pathname === '/staff/history' ||
-    pathname === '/staff/shift';
+    pathname === '/staff/history';
 
   return (
     <>
