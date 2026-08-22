@@ -100,7 +100,10 @@ export function AdminSidebar({
       {/* Navigation Links */}
       <nav className="flex-1 space-y-1">
         {adminNavItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));
+          const isActive =
+            pathname === item.href ||
+            pathname.startsWith(item.href + '/') ||
+            (item.href === '/admin/settings/profile' && pathname.startsWith('/admin/settings'));
           return (
             <Link
               key={item.id}

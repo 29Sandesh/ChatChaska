@@ -22,7 +22,8 @@ export function AdminMobileNav() {
   // Check if link is active (exact match or starts with for settings)
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin';
-    return pathname.startsWith(href);
+    if (href === '/admin/settings/profile') return pathname.startsWith('/admin/settings');
+    return pathname === href || pathname.startsWith(href + '/');
   };
 
   return (

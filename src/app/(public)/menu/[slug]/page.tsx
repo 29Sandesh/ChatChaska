@@ -121,8 +121,12 @@ export default function CustomerDigitalMenuPage() {
   const [cartMap, setCartMap] = useState<Record<string, CartItemDetail>>({});
 
   // Filter & search states
+  const queryType = searchParams?.get('type') || 'both'; // 'pure_veg' | 'non_veg' | 'both'
+  const queryJain = searchParams?.get('jain') === '1';
   const [searchQuery, setSearchQuery] = useState('');
-  const [vegFilter, setVegFilter] = useState<'all' | 'veg' | 'nonveg'>('all');
+  const [vegFilter, setVegFilter] = useState<'all' | 'veg' | 'nonveg' | 'jain'>(
+    queryType === 'pure_veg' ? 'veg' : 'all'
+  );
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -193,10 +197,16 @@ export default function CustomerDigitalMenuPage() {
           !searchQuery ||
           item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.description.toLowerCase().includes(searchQuery.toLowerCase());
+        const isJainMatch =
+          item.veg &&
+          !item.name.toLowerCase().includes('onion') &&
+          !item.name.toLowerCase().includes('garlic') &&
+          !item.name.toLowerCase().includes('potato');
         const matchesDiet =
           vegFilter === 'all' ||
           (vegFilter === 'veg' && item.veg) ||
-          (vegFilter === 'nonveg' && !item.veg);
+          (vegFilter === 'nonveg' && !item.veg) ||
+          (vegFilter === 'jain' && isJainMatch);
         return matchesSearch && matchesDiet && item.available;
       });
       return { ...cat, items };
@@ -553,7 +563,7 @@ export default function CustomerDigitalMenuPage() {
           </div>
         )}
 
-        {/* ── VEG / NON-VEG FILTER TOGGLES ── */}
+        {/* ── VEG / NON-VEG / JAIN FILTER TOGGLES ── */}
         <div
           className={`transition-all duration-300 overflow-hidden ${
             isScrolled && !isSearchExpanded
@@ -562,22 +572,39 @@ export default function CustomerDigitalMenuPage() {
           }`}
         >
           <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-0.5">
-            <ToggleFilterButton
-              label="Pure Veg"
-              veg={true}
-              isActive={vegFilter === 'veg'}
-              onToggle={() => setVegFilter(vegFilter === 'veg' ? 'all' : 'veg')}
-            />
-            <ToggleFilterButton
-              label="Non Veg"
-              veg={false}
-              isActive={vegFilter === 'nonveg'}
-              onToggle={() => setVegFilter(vegFilter === 'nonveg' ? 'all' : 'nonveg')}
-            />
+            {queryType !== 'non_veg' && (
+              <ToggleFilterButton
+                label="Pure Veg"
+                veg={true}
+                isActive={vegFilter === 'veg'}
+                onToggle={() => setVegFilter(vegFilter === 'veg' ? 'all' : 'veg')}
+              />
+            )}
+            {queryType !== 'pure_veg' && (
+              <ToggleFilterButton
+                label="Non Veg"
+                veg={false}
+                isActive={vegFilter === 'nonveg'}
+                onToggle={() => setVegFilter(vegFilter === 'nonveg' ? 'all' : 'nonveg')}
+              />
+            )}
+            {queryJain && queryType !== 'non_veg' && (
+              <button
+                onClick={() => setVegFilter(vegFilter === 'jain' ? 'all' : 'jain')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] border text-[11px] transition-all shadow-2xs active:scale-95 whitespace-nowrap cursor-pointer ${
+                  vegFilter === 'jain'
+                    ? 'border-amber-500 bg-amber-50 text-amber-800 font-bold'
+                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 font-medium'
+                }`}
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                <span>Jain Friendly</span>
+              </button>
+            )}
             {vegFilter !== 'all' && (
               <button
                 onClick={() => setVegFilter('all')}
-                className="px-2.5 py-1 rounded-[6px] text-[11px] font-bold border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all whitespace-nowrap"
+                className="px-2.5 py-1 rounded-[6px] text-[11px] font-bold border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all whitespace-nowrap cursor-pointer"
               >
                 ✕ Clear
               </button>
